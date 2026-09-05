@@ -2,3520 +2,2855 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>iPhone Simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030705">
+<title>SPY HQ</title>
 
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
+*{box-sizing:border-box}
 html,body{
   margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;
-  background:#111;
-  color:white;
+  min-height:100%;
+  background:#030705;
+  color:#eafff0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+body{overflow-x:hidden}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
 
-button,input{
-  font:inherit;
+:root{
+ --green:#43ff86;
+ --green2:#18b957;
+ --bg:#030705;
+ --panel:#08100c;
+ --panel2:#0b1710;
+ --border:#19492b;
+ --muted:#789181;
 }
 
 button{
-  border:0;
-  cursor:pointer;
+ border:1px solid #24683b;
+ background:#0d2617;
+ color:#eafff0;
+ border-radius:13px;
+ padding:12px 16px;
+ font-weight:800;
+ transition:.15s;
+}
+button:hover{
+ transform:translateY(-1px);
+ filter:brightness(1.2);
+}
+button.primary{
+ background:var(--green);
+ color:#021007;
+ border-color:var(--green);
+}
+button.danger{
+ background:#51151d;
+ border-color:#9d2937;
+}
+input,textarea,select{
+ width:100%;
+ border:1px solid #245034;
+ background:#050b08;
+ color:#eafff0;
+ border-radius:12px;
+ padding:13px;
+ outline:none;
+}
+textarea{
+ min-height:110px;
+ resize:vertical;
+}
+
+.screen{
+ min-height:100dvh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+}
+
+.card{
+ width:min(100%,950px);
+ background:rgba(7,14,10,.94);
+ border:1px solid var(--border);
+ border-radius:25px;
+ padding:28px;
+ box-shadow:0 25px 100px rgba(0,0,0,.5);
 }
 
-#stage{
-  width:100%;
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:
-    radial-gradient(circle at 50% 35%,#273044 0,#111 38%,#050505 75%);
-  overflow:hidden;
-}
-
-/* PHONE */
-
-.phone{
-  width:min(390px,92vw);
-  height:min(844px,94vh);
-  position:relative;
-  border-radius:52px;
-  background:#050505;
-  padding:8px;
-  box-shadow:
-    0 50px 100px rgba(0,0,0,.65),
-    0 0 0 2px #444,
-    inset 0 0 0 2px #111;
-  transition:
-    transform .5s cubic-bezier(.2,.8,.2,1),
-    opacity .5s;
-  z-index:10;
-}
-
-.phone.hidden{
-  opacity:0;
-  transform:scale(.8) translateY(100px);
-  pointer-events:none;
-}
-
-.phone-screen{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  position:relative;
-  border-radius:45px;
-  background:#111;
-}
-
-/* DYNAMIC ISLAND */
-
-.dynamic-island{
-  position:absolute;
-  top:12px;
-  left:50%;
-  transform:translateX(-50%);
-  width:120px;
-  height:34px;
-  border-radius:22px;
-  background:#000;
-  z-index:9999;
-  transition:.35s;
-}
-
-.dynamic-island.active{
-  width:210px;
-}
-
-/* SIDE BUTTONS */
-
-.side{
-  position:absolute;
-  background:#333;
-  right:-4px;
-  width:4px;
-  border-radius:3px;
-}
-
-.power{
-  top:170px;
-  height:100px;
-}
-
-.volume{
-  left:-4px;
-  right:auto;
-  width:4px;
-  top:160px;
-  height:65px;
-}
-
-.volume2{
-  left:-4px;
-  right:auto;
-  width:4px;
-  top:235px;
-  height:65px;
-}
-
-/* UNBOXING */
-
-#unboxing{
-  position:fixed;
-  inset:0;
-  z-index:50000;
-  background:
-    radial-gradient(circle at 50% 25%,#fff 0,#d7d7d7 20%,#777 55%,#111 100%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  transition:opacity 1s;
-}
-
-#unboxing.hide{
-  opacity:0;
-  pointer-events:none;
-}
-
-.box{
-  width:min(330px,78vw);
-  height:min(480px,70vh);
-  position:relative;
-  perspective:1000px;
-}
-
-.box-base{
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:72%;
-  border-radius:18px;
-  background:linear-gradient(135deg,#eee,#aaa);
-  box-shadow:0 35px 60px rgba(0,0,0,.4);
-}
-
-.box-lid{
-  position:absolute;
-  top:0;
-  left:-4%;
-  width:108%;
-  height:35%;
-  border-radius:18px;
-  background:linear-gradient(135deg,#fff,#bcbcbc);
-  transform-origin:bottom;
-  transition:1.5s cubic-bezier(.2,.8,.2,1);
-  z-index:5;
-  box-shadow:0 15px 30px rgba(0,0,0,.3);
-}
-
-.box.open .box-lid{
-  transform:rotateX(75deg) translateY(-180px);
-}
-
-.box-logo{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:85px;
-  color:#111;
-}
-
-.box-phone{
-  position:absolute;
-  width:72%;
-  height:88%;
-  left:14%;
-  bottom:5%;
-  border-radius:42px;
-  background:
-    radial-gradient(circle at 30% 20%,#8bc7ff,#3472ff 40%,#07142f 100%);
-  border:6px solid #111;
-  transform:translateY(100px) scale(.8);
-  opacity:0;
-  transition:1.2s .5s cubic-bezier(.2,.8,.2,1);
-  z-index:3;
-}
-
-.box.open .box-phone{
-  transform:translateY(-20px) scale(1);
-  opacity:1;
-}
-
-.box-phone::before{
-  content:"";
-  position:absolute;
-  width:105px;
-  height:28px;
-  background:#000;
-  border-radius:20px;
-  top:12px;
-  left:50%;
-  transform:translateX(-50%);
-}
-
-.unbox-content{
-  position:absolute;
-  bottom:7%;
-  left:0;
-  right:0;
-  text-align:center;
-  z-index:20;
-  color:#111;
-}
-
-.unbox-content h1{
-  margin:0;
-  font-size:28px;
-}
-
-.unbox-content p{
-  margin:8px 0 18px;
-}
-
-#openBox{
-  padding:14px 28px;
-  border-radius:30px;
-  background:#111;
-  color:white;
-  font-weight:700;
-  box-shadow:0 10px 25px #0004;
-}
-
-#openBox:active{
-  transform:scale(.94);
-}
-
-/* IOS */
-
-#ios{
-  position:absolute;
-  inset:0;
-  background:#000;
-  display:none;
-}
-
-#ios.visible{
-  display:block;
-}
-
-.wallpaper{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 25% 20%,rgba(255,255,255,.5),transparent 25%),
-    radial-gradient(circle at 75% 70%,#6b4cff,transparent 35%),
-    radial-gradient(circle at 30% 80%,#00aaff,transparent 40%),
-    linear-gradient(135deg,#090b22,#40118c 55%,#081c3d);
-}
-
-.dark .wallpaper{
-  filter:brightness(.65);
-}
-
-/* STATUS BAR */
-
-.status{
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  height:50px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 22px;
-  z-index:1000;
-  font-size:14px;
-  font-weight:600;
-}
-
-.status-right{
-  display:flex;
-  gap:7px;
-  align-items:center;
-}
-
-.signal{
-  letter-spacing:-3px;
-}
-
-.battery{
-  width:25px;
-  height:12px;
-  border:1.5px solid white;
-  border-radius:4px;
-  position:relative;
-}
-
-.battery::after{
-  content:"";
-  position:absolute;
-  right:-4px;
-  top:3px;
-  width:2px;
-  height:5px;
-  background:white;
-  border-radius:1px;
-}
-
-.battery-fill{
-  height:100%;
-  width:78%;
-  background:white;
-  border-radius:2px;
-}
-
-/* LOCK SCREEN */
-
-#lock{
-  position:absolute;
-  inset:0;
-  z-index:900;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-top:80px;
-  transition:.45s;
-}
-
-#lock.unlocking{
-  transform:translateY(-100%);
-  opacity:0;
-}
-
-.lock-time{
-  font-size:72px;
-  font-weight:300;
-  letter-spacing:-4px;
-}
-
-.lock-date{
-  font-size:18px;
-  margin-top:-8px;
-}
-
-.lock-notification{
-  width:calc(100% - 30px);
-  margin-top:50px;
-  padding:15px;
-  border-radius:22px;
-  background:rgba(255,255,255,.18);
-  backdrop-filter:blur(20px);
-}
-
-.lock-bottom{
-  position:absolute;
-  bottom:30px;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-}
-
-.circle-btn{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  background:rgba(255,255,255,.22);
-  color:white;
-  font-size:22px;
-}
-
-.swipe{
-  position:absolute;
-  bottom:7px;
-  font-size:12px;
-  opacity:.7;
-}
-
-/* HOME */
-
-#home{
-  position:absolute;
-  inset:0;
-  padding:70px 14px 80px;
-  display:none;
-  z-index:100;
-}
-
-#home.visible{
-  display:block;
-}
-
-.widgets{
-  height:80px;
-  display:flex;
-  gap:10px;
-  margin-bottom:14px;
-}
-
-.widget{
-  flex:1;
-  border-radius:20px;
-  background:rgba(255,255,255,.18);
-  backdrop-filter:blur(15px);
-  padding:10px;
-  overflow:hidden;
-}
-
-.widget strong{
-  display:block;
-  font-size:12px;
-}
-
-.widget span{
-  font-size:22px;
-  font-weight:600;
-}
-
-.app-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:15px 12px;
-}
-
-.app{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  color:white;
-  background:none;
-}
-
-.icon{
-  width:58px;
-  height:58px;
-  border-radius:15px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  box-shadow:0 5px 12px #0004;
-  position:relative;
-}
-
-.app span{
-  margin-top:5px;
-  font-size:11px;
-  text-shadow:0 1px 4px #000;
-}
-
-.badge{
-  position:absolute;
-  right:-5px;
-  top:-5px;
-  min-width:19px;
-  height:19px;
-  padding:2px 5px;
-  border-radius:12px;
-  background:#ff304f;
-  color:white;
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* DOCK */
-
-#dock{
-  position:absolute;
-  left:14px;
-  right:14px;
-  bottom:20px;
-  height:78px;
-  border-radius:27px;
-  background:rgba(255,255,255,.2);
-  backdrop-filter:blur(25px);
-  z-index:500;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-}
-
-#dock .icon{
-  width:57px;
-  height:57px;
-}
-
-/* APP WINDOW */
-
-#appWindow{
-  position:absolute;
-  inset:0;
-  z-index:3000;
-  display:none;
-  background:#f5f5f7;
-  color:#111;
-  animation:appOpen .35s;
-}
-
-#appWindow.open{
-  display:block;
-}
-
-@keyframes appOpen{
-  from{transform:scale(.75);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
-
-.app-header{
-  height:75px;
-  padding:35px 18px 10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid #ddd;
-}
-
-.app-header h2{
-  margin:0;
-  font-size:22px;
-}
-
-.close-app{
-  color:#007aff;
-  background:none;
-  font-weight:600;
-}
-
-.app-content{
-  height:calc(100% - 75px);
-  overflow:auto;
-  padding:18px;
-}
-
-/* SEARCH */
-
-#search{
-  position:absolute;
-  inset:0;
-  z-index:2000;
-  display:none;
-  background:rgba(10,10,15,.96);
-  backdrop-filter:blur(30px);
-  padding:70px 20px;
-}
-
-#search.open{
-  display:block;
-}
-
-.search-input{
-  width:100%;
-  padding:14px 18px;
-  border:0;
-  border-radius:18px;
-  background:#333;
-  color:white;
-  outline:none;
-}
-
-.search-results{
-  margin-top:15px;
-}
-
-/* CONTROL CENTER */
-
-#controlCenter{
-  position:absolute;
-  inset:0;
-  z-index:5000;
-  display:none;
-  padding:65px 15px;
-  background:rgba(20,20,30,.9);
-  backdrop-filter:blur(35px);
-}
+.logo{
+ color:var(--green);
+ font-weight:1000;
+ letter-spacing:.18em;
+ font-size:13px;
+}
 
-#controlCenter.open{
-  display:block;
+.bigTitle{
+ font-size:clamp(42px,9vw,90px);
+ line-height:.9;
+ font-weight:1000;
+ letter-spacing:-.05em;
+ margin:18px 0;
 }
 
-.cc-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.cc-card{
-  padding:18px;
-  border-radius:24px;
-  background:#333;
-}
-
-.cc-toggle{
-  padding:20px;
-  border-radius:20px;
-  background:#444;
-  color:white;
-  text-align:left;
-}
-
-.cc-toggle.active{
-  background:#087cff;
-}
-
-.brightness{
-  width:100%;
-  margin-top:20px;
-}
-
-/* PASSCODE */
-
-#passcode{
-  position:absolute;
-  inset:0;
-  z-index:10000;
-  display:none;
-  background:rgba(0,0,0,.9);
-  backdrop-filter:blur(30px);
-  align-items:center;
-  flex-direction:column;
-  padding-top:120px;
-}
-
-#passcode.open{
-  display:flex;
-}
-
-.pass-title{
-  font-size:25px;
-  margin-bottom:25px;
-}
-
-.pass-dots{
-  display:flex;
-  gap:12px;
-  margin-bottom:35px;
-}
-
-.pass-dot{
-  width:13px;
-  height:13px;
-  border:1px solid white;
-  border-radius:50%;
-}
-
-.pass-dot.filled{
-  background:white;
-}
-
-.keypad{
-  width:270px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:13px;
-}
-
-.key{
-  width:75px;
-  height:75px;
-  border-radius:50%;
-  background:#333;
-  color:white;
-  font-size:27px;
-}
-
-.key:active{
-  background:#666;
-  transform:scale(.95);
-}
-
-.pass-cancel{
-  margin-top:20px;
-  background:none;
-  color:#0a84ff;
-}
-
-/* SETTINGS */
-
-.settings-section{
-  background:white;
-  border-radius:14px;
-  overflow:hidden;
-  margin-bottom:20px;
-}
-
-.setting-row{
-  min-height:55px;
-  padding:12px 15px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid #ddd;
-}
-
-.setting-row:last-child{
-  border-bottom:0;
-}
+.muted{color:var(--muted)}
 
-.setting-left{
-  display:flex;
-  gap:12px;
-  align-items:center;
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+ gap:14px;
 }
 
-.setting-icon{
-  width:34px;
-  height:34px;
-  border-radius:9px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#007aff;
-  color:white;
+.modeCard{
+ min-height:180px;
+ text-align:left;
+ padding:22px;
+ background:#08130c;
+ border:1px solid #1b4a2b;
 }
-
-.switch{
-  width:50px;
-  height:30px;
-  background:#bbb;
-  border-radius:20px;
-  padding:3px;
-  transition:.25s;
-}
-
-.switch i{
-  display:block;
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  background:white;
-  transition:.25s;
+.modeCard strong{
+ display:block;
+ font-size:25px;
+ margin-bottom:10px;
 }
-
-.switch.on{
-  background:#34c759;
-}
-
-.switch.on i{
-  transform:translateX(20px);
+.modeCard span{
+ color:#82998a;
+ font-size:14px;
+ line-height:1.5;
 }
 
-/* CALCULATOR */
-
-.calc{
-  display:flex;
-  flex-direction:column;
-  height:100%;
-  justify-content:flex-end;
+.field{
+ margin:13px 0;
 }
-
-.calc-display{
-  text-align:right;
-  font-size:55px;
-  padding:15px;
-  overflow:hidden;
+.field label{
+ display:block;
+ color:#7f9989;
+ font-size:11px;
+ font-weight:900;
+ letter-spacing:.12em;
+ text-transform:uppercase;
+ margin-bottom:7px;
 }
 
-.calc-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
+.topbar{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:15px;
+ flex-wrap:wrap;
+ margin-bottom:15px;
 }
 
-.calc-btn{
-  height:68px;
-  border-radius:50%;
-  background:#333;
-  color:white;
-  font-size:25px;
+.roomCode{
+ font-size:30px;
+ font-weight:1000;
+ letter-spacing:.2em;
 }
 
-.calc-btn.operator{
-  background:#ff9500;
+.layout{
+ width:min(1450px,100%);
+ margin:auto;
+ padding:15px;
 }
 
-.calc-btn.gray{
-  background:#aaa;
-  color:#111;
+.controlLayout{
+ display:grid;
+ grid-template-columns:245px 1fr 320px;
+ gap:15px;
 }
-
-/* NOTES */
 
-.note-input{
-  width:100%;
-  min-height:300px;
-  border:0;
-  outline:none;
-  resize:none;
-  font-size:18px;
+.panel{
+ background:rgba(7,14,10,.95);
+ border:1px solid #183f27;
+ border-radius:20px;
+ padding:16px;
 }
 
-/* MUSIC */
-
-.album{
-  width:220px;
-  height:220px;
-  margin:25px auto;
-  border-radius:18px;
-  background:
-    linear-gradient(135deg,#ff3b30,#af52de,#5856d6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:75px;
-  box-shadow:0 20px 35px #0003;
+.nav button{
+ width:100%;
+ margin-bottom:9px;
+ text-align:left;
 }
-
-.music-title{
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
+.nav button.active{
+ background:var(--green);
+ color:#021007;
 }
 
-.music-artist{
-  text-align:center;
-  color:#777;
+.players{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+ max-height:280px;
+ overflow:auto;
 }
 
-.progress{
-  width:100%;
-  margin-top:25px;
+.player{
+ padding:10px;
+ border:1px solid #173b25;
+ background:#08130d;
+ border-radius:11px;
 }
 
-.music-controls{
-  display:flex;
-  justify-content:center;
-  gap:35px;
-  margin-top:25px;
+.playerName{
+ font-weight:900;
 }
-
-.music-controls button{
-  font-size:28px;
-  background:none;
+.playerRole{
+ color:#6f8b79;
+ font-size:11px;
+ margin-top:3px;
 }
-
-/* MESSAGES */
 
-.message-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.chat{
+ height:390px;
+ overflow:auto;
+ display:flex;
+ flex-direction:column;
+ gap:8px;
 }
 
 .message{
-  padding:12px 15px;
-  border-radius:20px;
-  max-width:75%;
-  background:#ddd;
+ padding:9px 11px;
+ border-radius:11px;
+ background:#0b1810;
+ border:1px solid #102b1b;
 }
 
-.message.me{
-  margin-left:auto;
-  background:#007aff;
-  color:white;
+.messageName{
+ color:var(--green);
+ font-size:11px;
+ font-weight:900;
 }
 
-/* SAFARI */
+.composer{
+ display:flex;
+ gap:8px;
+ margin-top:10px;
+}
+.composer input{flex:1}
 
-.browser{
-  display:flex;
-  gap:7px;
-  margin-bottom:15px;
+.hero{
+ text-align:center;
+ padding:40px 20px;
+ border:1px solid #1d5530;
+ border-radius:22px;
+ background:
+ radial-gradient(circle at 50% 10%,#124122 0%,#07100a 45%,#030705 80%);
 }
 
-.browser input{
-  flex:1;
-  padding:11px;
-  border-radius:14px;
-  border:1px solid #ccc;
+.heroCode{
+ font-size:clamp(50px,10vw,95px);
+ font-weight:1000;
+ letter-spacing:.1em;
 }
 
-.browser button{
-  padding:10px 14px;
-  border-radius:14px;
-  background:#007aff;
-  color:white;
+.pill{
+ display:inline-flex;
+ padding:6px 10px;
+ border-radius:999px;
+ background:#10291a;
+ border:1px solid #205b32;
+ color:var(--green);
+ font-size:11px;
+ font-weight:900;
 }
 
-.browser-page{
-  min-height:400px;
-  border-radius:18px;
-  background:white;
-  padding:25px;
-  text-align:center;
+.modeView{
+ min-height:550px;
 }
 
-/* CAMERA */
-
-.camera{
-  background:#000;
-  color:white;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-end;
-  padding-bottom:40px;
+.countdown{
+ font-size:80px;
+ font-weight:1000;
+ margin:15px;
 }
 
-.camera-preview{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 70% 20%,#777,transparent 20%),
-    linear-gradient(130deg,#222,#777,#222);
-  animation:cameraMove 6s infinite alternate;
+.terminal{
+ background:#020403;
+ border:1px solid #1a5931;
+ border-radius:16px;
+ padding:18px;
+ font-family:ui-monospace,monospace;
+ color:#5dff92;
+ white-space:pre-wrap;
+ text-align:left;
 }
 
-@keyframes cameraMove{
-  from{filter:brightness(.8)}
-  to{filter:brightness(1.2)}
+.progress{
+ height:10px;
+ background:#102117;
+ border-radius:99px;
+ overflow:hidden;
+}
+.progress span{
+ display:block;
+ height:100%;
+ background:var(--green);
 }
 
-.shutter{
-  width:80px;
-  height:80px;
-  border:6px solid white;
-  border-radius:50%;
-  background:white;
-  box-shadow:inset 0 0 0 5px #111;
-  position:relative;
-  z-index:2;
+.djDisc{
+ width:185px;
+ height:185px;
+ border-radius:50%;
+ margin:20px auto;
+ background:
+ repeating-radial-gradient(circle,#111 0 5px,#252525 6px 8px);
+ border:8px solid #28643a;
+ display:grid;
+ place-items:center;
+ animation:spin 2.8s linear infinite;
+}
+.djDisc.paused{animation-play-state:paused}
+.djCenter{
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ background:#050806;
+ border:3px solid #43ff86;
+}
+@keyframes spin{
+ to{transform:rotate(360deg)}
 }
 
-/* HOME INDICATOR */
-
-.home-indicator{
-  position:absolute;
-  width:135px;
-  height:5px;
-  border-radius:5px;
-  background:white;
-  bottom:8px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:99999;
+.callScreen{
+ background:
+ radial-gradient(circle at 50% 20%,#18233e,#070a12 60%);
+ border:1px solid #364d82;
+}
+.caller{
+ font-size:clamp(35px,7vw,65px);
+ font-weight:1000;
+ margin:25px 0 8px;
 }
 
-/* TOAST */
-
-#toast{
-  position:absolute;
-  top:70px;
-  left:50%;
-  transform:translateX(-50%) translateY(-20px);
-  background:rgba(30,30,30,.9);
-  color:white;
-  padding:12px 18px;
-  border-radius:20px;
-  z-index:30000;
-  opacity:0;
-  pointer-events:none;
-  transition:.3s;
-  white-space:nowrap;
+.statusDot{
+ display:inline-block;
+ width:8px;
+ height:8px;
+ border-radius:50%;
+ background:#42ff84;
+ margin-right:6px;
+ box-shadow:0 0 12px #42ff84;
 }
 
-#toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
+.toast{
+ position:fixed;
+ z-index:999;
+ bottom:18px;
+ right:18px;
+ background:#101b14;
+ border:1px solid #28683d;
+ border-radius:13px;
+ padding:13px 16px;
+ box-shadow:0 20px 60px #000;
 }
 
-/* RESPONSIVE */
-
-@media(max-height:650px){
-  .phone{
-    height:96vh;
-  }
-  .app-grid{
-    gap:8px;
-  }
-  .icon{
-    width:48px;
-    height:48px;
-    font-size:22px;
-  }
+.fullOverlay{
+ position:fixed;
+ inset:0;
+ z-index:500;
+ background:#020503;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+}
+.fullInner{
+ width:min(900px,100%);
 }
 
-@media(min-width:700px){
-  .phone{
-    transform:scale(1.03);
-  }
+.shake{
+ animation:shake .35s infinite;
+}
+@keyframes shake{
+ 25%{transform:translate(5px,-3px)}
+ 50%{transform:translate(-5px,4px)}
+ 75%{transform:translate(3px,2px)}
 }
 
-/* LIGHT APP */
-
-body.lightApps #appWindow{
-  background:#f5f5f7;
+.flash{
+ animation:flash .45s infinite alternate;
+}
+@keyframes flash{
+ to{filter:brightness(2)}
 }
 
-/* SCROLLBAR */
-
-::-webkit-scrollbar{
-  width:0;
+.scanlines:after{
+ content:"";
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ z-index:1000;
+ background:linear-gradient(
+  transparent 50%,
+  rgba(70,255,130,.035) 51%
+ );
+ background-size:100% 6px;
 }
 
-/* INSTALL SCREEN */
-
-#setup{
-  position:absolute;
-  inset:0;
-  z-index:15000;
-  background:
-    radial-gradient(circle at 50% 20%,#5667ff,#111 65%);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:30px;
+.blackout{
+ background:#000!important;
+}
+.blackout>*{
+ visibility:hidden!important;
 }
 
-#setup.open{
-  display:flex;
+.confetti{
+ position:fixed;
+ z-index:9999;
+ pointer-events:none;
+ font-size:25px;
+ top:-40px;
 }
 
-.setup-box h1{
-  font-size:38px;
-  margin-bottom:8px;
+hr{
+ border:0;
+ border-top:1px solid #163722;
+ margin:20px 0;
 }
 
-.setup-box p{
-  opacity:.8;
-  line-height:1.5;
+@media(max-width:1050px){
+ .controlLayout{
+  grid-template-columns:1fr;
+ }
+ .nav{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+ }
+ .nav button{margin:0}
 }
 
-.setup-button{
-  margin-top:25px;
-  padding:15px 25px;
-  border-radius:30px;
-  background:white;
-  color:#111;
-  font-weight:700;
-}
-
-/* APP GENERIC */
-
-.generic-card{
-  padding:18px;
-  background:white;
-  border-radius:18px;
-  margin-bottom:12px;
-}
-
-.dark .generic-card{
-  background:#222;
-  color:white;
-}
-
-.big-number{
-  font-size:42px;
-  font-weight:700;
-}
-
-.row-button{
-  width:100%;
-  text-align:left;
-  padding:15px;
-  background:white;
-  border-radius:15px;
-  margin-bottom:8px;
-}
-
-/* HIDDEN */
-
-.hidden{
-  display:none!important;
+@media(max-width:600px){
+ .card{padding:20px}
+ .layout{padding:9px}
+ .panel{border-radius:16px}
+ .nav{
+  grid-template-columns:1fr 1fr;
+ }
+ .composer{
+  flex-direction:row;
+ }
 }
 </style>
 </head>
 
-<body>
+<body class="scanlines">
 
-<div id="stage">
+<div id="toast" class="toast hidden"></div>
 
-<!-- UNBOXING -->
+<!-- ================= LANDING ================= -->
 
-<div id="unboxing">
+<section id="landing" class="screen">
+<div class="card">
 
-  <div class="box" id="box">
+<div class="logo">SPY HQ // SECURE NETWORK</div>
 
-    <div class="box-base"></div>
+<div class="bigTitle">
+CLASSIFIED<br>
+COMMUNICATIONS
+</div>
 
-    <div class="box-phone"></div>
+<p class="muted">
+A browser-based spy command system with live rooms,
+chat, missions, calls, effects and remote DJ control.
+</p>
 
-    <div class="box-lid">
-      <div class="box-logo"></div>
-    </div>
+<div class="grid" style="margin-top:25px">
 
-    <div class="unbox-content">
-      <h1>iPhone</h1>
-      <p>Your new iPhone is ready.</p>
-      <button id="openBox">Open Box</button>
-    </div>
+<button class="modeCard" onclick="openCreate()">
+<strong>🕶️ HQ CONTROL</strong>
+<span>
+Create a random room and control the experience.
+</span>
+</button>
 
-  </div>
+<button class="modeCard" onclick="openJoin()">
+<strong>📡 AGENT JOIN</strong>
+<span>
+Enter a room code and connect as an agent.
+</span>
+</button>
 
 </div>
 
+<div class="panel" style="margin-top:16px">
+<b>IMPORTANT</b>
+<p class="muted" style="margin:7px 0 0">
+Firebase is required for realtime communication between
+different phones/iPads. The entire application itself is
+contained in this one HTML file.
+</p>
+</div>
 
-<!-- PHONE -->
+</div>
+</section>
 
-<div class="phone hidden" id="phone">
+<!-- ================= SETUP ================= -->
 
-  <div class="side power"></div>
-  <div class="side volume"></div>
-  <div class="side volume2"></div>
+<section id="setup" class="screen hidden">
+<div class="card" style="max-width:600px">
 
-  <div class="phone-screen">
+<button onclick="showLanding()">← BACK</button>
 
-    <div class="dynamic-island" id="island"></div>
+<div id="createPanel" class="hidden">
 
-    <div id="ios">
+<h2>🕶️ CREATE HQ ROOM</h2>
 
-      <div class="wallpaper"></div>
+<div class="field">
+<label>Commander Codename</label>
+<input id="hostName" maxlength="20" placeholder="COMMANDER">
+</div>
 
-      <!-- STATUS -->
+<button class="primary" style="width:100%" onclick="createRoom()">
+GENERATE RANDOM ROOM
+</button>
 
-      <div class="status">
+</div>
 
-        <span id="timeStatus">9:41</span>
+<div id="joinPanel" class="hidden">
 
-        <div class="status-right">
-          <span class="signal">▮▮▮</span>
-          <span>Wi-Fi</span>
-          <div class="battery">
-            <div class="battery-fill" id="batteryFill"></div>
-          </div>
-        </div>
+<h2>📡 JOIN HQ</h2>
 
-      </div>
+<div class="field">
+<label>Agent Codename</label>
+<input id="agentName" maxlength="20" placeholder="AGENT-07">
+</div>
 
+<div class="field">
+<label>Room Code</label>
+<input
+ id="joinCode"
+ maxlength="5"
+ placeholder="X7K4Q"
+ style="text-transform:uppercase;letter-spacing:.3em"
+>
+</div>
 
-      <!-- LOCK SCREEN -->
+<button class="primary" style="width:100%" onclick="joinRoom()">
+CONNECT TO HQ
+</button>
 
-      <div id="lock">
+</div>
 
-        <div class="lock-time" id="lockTime">9:41</div>
-        <div class="lock-date" id="lockDate">Friday, September 4</div>
+</div>
+</section>
 
-        <div class="lock-notification">
-          <b>Welcome to your iPhone</b>
-          <br>
-          <small>Swipe up to unlock</small>
-        </div>
+<!-- ================= CONTROL ================= -->
 
-        <div class="lock-bottom">
+<section id="control" class="hidden">
 
-          <button class="circle-btn" id="flashBtn">🔦</button>
-          <button class="circle-btn" id="cameraLockBtn">📷</button>
+<div class="layout">
 
-        </div>
+<div class="topbar">
 
-        <div class="swipe">━━━━━━</div>
+<div>
+<div class="logo">SPY HQ // COMMAND CENTER</div>
+<div class="roomCode" id="controlRoom">-----</div>
+</div>
 
-      </div>
+<div class="row">
+<span class="pill">
+<span class="statusDot"></span>
+LIVE
+</span>
+<button onclick="goFullscreen()">⛶</button>
+<button class="danger" onclick="leaveRoom()">LEAVE</button>
+</div>
 
+</div>
 
-      <!-- HOME -->
+<div class="controlLayout">
 
-      <div id="home">
+<!-- NAV -->
 
-        <div class="widgets">
+<aside class="panel nav">
 
-          <div class="widget">
-            <strong>Weather</strong>
-            <span>72°</span>
-          </div>
+<button data-tab="dashboard" class="active">📊 Dashboard</button>
+<button data-tab="dj">🎧 Remote DJ</button>
+<button data-tab="call">📞 Call Simulator</button>
+<button data-tab="mission">🕵️ Mission Builder</button>
+<button data-tab="chat">💬 Live Chat</button>
+<button data-tab="effects">✨ Effects</button>
+<button data-tab="settings">⚙️ Settings</button>
 
-          <div class="widget">
-            <strong>Calendar</strong>
-            <span id="widgetDay">4</span>
-          </div>
+</aside>
 
-        </div>
+<!-- MAIN -->
 
-        <div class="app-grid" id="appGrid"></div>
+<main class="panel" id="controlMain"></main>
 
-      </div>
+<!-- RIGHT -->
 
+<aside>
 
-      <!-- DOCK -->
+<div class="panel">
 
-      <div id="dock">
+<h3>
+AGENTS
+<span class="pill" id="agentCount">0</span>
+</h3>
 
-        <button class="app" data-app="Phone">
-          <div class="icon">📞</div>
-        </button>
+<div id="agentList" class="players"></div>
 
-        <button class="app" data-app="Messages">
-          <div class="icon">
-            💬
-            <i class="badge">3</i>
-          </div>
-        </button>
+</div>
 
-        <button class="app" data-app="Safari">
-          <div class="icon">🧭</div>
-        </button>
+<div class="panel" style="margin-top:15px">
 
-        <button class="app" data-app="Music">
-          <div class="icon">🎵</div>
-        </button>
+<h3>HQ CHAT</h3>
 
-      </div>
+<div id="sideChat" class="chat"></div>
 
+<div class="composer">
 
-      <!-- APP WINDOW -->
+<input
+ id="sideInput"
+ placeholder="Transmit..."
+ onkeydown="if(event.key==='Enter')sendChat('sideInput')"
+>
 
-      <div id="appWindow">
-
-        <div class="app-header">
-
-          <h2 id="appTitle">App</h2>
-
-          <button class="close-app" id="closeApp">
-            Done
-          </button>
-
-        </div>
-
-        <div class="app-content" id="appContent"></div>
-
-      </div>
-
-
-      <!-- SEARCH -->
-
-      <div id="search">
-
-        <input
-          class="search-input"
-          id="searchInput"
-          placeholder="Search"
-          autocomplete="off"
-        >
-
-        <div class="search-results" id="searchResults"></div>
-
-      </div>
-
-
-      <!-- CONTROL CENTER -->
-
-      <div id="controlCenter">
-
-        <h2>Control Center</h2>
-
-        <div class="cc-grid">
-
-          <button class="cc-toggle active" id="wifiToggle">
-            📶 Wi-Fi<br>
-            <small>Connected</small>
-          </button>
-
-          <button class="cc-toggle active" id="bluetoothToggle">
-            🟦 Bluetooth<br>
-            <small>On</small>
-          </button>
-
-          <button class="cc-toggle" id="airplaneToggle">
-            ✈️ Airplane Mode<br>
-            <small>Off</small>
-          </button>
-
-          <button class="cc-toggle" id="darkToggle">
-            🌙 Dark Mode<br>
-            <small>Off</small>
-          </button>
-
-        </div>
-
-        <div class="cc-card">
-          🔆 Brightness
-          <input
-            class="brightness"
-            id="brightness"
-            type="range"
-            min="30"
-            max="100"
-            value="100"
-          >
-        </div>
-
-        <div class="cc-card">
-          🔊 Volume
-          <input
-            class="brightness"
-            type="range"
-            min="0"
-            max="100"
-            value="70"
-          >
-        </div>
-
-        <button
-          onclick="closeControlCenter()"
-          style="
-            margin-top:25px;
-            padding:15px 25px;
-            border-radius:25px;
-            width:100%;
-          "
-        >
-          Done
-        </button>
-
-      </div>
-
-
-      <!-- PASSCODE -->
-
-      <div id="passcode">
-
-        <div class="pass-title" id="passTitle">
-          Enter Passcode
-        </div>
-
-        <div class="pass-dots">
-
-          <i class="pass-dot"></i>
-          <i class="pass-dot"></i>
-          <i class="pass-dot"></i>
-          <i class="pass-dot"></i>
-          <i class="pass-dot"></i>
-          <i class="pass-dot"></i>
-
-        </div>
-
-        <div class="keypad">
-
-          <button class="key" data-key="1">1</button>
-          <button class="key" data-key="2">2</button>
-          <button class="key" data-key="3">3</button>
-
-          <button class="key" data-key="4">4</button>
-          <button class="key" data-key="5">5</button>
-          <button class="key" data-key="6">6</button>
-
-          <button class="key" data-key="7">7</button>
-          <button class="key" data-key="8">8</button>
-          <button class="key" data-key="9">9</button>
-
-          <button class="key" data-key="0" style="grid-column:2">0</button>
-
-        </div>
-
-        <button class="pass-cancel" id="passCancel">
-          Cancel
-        </button>
-
-      </div>
-
-
-      <!-- SETUP -->
-
-      <div id="setup">
-
-        <div class="setup-box">
-
-          <div style="font-size:70px"></div>
-
-          <h1>Welcome to iPhone</h1>
-
-          <p>
-            This is your simulated iPhone.
-            Let's get it ready.
-          </p>
-
-          <button class="setup-button" id="setupContinue">
-            Continue
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div id="toast"></div>
-
-      <div class="home-indicator"></div>
-
-    </div>
-
-  </div>
+<button onclick="sendChat('sideInput')">➤</button>
 
 </div>
 
 </div>
 
+</aside>
 
-<script>
+</div>
 
-/* ============================================================
-   IPHONE SIMULATOR
-   SINGLE FILE ENGINE
-   ============================================================ */
+</div>
 
+</section>
 
-/* ---------- ELEMENTS ---------- */
+<!-- ================= NORMAL ================= -->
 
-const unboxing = document.getElementById("unboxing");
-const box = document.getElementById("box");
-const openBox = document.getElementById("openBox");
-const phone = document.getElementById("phone");
-const ios = document.getElementById("ios");
-const lock = document.getElementById("lock");
-const home = document.getElementById("home");
-const appGrid = document.getElementById("appGrid");
-const appWindow = document.getElementById("appWindow");
-const appTitle = document.getElementById("appTitle");
-const appContent = document.getElementById("appContent");
-const closeApp = document.getElementById("closeApp");
-const toast = document.getElementById("toast");
-const passcode = document.getElementById("passcode");
-const passTitle = document.getElementById("passTitle");
-const passCancel = document.getElementById("passCancel");
-const island = document.getElementById("island");
-const search = document.getElementById("search");
-const searchInput = document.getElementById("searchInput");
-const searchResults = document.getElementById("searchResults");
+<section id="normal" class="hidden">
 
+<div class="layout">
 
-/* ---------- STATE ---------- */
+<div class="topbar">
 
-let currentApp = null;
-let currentPass = "";
-let savedPasscode = localStorage.getItem("iphonePasscode") || "123456";
-let passMode = "unlock";
-let locked = true;
-let battery = 78;
-let darkMode = false;
-let airplane = false;
-let wifi = true;
-let bluetooth = true;
-let volume = 70;
-let noteText = localStorage.getItem("iphoneNote") || "";
-let calcValue = "";
-let musicPlaying = false;
+<div>
+<div class="logo">AGENT TERMINAL</div>
+<div class="roomCode" id="normalRoom">-----</div>
+</div>
 
+<div class="row">
+<span class="pill">CONNECTED</span>
+<button onclick="goFullscreen()">⛶</button>
+<button class="danger" onclick="leaveRoom()">LEAVE</button>
+</div>
 
-/* ---------- 50+ APPS ---------- */
+</div>
 
-const apps = [
+<div class="grid">
 
-  ["Phone","📞","#34c759"],
-  ["Messages","💬","#34c759"],
-  ["Safari","🧭","#ffffff"],
-  ["Music","🎵","#ff375f"],
+<main class="panel modeView" id="normalMain"></main>
 
-  ["Camera","📷","#777"],
-  ["Photos","🌈","#fff"],
-  ["Mail","✉️","#1683ff"],
-  ["Calendar","📅","#fff"],
+<aside>
 
-  ["Weather","☀️","#4aa3ff"],
-  ["Clock","🕐","#111"],
-  ["Maps","🗺️","#fff"],
-  ["Notes","📝","#ffe900"],
+<div class="panel">
 
-  ["Reminders","✅","#fff"],
-  ["Contacts","👤","#ddd"],
-  ["App Store","🛍️","#1683ff"],
-  ["Settings","⚙️","#888"],
+<h3>OPERATIVES</h3>
 
-  ["Calculator","🧮","#222"],
-  ["Files","📁","#1683ff"],
-  ["Find My","📍","#fff"],
-  ["Health","❤️","#fff"],
+<div id="normalPlayers" class="players"></div>
 
-  ["Wallet","💳","#111"],
-  ["Home","🏠","#f5f5f5"],
-  ["Podcasts","🎙️","#fff"],
-  ["News","📰","#fff"],
+</div>
 
-  ["TV","📺","#111"],
-  ["Books","📚","#fff"],
-  ["Stocks","📈","#111"],
-  ["Translate","🌐","#fff"],
+<div class="panel" style="margin-top:15px">
 
-  ["Tips","💡","#ffe400"],
-  ["Voice Memos","🎙️","#fff"],
-  ["Measure","📏","#fff"],
-  ["Compass","🧭","#111"],
+<h3>LIVE CHAT</h3>
 
-  ["Shortcuts","🔗","#fff"],
-  ["Watch","⌚","#111"],
-  ["Fitness","🏃","#111"],
-  ["Freeform","🖍️","#fff"],
+<div id="normalChat" class="chat"></div>
 
-  ["FaceTime","📹","#34c759"],
-  ["iTunes Store","🎵","#ff375f"],
-  ["GarageBand","🎸","#ff375f"],
-  ["iMovie","🎬","#fff"],
+<div class="composer">
 
-  ["Files Pro","🗂️","#1683ff"],
-  ["Passwords","🔑","#111"],
-  ["Dictionary","📖","#fff"],
-  ["Magnifier","🔎","#111"],
+<input
+ id="normalInput"
+ placeholder="Transmit..."
+ onkeydown="if(event.key==='Enter')sendChat('normalInput')"
+>
 
-  ["Voice Control","🎤","#777"],
-  ["Safari Dev","💻","#111"],
-  ["Games","🎮","#222"],
-  ["Arcade","🕹️","#111"],
+<button onclick="sendChat('normalInput')">➤</button>
 
-  ["Calculator Pro","🔢","#222"],
-  ["Weather Pro","🌦️","#1683ff"],
-  ["Drive","☁️","#fff"],
-  ["Browser","🌎","#1683ff"]
+</div>
 
-];
+</div>
 
+</aside>
 
-/* ---------- CREATE HOME ---------- */
+</div>
 
-function buildHome(){
+</div>
 
-  appGrid.innerHTML = "";
+</section>
 
-  apps.forEach((a,index)=>{
+<div id="fullOverlay" class="fullOverlay hidden">
+<div id="fullInner" class="fullInner"></div>
+</div>
 
-    const btn = document.createElement("button");
+<!-- ================= FIREBASE ================= -->
 
-    btn.className = "app";
+<script type="module">
 
-    btn.dataset.app = a[0];
+/*
+==========================================================
+FIREBASE CONFIG
+==========================================================
 
-    btn.innerHTML = `
-      <div class="icon" style="background:${a[2]}">
-        ${a[1]}
-        ${index===1 ? '<i class="badge">3</i>' : ''}
-      </div>
-      <span>${a[0]}</span>
-    `;
+1. Create a Firebase project.
+2. Add a Web App.
+3. Copy its config here.
+4. Enable:
+   - Authentication → Anonymous
+   - Realtime Database
 
-    btn.addEventListener("click",()=>openApp(a[0]));
+==========================================================
+*/
 
-    appGrid.appendChild(btn);
+const firebaseConfig = {
 
-  });
+apiKey:
+"PASTE_API_KEY",
 
+authDomain:
+"PASTE_PROJECT.firebaseapp.com",
+
+databaseURL:
+"https://PASTE_PROJECT-default-rtdb.firebaseio.com",
+
+projectId:
+"PASTE_PROJECT",
+
+storageBucket:
+"PASTE_PROJECT.firebasestorage.app",
+
+messagingSenderId:
+"PASTE_SENDER_ID",
+
+appId:
+"PASTE_APP_ID"
+
+};
+
+import {
+ initializeApp
 }
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
-buildHome();
-
-
-/* ---------- UNBOXING ---------- */
-
-openBox.addEventListener("click",()=>{
-
-  box.classList.add("open");
-
-  showToast("Opening your new iPhone…");
-
-  setTimeout(()=>{
-
-    unboxing.classList.add("hide");
-
-    phone.classList.remove("hidden");
-
-    setTimeout(()=>{
-
-      ios.classList.add("visible");
-
-    },500);
-
-  },1800);
-
-});
-
-
-/* ---------- CLOCK ---------- */
-
-function updateClock(){
-
-  const now = new Date();
-
-  let h = now.getHours();
-  const m = String(now.getMinutes()).padStart(2,"0");
-
-  const ampm = h >= 12 ? "PM" : "AM";
-
-  h = h % 12 || 12;
-
-  const time = `${h}:${m}`;
-
-  document.getElementById("lockTime").textContent = time;
-  document.getElementById("timeStatus").textContent = time;
-
-  const date = now.toLocaleDateString("en-US",{
-    weekday:"long",
-    month:"long",
-    day:"numeric"
-  });
-
-  document.getElementById("lockDate").textContent = date;
-
-  document.getElementById("widgetDay").textContent = now.getDate();
-
+import {
+ getDatabase,
+ ref,
+ set,
+ update,
+ push,
+ onValue,
+ onDisconnect,
+ remove
 }
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
-setInterval(updateClock,1000);
-updateClock();
+import {
+ getAuth,
+ signInAnonymously
+}
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 
-/* ---------- TOAST ---------- */
+let app;
+let db;
+let auth;
+let currentUser;
 
-let toastTimer;
+let roomCode=null;
+let role=null;
+let displayName=null;
 
-function showToast(message){
+let roomData={};
 
-  toast.textContent = message;
-  toast.classList.add("show");
+let currentTab="dashboard";
 
-  clearTimeout(toastTimer);
+let unsubscribe=null;
 
-  toastTimer=setTimeout(()=>{
-    toast.classList.remove("show");
-  },1800);
+let lastEventTimestamp=0;
+
+let audioContext=null;
+let audioIntervals=[];
+
+
+/* ================= BASIC HELPERS ================= */
+
+const $ = id => document.getElementById(id);
+
+function safe(value){
+
+ return String(value ?? "")
+ .replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#039;"
+ })[c]);
 
 }
 
 
-/* ---------- UNLOCK ---------- */
+function toast(message){
 
-function unlock(){
+ const t=$("toast");
 
-  if(savedPasscode){
+ t.textContent=message;
 
-    passMode="unlock";
-    passcode.classList.add("open");
-    passTitle.textContent="Enter Passcode";
-    currentPass="";
+ t.classList.remove("hidden");
 
-    updatePassDots();
+ clearTimeout(window.toastTimer);
 
-  }else{
+ window.toastTimer=setTimeout(()=>{
+  t.classList.add("hidden");
+ },2800);
 
-    enterHome();
+}
+
+
+function showOnly(id){
+
+ ["landing","setup","control","normal"]
+ .forEach(x=>$(x).classList.add("hidden"));
+
+ $(id).classList.remove("hidden");
+
+}
+
+
+window.showLanding=()=>{
+ showOnly("landing");
+};
+
+
+window.openCreate=()=>{
+
+ $("createPanel").classList.remove("hidden");
+ $("joinPanel").classList.add("hidden");
+
+ showOnly("setup");
+
+};
+
+
+window.openJoin=()=>{
+
+ $("joinPanel").classList.remove("hidden");
+ $("createPanel").classList.add("hidden");
+
+ showOnly("setup");
+
+};
+
+
+/* ================= RANDOM ROOM ================= */
+
+function randomRoomCode(){
+
+ const chars=
+ "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+ let code="";
+
+ for(let i=0;i<5;i++){
+
+  code+=chars[
+   Math.floor(Math.random()*chars.length)
+  ];
+
+ }
+
+ return code;
+
+}
+
+
+/* ================= FIREBASE INIT ================= */
+
+async function initializeFirebase(){
+
+ if(firebaseConfig.apiKey.startsWith("PASTE_")){
+
+  toast("Firebase config has not been added yet.");
+
+  return false;
+
+ }
+
+ try{
+
+  app=initializeApp(firebaseConfig);
+
+  db=getDatabase(app);
+
+  auth=getAuth(app);
+
+  const credentials=
+   await signInAnonymously(auth);
+
+  currentUser=credentials.user;
+
+  return true;
+
+ }catch(error){
+
+  console.error(error);
+
+  toast("Firebase connection failed.");
+
+  return false;
+
+ }
+
+}
+
+
+/* ================= CREATE ================= */
+
+window.createRoom=async()=>{
+
+ if(!await initializeFirebase()) return;
+
+ displayName=
+  $("hostName").value.trim() ||
+  "COMMANDER";
+
+ role="host";
+
+ roomCode=randomRoomCode();
+
+ const roomRef=
+  ref(db,"rooms/"+roomCode);
+
+ await set(roomRef,{
+
+  createdAt:Date.now(),
+
+  host:displayName,
+
+  mode:"idle",
+
+  settings:{
+   name:"SPY HQ"
+  },
+
+  event:{
+   type:"boot",
+   timestamp:Date.now()
+  }
+
+ });
+
+ await enterRoom();
+
+};
+
+
+/* ================= JOIN ================= */
+
+window.joinRoom=async()=>{
+
+ if(!await initializeFirebase()) return;
+
+ displayName=
+  $("agentName").value.trim() ||
+  "AGENT";
+
+ roomCode=
+  $("joinCode").value
+  .trim()
+  .toUpperCase();
+
+ role="agent";
+
+ if(!/^[A-Z0-9]{5}$/.test(roomCode)){
+
+  toast("Room codes are 5 characters.");
+
+  return;
+
+ }
+
+ const roomRef=
+  ref(db,"rooms/"+roomCode);
+
+ let exists=false;
+
+ await new Promise(resolve=>{
+
+  onValue(
+   roomRef,
+   snapshot=>{
+    exists=snapshot.exists();
+    resolve();
+   },
+   {onlyOnce:true}
+  );
+
+ });
+
+ if(!exists){
+
+  toast("Room not found.");
+
+  return;
+
+ }
+
+ await enterRoom();
+
+};
+
+
+/* ================= ENTER ROOM ================= */
+
+async function enterRoom(){
+
+ if(!currentUser) return;
+
+ showOnly(
+  role==="host"
+  ? "control"
+  : "normal"
+ );
+
+ $("controlRoom").textContent=roomCode;
+ $("normalRoom").textContent=roomCode;
+
+ const playerRef=
+  ref(
+   db,
+   `rooms/${roomCode}/players/${currentUser.uid}`
+  );
+
+ await set(playerRef,{
+
+  name:displayName,
+
+  role,
+
+  joinedAt:Date.now()
+
+ });
+
+ onDisconnect(playerRef).remove();
+
+ if(unsubscribe)
+  unsubscribe();
+
+ unsubscribe=onValue(
+  ref(db,"rooms/"+roomCode),
+  snapshot=>{
+
+   roomData=snapshot.val() || {};
+
+   renderEverything();
+
+  }
+ );
+
+ toast(
+  role==="host"
+  ? "HQ room created."
+  : "Connected to HQ."
+ );
+
+}
+
+
+/* ================= LEAVE ================= */
+
+window.leaveRoom=async()=>{
+
+ try{
+
+  if(db && currentUser && roomCode){
+
+   await remove(
+    ref(
+     db,
+     `rooms/${roomCode}/players/${currentUser.uid}`
+    )
+   );
 
   }
 
+ }catch(e){}
+
+ if(unsubscribe){
+
+  unsubscribe();
+
+  unsubscribe=null;
+
+ }
+
+ stopAllAudio();
+
+ roomCode=null;
+ role=null;
+
+ showOnly("landing");
+
+};
+
+
+/* ================= RENDER ================= */
+
+function renderEverything(){
+
+ renderPlayers();
+
+ renderChat();
+
+ if(role==="host")
+  renderControl();
+
+ else
+  renderNormal();
+
+ processEvent(roomData.event);
+
 }
 
-lock.addEventListener("click",(e)=>{
 
-  if(e.target.closest(".circle-btn")) return;
+/* ================= PLAYERS ================= */
 
-  unlock();
+function renderPlayers(){
 
-});
+ const players=
+  roomData.players || {};
 
-document.querySelector(".swipe").addEventListener("click",unlock);
+ const entries=
+  Object.entries(players);
+
+ $("agentCount").textContent=
+  entries.length;
+
+ const html=
+ entries.map(([id,p])=>`
+
+ <div class="player">
+
+  <div class="playerName">
+   ${safe(p.name)}
+  </div>
+
+  <div class="playerRole">
+
+   ${
+    p.role==="host"
+    ? "🕶️ HQ COMMAND"
+    : "📡 FIELD AGENT"
+   }
+
+  </div>
+
+ </div>
+
+ `).join("");
+
+ $("agentList").innerHTML=
+  html ||
+  `<div class="muted">No agents connected.</div>`;
+
+ $("normalPlayers").innerHTML=
+  html ||
+  `<div class="muted">No agents connected.</div>`;
+
+}
 
 
-/* ---------- PASSCODE ---------- */
+/* ================= CHAT ================= */
 
-document.querySelectorAll(".key").forEach(key=>{
+function getMessages(){
 
-  key.addEventListener("click",()=>{
+ return Object
+  .values(roomData.chat || {})
+  .sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
 
-    if(currentPass.length>=6) return;
+}
 
-    currentPass += key.dataset.key;
 
-    updatePassDots();
+function renderChat(){
 
-    if(currentPass.length===6){
+ const messages=getMessages();
 
-      setTimeout(checkPass,200);
+ const html=
+ messages.map(m=>`
 
+ <div class="message">
+
+  <div class="messageName">
+   ${safe(m.name)}
+  </div>
+
+  <div>
+   ${safe(m.text)}
+  </div>
+
+ </div>
+
+ `).join("");
+
+ $("sideChat").innerHTML=html;
+ $("normalChat").innerHTML=html;
+
+ $("sideChat").scrollTop=
+  $("sideChat").scrollHeight;
+
+ $("normalChat").scrollTop=
+  $("normalChat").scrollHeight;
+
+}
+
+
+/* ================= SEND CHAT ================= */
+
+window.sendChat=async(inputId)=>{
+
+ if(!db || !roomCode) return;
+
+ const input=$(inputId);
+
+ const text=input.value.trim();
+
+ if(!text) return;
+
+ await push(
+
+  ref(
+   db,
+   `rooms/${roomCode}/chat`
+  ),
+
+  {
+
+   name:displayName,
+
+   role,
+
+   text,
+
+   timestamp:Date.now()
+
+  }
+
+ );
+
+ input.value="";
+
+};
+
+
+/* ================= EVENTS ================= */
+
+async function sendRemoteEvent(event){
+
+ if(!db || !roomCode) return;
+
+ await update(
+
+  ref(db,"rooms/"+roomCode),
+
+  {
+
+   event:{
+    ...event,
+    timestamp:Date.now()
+   }
+
+  }
+
+ );
+
+}
+
+
+/* ================= CONTROL RENDER ================= */
+
+function renderControl(){
+
+ const main=$("controlMain");
+
+ if(currentTab==="dashboard"){
+
+  main.innerHTML=`
+
+  <div class="hero">
+
+   <div class="logo">
+    SECURE COMMAND CHANNEL
+   </div>
+
+   <div class="heroCode">
+    ${safe(roomCode)}
+   </div>
+
+   <p>
+    Commander:
+    <b>${safe(roomData.host || displayName)}</b>
+   </p>
+
+   <span class="pill">
+    ${
+     Object.keys(roomData.players||{}).length
     }
+    CONNECTED
+   </span>
 
-  });
+  </div>
 
-});
+  <div class="grid" style="margin-top:15px">
 
+   <button onclick="setTab('dj')">
+    🎧 START DJ
+   </button>
 
-function updatePassDots(){
+   <button onclick="setTab('call')">
+    📞 SEND CALL
+   </button>
 
-  document.querySelectorAll(".pass-dot").forEach((dot,i)=>{
+   <button onclick="setTab('mission')">
+    🕵️ CREATE MISSION
+   </button>
 
-    dot.classList.toggle(
-      "filled",
-      i<currentPass.length
-    );
+   <button onclick="setTab('effects')">
+    ✨ EFFECTS
+   </button>
 
-  });
-
-}
-
-
-function checkPass(){
-
-  if(passMode==="create"){
-
-    savedPasscode=currentPass;
-
-    localStorage.setItem(
-      "iphonePasscode",
-      savedPasscode
-    );
-
-    currentPass="";
-
-    passMode="unlock";
-
-    passcode.classList.remove("open");
-
-    enterHome();
-
-    showToast("Passcode created");
-
-    return;
-
-  }
-
-  if(currentPass===savedPasscode){
-
-    passcode.classList.remove("open");
-
-    enterHome();
-
-    currentPass="";
-
-  }else{
-
-    showToast("Incorrect passcode");
-
-    currentPass="";
-
-    updatePassDots();
-
-  }
-
-}
-
-
-function enterHome(){
-
-  locked=false;
-
-  lock.classList.add("unlocking");
-
-  setTimeout(()=>{
-
-    lock.style.display="none";
-    home.classList.add("visible");
-
-  },400);
-
-}
-
-
-passCancel.addEventListener("click",()=>{
-
-  passcode.classList.remove("open");
-  currentPass="";
-
-  updatePassDots();
-
-});
-
-
-/* ---------- HOME INDICATOR ---------- */
-
-document.querySelector(".home-indicator")
-.addEventListener("click",()=>{
-
-  closeAppWindow();
-
-});
-
-
-/* ---------- OPEN APP ---------- */
-
-function openApp(name){
-
-  currentApp=name;
-
-  appTitle.textContent=name;
-
-  appContent.innerHTML=getAppHTML(name);
-
-  appWindow.classList.add("open");
-
-  island.classList.add("active");
-
-  setTimeout(()=>island.classList.remove("active"),900);
-
-  attachAppEvents(name);
-
-}
-
-
-function closeAppWindow(){
-
-  appWindow.classList.remove("open");
-
-  currentApp=null;
-
-}
-
-
-/* ---------- CLOSE ---------- */
-
-closeApp.addEventListener(
-  "click",
-  closeAppWindow
-);
-
-
-/* ---------- APP HTML ---------- */
-
-function getAppHTML(name){
-
-  switch(name){
-
-    case "Calculator":
-    case "Calculator Pro":
-
-      return `
-
-      <div class="calc">
-
-        <div
-          class="calc-display"
-          id="calcDisplay"
-        >0</div>
-
-        <div class="calc-grid">
-
-          <button class="calc-btn gray" data-calc="AC">AC</button>
-          <button class="calc-btn gray" data-calc="+/-">±</button>
-          <button class="calc-btn gray" data-calc="%">%</button>
-          <button class="calc-btn operator" data-calc="/">÷</button>
-
-          <button class="calc-btn" data-calc="7">7</button>
-          <button class="calc-btn" data-calc="8">8</button>
-          <button class="calc-btn" data-calc="9">9</button>
-          <button class="calc-btn operator" data-calc="*">×</button>
-
-          <button class="calc-btn" data-calc="4">4</button>
-          <button class="calc-btn" data-calc="5">5</button>
-          <button class="calc-btn" data-calc="6">6</button>
-          <button class="calc-btn operator" data-calc="-">−</button>
-
-          <button class="calc-btn" data-calc="1">1</button>
-          <button class="calc-btn" data-calc="2">2</button>
-          <button class="calc-btn" data-calc="3">3</button>
-          <button class="calc-btn operator" data-calc="+">+</button>
-
-          <button
-            class="calc-btn"
-            data-calc="0"
-            style="grid-column:span 2;border-radius:40px"
-          >0</button>
-
-          <button class="calc-btn" data-calc=".">.</button>
-          <button class="calc-btn operator" data-calc="=">=</button>
-
-        </div>
-
-      </div>
-
-      `;
-
-
-    case "Notes":
-
-      return `
-
-        <textarea
-          class="note-input"
-          id="noteInput"
-          placeholder="Start writing..."
-        >${escapeHTML(noteText)}</textarea>
-
-        <button
-          id="saveNote"
-          style="
-            width:100%;
-            padding:15px;
-            border-radius:15px;
-            background:#007aff;
-            color:white;
-            margin-top:15px;
-          "
-        >
-          Save Note
-        </button>
-
-      `;
-
-
-    case "Music":
-
-      return `
-
-        <div class="album">🎵</div>
-
-        <div class="music-title">
-          Midnight Drive
-        </div>
-
-        <div class="music-artist">
-          Simulator Radio
-        </div>
-
-        <input
-          class="progress"
-          type="range"
-          value="45"
-        >
-
-        <div class="music-controls">
-
-          <button>⏮️</button>
-
-          <button id="playMusic">
-            ${musicPlaying ? "⏸️" : "▶️"}
-          </button>
-
-          <button>⏭️</button>
-
-        </div>
-
-      `;
-
-
-    case "Camera":
-
-      return `
-
-        <div class="camera">
-
-          <div class="camera-preview"></div>
-
-          <div class="shutter" id="shutter"></div>
-
-          <div style="
-            position:relative;
-            z-index:3;
-            margin-top:20px;
-          ">
-            PHOTO
-          </div>
-
-        </div>
-
-      `;
-
-
-    case "Messages":
-
-      return `
-
-        <div class="message-list">
-
-          <div class="message">
-            Mom<br>
-            Dinner is ready!
-          </div>
-
-          <div class="message me">
-            I'll be there 😎
-          </div>
-
-          <div class="message">
-            Simulator<br>
-            Welcome to your new iPhone!
-          </div>
-
-          <div class="message me">
-            This is actually sick 🔥
-          </div>
-
-        </div>
-
-        <input
-          id="messageInput"
-          placeholder="iMessage"
-          style="
-            position:absolute;
-            bottom:25px;
-            left:20px;
-            right:20px;
-            width:calc(100% - 40px);
-            padding:14px;
-            border-radius:22px;
-            border:1px solid #ccc;
-          "
-        >
-
-      `;
-
-
-    case "Safari":
-    case "Browser":
-    case "Safari Dev":
-
-      return `
-
-        <div class="browser">
-
-          <input
-            id="browserInput"
-            placeholder="Search or enter website"
-          >
-
-          <button id="browserGo">
-            Go
-          </button>
-
-        </div>
-
-        <div
-          class="browser-page"
-          id="browserPage"
-        >
-
-          <div style="font-size:60px">🧭</div>
-
-          <h1>Safari</h1>
-
-          <p>
-            What will you discover?
-          </p>
-
-          <hr>
-
-          <h3>Favorites</h3>
-
-          <p>Apple</p>
-          <p>News</p>
-          <p>Weather</p>
-
-        </div>
-
-      `;
-
-
-    case "Settings":
-
-      return getSettingsHTML();
-
-
-    case "Weather":
-    case "Weather Pro":
-
-      return `
-
-        <div style="text-align:center">
-
-          <div style="font-size:90px">
-            ☀️
-          </div>
-
-          <div class="big-number">
-            72°
-          </div>
-
-          <h2>Sunny</h2>
-
-          <p>Thornton, Colorado</p>
-
-          <div class="generic-card">
-            Feels like 70°
-          </div>
-
-          <div class="generic-card">
-            Wind: 8 mph
-          </div>
-
-          <div class="generic-card">
-            Humidity: 38%
-          </div>
-
-        </div>
-
-      `;
-
-
-    case "Clock":
-
-      return `
-
-        <div style="text-align:center">
-
-          <div class="big-number" id="bigClock">
-            9:41
-          </div>
-
-          <p>Local Time</p>
-
-          <hr>
-
-          <div class="generic-card">
-            Alarm<br><b>7:00 AM</b>
-          </div>
-
-          <div class="generic-card">
-            Stopwatch<br>
-            <b>00:00:00</b>
-          </div>
-
-        </div>
-
-      `;
-
-
-    case "Calendar":
-
-      return `
-
-        <div style="text-align:center">
-
-          <h1>September 2026</h1>
-
-          <div class="generic-card">
-
-            <h2>Friday 4</h2>
-
-            <p>No events today</p>
-
-          </div>
-
-          <div class="generic-card">
-            🎂 Birthday coming soon
-          </div>
-
-        </div>
-
-      `;
-
-
-    case "Photos":
-
-      return `
-
-        <h2>Recents</h2>
-
-        <div style="
-          display:grid;
-          grid-template-columns:repeat(3,1fr);
-          gap:5px;
-        ">
-
-          ${[
-            "🌄","🏔️","🌅",
-            "🐶","🌳","🚗",
-            "🍕","🎮","🌌"
-          ].map(x=>`
-            <div style="
-              height:100px;
-              border-radius:8px;
-              background:linear-gradient(135deg,#777,#ddd);
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              font-size:35px;
-            ">${x}</div>
-          `).join("")}
-
-        </div>
-
-      `;
-
-
-    case "Maps":
-
-      return `
-
-        <div style="
-          height:100%;
-          min-height:500px;
-          border-radius:20px;
-          background:
-            linear-gradient(20deg,#9bd38d,#d6efb4 50%,#b7d9ee);
-          position:relative;
-          overflow:hidden;
-        ">
-
-          <div style="
-            position:absolute;
-            top:45%;
-            left:40%;
-            font-size:50px;
-          ">
-            📍
-          </div>
-
-          <div style="
-            position:absolute;
-            bottom:20px;
-            left:15px;
-            right:15px;
-            background:white;
-            padding:15px;
-            border-radius:18px;
-          ">
-            <b>Current Location</b><br>
-            Thornton, Colorado
-          </div>
-
-        </div>
-
-      `;
-
-
-    case "Phone":
-
-      return `
-
-        <div style="text-align:center">
-
-          <div class="big-number">
-            📞
-          </div>
-
-          <h2>Favorites</h2>
-
-          <div class="generic-card">
-            Mom
-          </div>
-
-          <div class="generic-card">
-            Dad
-          </div>
-
-          <div class="generic-card">
-            Home
-          </div>
-
-          <button
-            onclick="showToast('Calling…')"
-            style="
-              background:#34c759;
-              color:white;
-              padding:18px;
-              border-radius:50%;
-              font-size:25px;
-            "
-          >
-            📞
-          </button>
-
-        </div>
-
-      `;
-
-
-    case "App Store":
-
-      return `
-
-        <h1>App Store</h1>
-
-        <div class="generic-card">
-
-          <h2>Featured</h2>
-
-          <p>
-            Discover amazing apps.
-          </p>
-
-          <button
-            onclick="showToast('App installed!')"
-            style="
-              background:#007aff;
-              color:white;
-              padding:10px 18px;
-              border-radius:20px;
-            "
-          >
-            GET
-          </button>
-
-        </div>
-
-        <div class="generic-card">
-          🎮 Games
-        </div>
-
-        <div class="generic-card">
-          📚 Education
-        </div>
-
-        <div class="generic-card">
-          🎵 Music
-        </div>
-
-      `;
-
-
-    case "Mail":
-
-      return `
-
-        <h2>Inbox</h2>
-
-        <div class="generic-card">
-          <b>Welcome to iPhone!</b>
-          <br>
-          Your setup is complete.
-        </div>
-
-        <div class="generic-card">
-          <b>Apple</b>
-          <br>
-          Your new device is ready.
-        </div>
-
-      `;
-
-
-    case "Contacts":
-
-      return `
-
-        <h2>Contacts</h2>
-
-        ${["Mom","Dad","Alex","School","Pizza Place"].map(n=>`
-          <div class="generic-card">
-            👤 <b>${n}</b>
-          </div>
-        `).join("")}
-
-      `;
-
-
-    case "Reminders":
-
-      return `
-
-        <h2>Reminders</h2>
-
-        ${[
-          "Finish homework",
-          "Charge iPhone",
-          "Drink water",
-          "Check messages"
-        ].map(x=>`
-          <div class="generic-card">
-            ⭕ ${x}
-          </div>
-        `).join("")}
-
-      `;
-
-
-    case "Files":
-    case "Files Pro":
-
-      return `
-
-        <h2>Browse</h2>
-
-        ${[
-          "📁 Downloads",
-          "📁 Documents",
-          "📁 iPhone",
-          "📄 Notes.txt",
-          "📄 Project.html"
-        ].map(x=>`
-          <div class="generic-card">
-            ${x}
-          </div>
-        `).join("")}
-
-      `;
-
-
-    case "Wallet":
-
-      return `
-
-        <h2>Wallet</h2>
-
-        <div style="
-          background:linear-gradient(135deg,#111,#555);
-          color:white;
-          height:190px;
-          border-radius:20px;
-          padding:20px;
-        ">
-
-          <small>SIMULATOR CARD</small>
-
-          <div style="
-            margin-top:60px;
-            font-size:20px;
-          ">
-            •••• •••• •••• 1234
-          </div>
-
-        </div>
-
-        <p>
-          Double-click side button to pay.
-        </p>
-
-      `;
-
-
-    case "Health":
-
-      return `
-
-        <h2>Health</h2>
-
-        <div class="generic-card">
-          ❤️ Heart
-          <div class="big-number">72</div>
-          BPM
-        </div>
-
-        <div class="generic-card">
-          🚶 Steps
-          <div class="big-number">4,281</div>
-        </div>
-
-      `;
-
-
-    case "Fitness":
-
-      return `
-
-        <h2>Activity</h2>
-
-        <div class="generic-card">
-          🔥 Move
-          <div class="big-number">428</div>
-          kcal
-        </div>
-
-        <div class="generic-card">
-          🏃 Exercise
-          <div class="big-number">24</div>
-          min
-        </div>
-
-      `;
-
-
-    case "Stocks":
-
-      return `
-
-        <h2>Stocks</h2>
-
-        ${[
-          ["AAPL","+1.42%"],
-          ["GOOG","+0.83%"],
-          ["MSFT","+2.11%"],
-          ["NVDA","+3.04%"]
-        ].map(x=>`
-          <div class="generic-card">
-            <b>${x[0]}</b>
-            <span style="float:right;color:#34c759">
-              ${x[1]}
-            </span>
-          </div>
-        `).join("")}
-
-      `;
-
-
-    case "Translate":
-
-      return `
-
-        <h2>Translate</h2>
-
-        <textarea
-          id="translateInput"
-          placeholder="Enter text"
-          style="
-            width:100%;
-            height:130px;
-            border-radius:15px;
-            border:1px solid #ccc;
-            padding:15px;
-          "
-        ></textarea>
-
-        <button
-          onclick="
-            document.getElementById('translateOutput').textContent=
-            'Hello 👋'
-          "
-          style="
-            margin-top:10px;
-            padding:14px;
-            width:100%;
-            border-radius:15px;
-            background:#007aff;
-            color:white;
-          "
-        >
-          Translate
-        </button>
-
-        <div
-          class="generic-card"
-          id="translateOutput"
-        >
-          Translation appears here.
-        </div>
-
-      `;
-
-
-    case "Find My":
-
-      return `
-
-        <h2>Find My</h2>
-
-        <div style="
-          min-height:400px;
-          border-radius:20px;
-          background:#dcecff;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:70px;
-        ">
-          📍
-        </div>
-
-        <div class="generic-card">
-          iPhone — With You
-        </div>
-
-      `;
-
-
-    case "Home":
-
-      return `
-
-        <h2>Home</h2>
-
-        <div class="generic-card">
-          💡 Bedroom Light
-          <span style="float:right">ON</span>
-        </div>
-
-        <div class="generic-card">
-          🌡️ Thermostat
-          <span style="float:right">72°</span>
-        </div>
-
-      `;
-
-
-    default:
-
-      return `
-
-        <div style="text-align:center">
-
-          <div style="font-size:80px">
-            ${getIcon(name)}
-          </div>
-
-          <h1>${name}</h1>
-
-          <p>
-            This app is simulated and interactive.
-          </p>
-
-          <div class="generic-card">
-            <b>Everything is running locally.</b>
-            <br><br>
-            No account required.
-          </div>
-
-          <button
-            onclick="showToast('${name} is working!')"
-            style="
-              background:#007aff;
-              color:white;
-              padding:15px 25px;
-              border-radius:25px;
-            "
-          >
-            Try It
-          </button>
-
-        </div>
-
-      `;
-
-  }
-
-}
-
-
-/* ---------- SETTINGS HTML ---------- */
-
-function getSettingsHTML(){
-
-  return `
-
-    <h1>Settings</h1>
-
-    <div class="settings-section">
-
-      <div class="setting-row">
-
-        <div class="setting-left">
-
-          <div class="setting-icon">✈️</div>
-
-          Airplane Mode
-
-        </div>
-
-        <div
-          class="switch ${airplane?'on':''}"
-          id="airSwitch"
-        >
-          <i></i>
-        </div>
-
-      </div>
-
-
-      <div class="setting-row">
-
-        <div class="setting-left">
-
-          <div class="setting-icon">📶</div>
-
-          Wi-Fi
-
-        </div>
-
-        <div
-          class="switch ${wifi?'on':''}"
-          id="wifiSwitch"
-        >
-          <i></i>
-        </div>
-
-      </div>
-
-
-      <div class="setting-row">
-
-        <div class="setting-left">
-
-          <div class="setting-icon">🟦</div>
-
-          Bluetooth
-
-        </div>
-
-        <div
-          class="switch ${bluetooth?'on':''}"
-          id="bluetoothSwitch"
-        >
-          <i></i>
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="settings-section">
-
-      <div class="setting-row">
-        <div class="setting-left">
-          <div class="setting-icon">🌙</div>
-          Dark Mode
-        </div>
-
-        <div
-          class="switch ${darkMode?'on':''}"
-          id="darkSwitch"
-        >
-          <i></i>
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="settings-section">
-
-      <div
-        class="setting-row"
-        id="changePass"
-        style="cursor:pointer"
-      >
-        <div class="setting-left">
-          <div class="setting-icon">🔐</div>
-          Change Passcode
-        </div>
-        <span>›</span>
-      </div>
-
-
-      <div
-        class="setting-row"
-        id="restartPhone"
-        style="cursor:pointer"
-      >
-        <div class="setting-left">
-          <div class="setting-icon">🔄</div>
-          Restart iPhone
-        </div>
-        <span>›</span>
-      </div>
-
-
-      <div
-        class="setting-row"
-        id="erasePhone"
-        style="cursor:pointer"
-      >
-        <div class="setting-left">
-          <div class="setting-icon">🗑️</div>
-          Reset Simulator
-        </div>
-        <span>›</span>
-      </div>
-
-    </div>
-
-
-    <div class="generic-card">
-
-      <b>iPhone Simulator</b>
-
-      <br>
-
-      iOS-style interface
-
-      <br>
-
-      Version 1.0
-
-    </div>
+  </div>
 
   `;
 
-}
+ }
 
+ if(currentTab==="dj")
+  main.innerHTML=djControl();
 
-/* ---------- APP EVENTS ---------- */
+ if(currentTab==="call")
+  main.innerHTML=callControl();
 
-function attachAppEvents(name){
+ if(currentTab==="mission")
+  main.innerHTML=missionControl();
 
-  if(name==="Calculator" || name==="Calculator Pro"){
+ if(currentTab==="chat")
+  main.innerHTML=chatControl();
 
-    document.querySelectorAll("[data-calc]")
-      .forEach(btn=>{
+ if(currentTab==="effects")
+  main.innerHTML=effectsControl();
 
-        btn.addEventListener("click",()=>{
-
-          const v=btn.dataset.calc;
-
-          calculate(v);
-
-        });
-
-      });
-
-  }
-
-
-  if(name==="Notes"){
-
-    document.getElementById("saveNote")
-      .addEventListener("click",()=>{
-
-        noteText=
-          document.getElementById("noteInput").value;
-
-        localStorage.setItem(
-          "iphoneNote",
-          noteText
-        );
-
-        showToast("Note saved");
-
-      });
-
-  }
-
-
-  if(name==="Music"){
-
-    document.getElementById("playMusic")
-      .addEventListener("click",()=>{
-
-        musicPlaying=!musicPlaying;
-
-        openApp("Music");
-
-      });
-
-  }
-
-
-  if(name==="Camera"){
-
-    document.getElementById("shutter")
-      .addEventListener("click",()=>{
-
-        showToast("📸 Photo captured!");
-
-        island.classList.add("active");
-
-        setTimeout(
-          ()=>island.classList.remove("active"),
-          1000
-        );
-
-      });
-
-  }
-
-
-  if(
-    name==="Safari" ||
-    name==="Browser" ||
-    name==="Safari Dev"
-  ){
-
-    document.getElementById("browserGo")
-      .addEventListener("click",()=>{
-
-        const q=
-          document.getElementById("browserInput").value;
-
-        if(!q) return;
-
-        document.getElementById("browserPage")
-          .innerHTML=`
-
-            <div style="font-size:60px">
-              🌐
-            </div>
-
-            <h2>
-              ${escapeHTML(q)}
-            </h2>
-
-            <p>
-              Simulated Safari result
-            </p>
-
-            <div class="generic-card">
-              This browser is running entirely
-              inside the simulator.
-            </div>
-
-          `;
-
-      });
-
-  }
-
-
-  if(name==="Settings"){
-
-    setupSettings();
-
-  }
-
+ if(currentTab==="settings")
+  main.innerHTML=settingsControl();
 
 }
 
 
-/* ---------- CALCULATOR ---------- */
+/* ================= NAV ================= */
 
-function calculate(v){
+window.setTab=(tab)=>{
 
-  const display=
-    document.getElementById("calcDisplay");
+ currentTab=tab;
 
-  if(v==="AC"){
+ document
+ .querySelectorAll(".nav button")
+ .forEach(button=>{
 
-    calcValue="";
-    display.textContent="0";
-    return;
-
-  }
-
-  if(v==="="){
-
-    try{
-
-      calcValue=String(
-        Function(
-          '"use strict";return ('+
-          calcValue+
-          ')'
-        )()
-      );
-
-    }catch{
-
-      calcValue="Error";
-
-    }
-
-    display.textContent=calcValue;
-
-    return;
-
-  }
-
-  if(v==="+/-"){
-
-    if(calcValue)
-      calcValue=String(
-        parseFloat(calcValue)*-1
-      );
-
-    display.textContent=calcValue||"0";
-
-    return;
-
-  }
-
-  if(v==="%"){
-
-    if(calcValue)
-      calcValue=String(
-        parseFloat(calcValue)/100
-      );
-
-    display.textContent=calcValue;
-
-    return;
-
-  }
-
-  calcValue+=v;
-
-  display.textContent=calcValue;
-
-}
-
-
-/* ---------- SETTINGS EVENTS ---------- */
-
-function setupSettings(){
-
-  const air=document.getElementById("airSwitch");
-  const wi=document.getElementById("wifiSwitch");
-  const bl=document.getElementById("bluetoothSwitch");
-  const dark=document.getElementById("darkSwitch");
-
-  air.onclick=()=>{
-
-    airplane=!airplane;
-
-    air.classList.toggle("on",airplane);
-
-    showToast(
-      airplane
-      ? "Airplane Mode On"
-      : "Airplane Mode Off"
-    );
-
-  };
-
-
-  wi.onclick=()=>{
-
-    wifi=!wifi;
-
-    wi.classList.toggle("on",wifi);
-
-    showToast(
-      wifi
-      ? "Wi-Fi Connected"
-      : "Wi-Fi Disconnected"
-    );
-
-  };
-
-
-  bl.onclick=()=>{
-
-    bluetooth=!bluetooth;
-
-    bl.classList.toggle("on",bluetooth);
-
-    showToast(
-      bluetooth
-      ? "Bluetooth On"
-      : "Bluetooth Off"
-    );
-
-  };
-
-
-  dark.onclick=()=>{
-
-    darkMode=!darkMode;
-
-    dark.classList.toggle("on",darkMode);
-
-    document.body.classList.toggle(
-      "dark",
-      darkMode
-    );
-
-    showToast(
-      darkMode
-      ? "Dark Mode On"
-      : "Dark Mode Off"
-    );
-
-  };
-
-
-  document.getElementById("changePass")
-    .onclick=()=>{
-
-      passMode="create";
-
-      currentPass="";
-
-      passTitle.textContent=
-        "Create New Passcode";
-
-      passcode.classList.add("open");
-
-      updatePassDots();
-
-      closeAppWindow();
-
-    };
-
-
-  document.getElementById("restartPhone")
-    .onclick=()=>{
-
-      closeAppWindow();
-
-      home.classList.remove("visible");
-
-      lock.style.display="flex";
-
-      lock.classList.remove("unlocking");
-
-      locked=true;
-
-      showToast("Restarting…");
-
-    };
-
-
-  document.getElementById("erasePhone")
-    .onclick=()=>{
-
-      if(confirm(
-        "Reset the simulator and delete your saved passcode and note?"
-      )){
-
-        localStorage.removeItem("iphonePasscode");
-        localStorage.removeItem("iphoneNote");
-
-        location.reload();
-
-      }
-
-    };
-
-}
-
-
-/* ---------- CONTROL CENTER ---------- */
-
-function closeControlCenter(){
-
-  document
-    .getElementById("controlCenter")
-    .classList.remove("open");
-
-}
-
-
-document.getElementById("wifiToggle")
-.addEventListener("click",()=>{
-
-  wifi=!wifi;
-
-  document
-    .getElementById("wifiToggle")
-    .classList.toggle("active",wifi);
-
-});
-
-
-document.getElementById("bluetoothToggle")
-.addEventListener("click",()=>{
-
-  bluetooth=!bluetooth;
-
-  document
-    .getElementById("bluetoothToggle")
-    .classList.toggle(
-      "active",
-      bluetooth
-    );
-
-});
-
-
-document.getElementById("airplaneToggle")
-.addEventListener("click",()=>{
-
-  airplane=!airplane;
-
-  document
-    .getElementById("airplaneToggle")
-    .classList.toggle(
-      "active",
-      airplane
-    );
-
-});
-
-
-document.getElementById("darkToggle")
-.addEventListener("click",()=>{
-
-  darkMode=!darkMode;
-
-  document
-    .getElementById("darkToggle")
-    .classList.toggle(
-      "active",
-      darkMode
-    );
-
-  document.body.classList.toggle(
-    "dark",
-    darkMode
+  button.classList.toggle(
+   "active",
+   button.dataset.tab===tab
   );
 
-});
+ });
+
+ renderControl();
+
+};
 
 
-document.getElementById("brightness")
-.addEventListener("input",e=>{
+/* ================= DJ ================= */
 
-  const v=e.target.value;
+function djControl(){
 
-  ios.style.filter=
-    `brightness(${v/100})`;
+ const event=
+  roomData.event || {};
 
-});
+ return `
+
+ <h2>🎧 REMOTE DJ</h2>
+
+ <p class="muted">
+ Control synchronized browser audio and DJ effects
+ for everyone currently connected.
+ </p>
+
+ <div class="grid">
+
+  <button onclick="djPlay('beat')">
+   🥁 CYBER BEAT
+  </button>
+
+  <button onclick="djPlay('bass')">
+   🔊 BASS DROP
+  </button>
+
+  <button onclick="djPlay('siren')">
+   🚨 SIREN
+  </button>
+
+  <button onclick="djPlay('alert')">
+   📢 HQ ALERT
+  </button>
+
+  <button onclick="djPlay('melody')">
+   🎵 NIGHT DRIVE
+  </button>
+
+  <button onclick="djPause()">
+   ⏸ PAUSE
+  </button>
+
+  <button onclick="djResume()">
+   ▶ RESUME
+  </button>
+
+  <button class="danger" onclick="djStop()">
+   ⏹ STOP
+  </button>
+
+ </div>
+
+ <div class="hero" style="margin-top:18px">
+
+  <div class="djDisc ${
+   event.playing===false ? "paused":""
+  }">
+
+   <div class="djCenter"></div>
+
+  </div>
+
+  <h2>
+   ${safe(event.track || "NO TRACK")}
+  </h2>
+
+  <span class="pill">
+   ${event.playing===false?"PAUSED":"READY"}
+  </span>
+
+ </div>
+
+ `;
+
+}
 
 
-/* ---------- FLASHLIGHT ---------- */
+window.djPlay=(kind)=>{
 
-document.getElementById("flashBtn")
-.addEventListener("click",()=>{
+ const tracks={
 
-  showToast("🔦 Flashlight toggled");
+  beat:"CYBER BEAT",
 
-});
+  bass:"BASS DROP",
+
+  siren:"SECURE SIREN",
+
+  alert:"HQ ALERT",
+
+  melody:"NIGHT DRIVE"
+
+ };
+
+ sendRemoteEvent({
+
+  type:"dj",
+
+  action:"play",
+
+  kind,
+
+  track:tracks[kind],
+
+  playing:true
+
+ });
+
+};
 
 
-/* ---------- LOCK CAMERA ---------- */
+window.djPause=()=>{
 
-document.getElementById("cameraLockBtn")
-.addEventListener("click",()=>{
+ sendRemoteEvent({
 
-  unlock();
+  type:"dj",
+
+  action:"pause",
+
+  track:roomData.event?.track || "PAUSED",
+
+  playing:false
+
+ });
+
+};
+
+
+window.djResume=()=>{
+
+ sendRemoteEvent({
+
+  type:"dj",
+
+  action:"resume",
+
+  track:roomData.event?.track || "RESUMED",
+
+  playing:true
+
+ });
+
+};
+
+
+window.djStop=()=>{
+
+ sendRemoteEvent({
+
+  type:"dj",
+
+  action:"stop",
+
+  playing:false,
+
+  track:"STOPPED"
+
+ });
+
+};
+
+
+/* ================= CALL ================= */
+
+function callControl(){
+
+ return `
+
+ <h2>📞 CALL SIMULATOR</h2>
+
+ <p class="muted">
+ This is a fake call interface entirely inside the webpage.
+ It does not make an actual phone call.
+ </p>
+
+ <div class="field">
+
+  <label>Caller Name</label>
+
+  <input
+   id="callerName"
+   value="UNKNOWN OPERATIVE"
+  >
+
+ </div>
+
+ <div class="field">
+
+  <label>Message</label>
+
+  <input
+   id="callerMessage"
+   value="SECURE CHANNEL REQUEST"
+  >
+
+ </div>
+
+ <div class="grid">
+
+  <button
+   class="primary"
+   onclick="sendCall()"
+  >
+   📞 INCOMING CALL
+  </button>
+
+  <button
+   onclick="directorCall()"
+  >
+   🕶️ DIRECTOR
+  </button>
+
+  <button
+   class="danger"
+   onclick="endCall()"
+  >
+   ✕ END CALL
+  </button>
+
+ </div>
+
+ `;
+
+}
+
+
+window.sendCall=()=>{
+
+ sendRemoteEvent({
+
+  type:"call",
+
+  caller:$("callerName").value,
+
+  message:$("callerMessage").value
+
+ });
+
+};
+
+
+window.directorCall=()=>{
+
+ sendRemoteEvent({
+
+  type:"call",
+
+  caller:"DIRECTOR",
+
+  message:"PRIORITY MISSION UPDATE"
+
+ });
+
+};
+
+
+window.endCall=()=>{
+
+ sendRemoteEvent({
+
+  type:"callEnd"
+
+ });
+
+};
+
+
+/* ================= MISSION ================= */
+
+function missionControl(){
+
+ return `
+
+ <h2>🕵️ MISSION BUILDER</h2>
+
+ <div class="field">
+
+  <label>Mission Title</label>
+
+  <input
+   id="missionTitle"
+   value="OPERATION NIGHTFALL"
+  >
+
+ </div>
+
+ <div class="field">
+
+  <label>Briefing</label>
+
+  <textarea id="missionBriefing">
+Your next objective has arrived.
+Stay alert and await further instructions.
+  </textarea>
+
+ </div>
+
+ <div class="field">
+
+  <label>Objective</label>
+
+  <input
+   id="missionObjective"
+   value="Locate the classified transmission."
+  >
+
+ </div>
+
+ <div class="field">
+
+  <label>Countdown Seconds</label>
+
+  <input
+   id="missionSeconds"
+   type="number"
+   min="0"
+   max="3600"
+   value="60"
+  >
+
+ </div>
+
+ <div class="grid">
+
+  <button
+   class="primary"
+   onclick="deployMission()"
+  >
+   🚨 DEPLOY MISSION
+  </button>
+
+  <button
+   onclick="sendClue()"
+  >
+   🔐 SEND CLUE
+  </button>
+
+  <button
+   onclick="missionSuccess()"
+  >
+   ✅ SUCCESS
+  </button>
+
+  <button
+   class="danger"
+   onclick="missionFail()"
+  >
+   ❌ FAIL
+  </button>
+
+ </div>
+
+ `;
+
+}
+
+
+window.deployMission=()=>{
+
+ const seconds=
+  Math.max(
+   0,
+   Math.min(
+    3600,
+    Number($("missionSeconds").value)||0
+   )
+  );
+
+ sendRemoteEvent({
+
+  type:"mission",
+
+  stage:"briefing",
+
+  title:$("missionTitle").value,
+
+  briefing:$("missionBriefing").value,
+
+  objective:$("missionObjective").value,
+
+  seconds,
+
+  startedAt:Date.now()
+
+ });
+
+};
+
+
+window.sendClue=()=>{
+
+ sendRemoteEvent({
+
+  type:"missionStage",
+
+  stage:"CLUE",
+
+  text:
+   "The transmission is hidden in plain sight."
+
+ });
+
+};
+
+
+window.missionSuccess=()=>{
+
+ sendRemoteEvent({
+
+  type:"missionStage",
+
+  stage:"MISSION SUCCESS",
+
+  text:
+   "HQ confirms the operation was successful."
+
+ });
+
+};
+
+
+window.missionFail=()=>{
+
+ sendRemoteEvent({
+
+  type:"missionStage",
+
+  stage:"MISSION FAILED",
+
+  text:
+   "The operation has failed. Return to HQ."
+
+ });
+
+};
+
+
+/* ================= CHAT CONTROL ================= */
+
+function chatControl(){
+
+ return `
+
+ <h2>💬 LIVE CHAT</h2>
+
+ <div
+  id="largeChat"
+  class="chat"
+  style="height:440px"
+ >
+ ${
+  getMessages().map(m=>`
+
+  <div class="message">
+
+   <div class="messageName">
+    ${safe(m.name)}
+   </div>
+
+   ${safe(m.text)}
+
+  </div>
+
+  `).join("")
+ }
+
+ </div>
+
+ <div class="composer">
+
+  <input
+   id="largeChatInput"
+   placeholder="Broadcast..."
+   onkeydown="if(event.key==='Enter')sendChat('largeChatInput')"
+  >
+
+  <button onclick="sendChat('largeChatInput')">
+   SEND
+  </button>
+
+ </div>
+
+ `;
+
+}
+
+
+/* ================= EFFECTS ================= */
+
+function effectsControl(){
+
+ return `
+
+ <h2>✨ REMOTE EFFECTS</h2>
+
+ <p class="muted">
+ Effects happen inside connected agent webpages.
+ </p>
+
+ <div class="grid">
+
+  <button onclick="remoteEffect('blackout')">
+   ⬛ BLACKOUT
+  </button>
+
+  <button onclick="remoteEffect('glitch')">
+   📺 GLITCH
+  </button>
+
+  <button onclick="remoteEffect('shake')">
+   📳 SHAKE
+  </button>
+
+  <button onclick="remoteEffect('flash')">
+   ⚡ FLASH
+  </button>
+
+  <button onclick="remoteEffect('scan')">
+   🟢 SCANLINES
+  </button>
+
+  <button onclick="remoteEffect('confetti')">
+   🎉 CONFETTI
+  </button>
+
+  <button onclick="remoteEffect('clear')">
+   🧹 CLEAR
+  </button>
+
+ </div>
+
+ `;
+
+}
+
+
+window.remoteEffect=(effect)=>{
+
+ sendRemoteEvent({
+
+  type:"effect",
+
+  effect
+
+ });
+
+};
+
+
+/* ================= SETTINGS ================= */
+
+function settingsControl(){
+
+ return `
+
+ <h2>⚙️ ROOM SETTINGS</h2>
+
+ <div class="field">
+
+  <label>Room Name</label>
+
+  <input
+   id="roomNameInput"
+   value="${safe(
+    roomData.settings?.name ||
+    "SPY HQ"
+   )}"
+  >
+
+ </div>
+
+ <button
+  class="primary"
+  onclick="saveRoomSettings()"
+ >
+  SAVE SETTINGS
+ </button>
+
+ <hr>
+
+ <button
+  class="danger"
+  onclick="resetRoom()"
+ >
+  RESET CURRENT EVENT
+ </button>
+
+ `;
+
+}
+
+
+window.saveRoomSettings=()=>{
+
+ update(
+
+  ref(
+   db,
+   `rooms/${roomCode}/settings`
+  ),
+
+  {
+   name:$("roomNameInput").value
+  }
+
+ );
+
+ toast("Settings saved.");
+
+};
+
+
+window.resetRoom=()=>{
+
+ sendRemoteEvent({
+
+  type:"boot"
+
+ });
+
+};
+
+
+/* ================= NORMAL RENDER ================= */
+
+function renderNormal(){
+
+ const event=
+  roomData.event || {
+   type:"boot"
+  };
+
+ const main=$("normalMain");
+
+ if(event.type==="mission"){
+
+  main.innerHTML=
+   missionView(event);
+
+ }
+
+ else if(event.type==="missionStage"){
+
+  main.innerHTML=`
+
+   <div class="hero">
+
+    <div class="logo">
+     MISSION TRANSMISSION
+    </div>
+
+    <div class="countdown"
+     style="font-size:38px"
+    >
+     ${safe(event.stage)}
+    </div>
+
+    <p style="font-size:20px">
+     ${safe(event.text)}
+    </p>
+
+   </div>
+
+  `;
+
+ }
+
+ else if(event.type==="call"){
+
+  main.innerHTML=
+   callView(event);
+
+ }
+
+ else if(event.type==="callEnd"){
+
+  main.innerHTML=
+   standbyView();
+
+ }
+
+ else if(event.type==="dj"){
+
+  main.innerHTML=
+   djView(event);
+
+ }
+
+ else if(event.type==="effect"){
+
+  main.innerHTML=
+   standbyView();
+
+ }
+
+ else{
+
+  main.innerHTML=
+   standbyView();
+
+ }
+
+}
+
+
+function standbyView(){
+
+ return `
+
+ <div class="hero">
+
+  <div class="logo">
+   AGENT TERMINAL
+  </div>
+
+  <div class="heroCode">
+   STANDBY
+  </div>
+
+  <p class="muted">
+   Awaiting HQ transmission...
+  </p>
+
+  <button onclick="goFullscreen()">
+   ⛶ ENTER FULLSCREEN
+  </button>
+
+ </div>
+
+ `;
+
+}
+
+
+/* ================= MISSION VIEW ================= */
+
+function missionView(event){
+
+ let remaining=0;
+
+ if(event.seconds){
+
+  remaining=
+   Math.max(
+    0,
+    event.seconds-
+    Math.floor(
+     (Date.now()-(event.startedAt||Date.now()))/1000
+    )
+   );
+
+ }
+
+ const percent=
+  event.seconds
+  ? Math.max(
+     0,
+     Math.min(
+      100,
+      remaining/event.seconds*100
+     )
+    )
+  : 100;
+
+ return `
+
+ <div class="hero">
+
+  <div class="logo">
+   CLASSIFIED MISSION
+  </div>
+
+  <h1>
+   ${safe(event.title)}
+  </h1>
+
+  <p style="font-size:18px">
+   ${safe(event.briefing)}
+  </p>
+
+  <div class="terminal">
+
+OBJECTIVE:
+
+${safe(event.objective)}
+
+STATUS: ACTIVE
+
+  </div>
+
+  ${
+   event.seconds
+   ? `
+
+    <div class="countdown">
+     ${remaining}
+    </div>
+
+    <div class="progress">
+     <span style="width:${percent}%"></span>
+    </div>
+
+   `
+   :""
+  }
+
+ </div>
+
+ `;
+
+}
+
+
+/* ================= CALL VIEW ================= */
+
+function callView(event){
+
+ return `
+
+ <div class="hero callScreen">
+
+  <span class="pill">
+   📞 INCOMING SECURE CALL
+  </span>
+
+  <div class="caller">
+   📞 ${safe(event.caller)}
+  </div>
+
+  <p style="font-size:19px">
+   ${safe(event.message)}
+  </p>
+
+  <div
+   class="row"
+   style="justify-content:center;margin-top:25px"
+  >
+
+   <button
+    class="primary"
+    onclick="answerCall()"
+   >
+    ACCEPT
+   </button>
+
+   <button
+    class="danger"
+    onclick="declineCall()"
+   >
+    DECLINE
+   </button>
+
+  </div>
+
+ </div>
+
+ `;
+
+}
+
+
+window.answerCall=()=>{
+
+ sendRemoteEvent({
+
+  type:"callResponse",
+
+  response:"ACCEPTED",
+
+  by:displayName
+
+ });
+
+};
+
+
+window.declineCall=()=>{
+
+ sendRemoteEvent({
+
+  type:"callResponse",
+
+  response:"DECLINED",
+
+  by:displayName
+
+ });
+
+};
+
+
+/* ================= DJ VIEW ================= */
+
+function djView(event){
+
+ return `
+
+ <div class="hero">
+
+  <div class="logo">
+   REMOTE DJ
+  </div>
+
+  <div class="djDisc ${
+   event.playing===false
+   ? "paused"
+   :""
+  }">
+
+   <div class="djCenter"></div>
+
+  </div>
+
+  <h1>
+   ${safe(event.track || "STOPPED")}
+  </h1>
+
+  <p class="muted">
+
+   ${
+    event.playing===false
+    ? "PAUSED"
+    : "HQ DJ IS LIVE"
+   }
+
+  </p>
+
+ </div>
+
+ `;
+
+}
+
+
+/* ================= EVENT PROCESSING ================= */
+
+function processEvent(event){
+
+ if(!event || !event.timestamp)
+  return;
+
+ if(event.timestamp===lastEventTimestamp)
+  return;
+
+ lastEventTimestamp=event.timestamp;
+
+ if(event.type==="dj"){
+
+  if(event.action==="play")
+   playDJSound(event.kind);
+
+  if(event.action==="pause")
+   pauseAudio();
+
+  if(event.action==="resume")
+   resumeAudio();
+
+  if(event.action==="stop")
+   stopAllAudio();
+
+ }
+
+ if(event.type==="call"){
+
+  if(role==="agent"){
+
+   navigator.vibrate?.([
+    150,100,150,100,250
+   ]);
+
+  }
+
+ }
+
+ if(event.type==="effect"){
+
+  executeEffect(event.effect);
+
+ }
+
+ if(event.type==="mission"){
+
+  startMissionClock();
+
+ }
+
+ if(event.type==="callResponse" && role==="host"){
+
+  toast(
+   `${event.by} ${event.response.toLowerCase()} the call.`
+  );
+
+ }
+
+}
+
+
+/* ================= MISSION CLOCK ================= */
+
+let missionInterval=null;
+
+function startMissionClock(){
+
+ clearInterval(missionInterval);
+
+ missionInterval=setInterval(()=>{
+
+  if(role==="agent")
+   renderNormal();
+
+ },1000);
+
+}
+
+
+/* ================= AUDIO ================= */
+
+function getAudio(){
+
+ if(!audioContext){
+
+  audioContext=
+   new (
+    window.AudioContext ||
+    window.webkitAudioContext
+   )();
+
+ }
+
+ if(audioContext.state==="suspended")
+  audioContext.resume();
+
+ return audioContext;
+
+}
+
+
+function tone(
+ frequency,
+ duration=.25,
+ type="sine",
+ volume=.06,
+ delay=0
+){
+
+ const ctx=getAudio();
+
+ const oscillator=
+  ctx.createOscillator();
+
+ const gain=
+  ctx.createGain();
+
+ oscillator.type=type;
+
+ oscillator.frequency.value=
+  frequency;
+
+ gain.gain.setValueAtTime(
+  0,
+  ctx.currentTime+delay
+ );
+
+ gain.gain.linearRampToValueAtTime(
+  volume,
+  ctx.currentTime+delay+.02
+ );
+
+ gain.gain.exponentialRampToValueAtTime(
+  .0001,
+  ctx.currentTime+delay+duration
+ );
+
+ oscillator
+  .connect(gain)
+  .connect(ctx.destination);
+
+ oscillator.start(
+  ctx.currentTime+delay
+ );
+
+ oscillator.stop(
+  ctx.currentTime+
+  delay+
+  duration+
+  .05
+ );
+
+}
+
+
+function stopAllAudio(){
+
+ audioIntervals.forEach(clearInterval);
+
+ audioIntervals=[];
+
+}
+
+
+function pauseAudio(){
+
+ audioIntervals.forEach(clearInterval);
+
+ audioIntervals=[];
+
+}
+
+
+function resumeAudio(){
+
+ toast("Audio resume requested.");
+
+}
+
+
+/* ================= DJ SOUNDS ================= */
+
+function playDJSound(kind){
+
+ stopAllAudio();
+
+ if(kind==="beat"){
+
+  let count=0;
+
+  const interval=setInterval(()=>{
+
+   tone(
+    count%4===0
+    ? 90
+    : 180,
+    .12,
+    "square",
+    .07
+   );
+
+   count++;
+
+  },250);
+
+  audioIntervals.push(interval);
+
+ }
+
+ else if(kind==="siren"){
+
+  let high=false;
+
+  const interval=setInterval(()=>{
+
+   tone(
+    high ? 900 : 520,
+    .32,
+    "sawtooth",
+    .06
+   );
+
+   high=!high;
+
+  },350);
+
+  audioIntervals.push(interval);
+
+ }
+
+ else if(kind==="bass"){
+
+  tone(
+   55,
+   .8,
+   "sawtooth",
+   .12
+  );
+
+  setTimeout(()=>{
+   tone(
+    82,
+    .5,
+    "sine",
+    .09
+   );
+  },300);
+
+ }
+
+ else if(kind==="alert"){
+
+  tone(
+   740,
+   .2,
+   "square",
+   .07
+  );
+
+  setTimeout(()=>{
+   tone(
+    520,
+    .4,
+    "square",
+    .07
+   );
+  },220);
+
+ }
+
+ else if(kind==="melody"){
+
+  [
+   262,
+   330,
+   392,
+   523,
+   392,
+   330
+  ].forEach((frequency,index)=>{
+
+   tone(
+    frequency,
+    .25,
+    "triangle",
+    .045,
+    index*.27
+   );
+
+  });
+
+ }
+
+}
+
+
+/* ================= EFFECT ENGINE ================= */
+
+function clearEffects(){
+
+ document.body.classList.remove(
+  "shake",
+  "flash",
+  "blackout"
+ );
+
+ document.body.style.background="";
+
+ document
+  .querySelectorAll(".confetti")
+  .forEach(x=>x.remove());
+
+}
+
+
+function executeEffect(effect){
+
+ clearEffects();
+
+ if(effect==="shake"){
+
+  document.body.classList.add("shake");
 
   setTimeout(
-    ()=>openApp("Camera"),
-    500
+   clearEffects,
+   2500
   );
 
-});
+ }
 
+ if(effect==="flash"){
 
-/* ---------- SEARCH ---------- */
-
-function openSearch(){
-
-  search.classList.add("open");
-
-  searchInput.focus();
-
-}
-
-searchInput.addEventListener("input",()=>{
-
-  const q=
-    searchInput.value.toLowerCase();
-
-  const matches=
-    apps.filter(a=>
-      a[0].toLowerCase().includes(q)
-    );
-
-  searchResults.innerHTML=
-    matches.map(a=>`
-
-      <button
-        onclick="openApp('${escapeAttribute(a[0])}');search.classList.remove('open')"
-        style="
-          width:100%;
-          text-align:left;
-          padding:14px;
-          margin-bottom:5px;
-          border-radius:15px;
-          background:#222;
-          color:white;
-        "
-      >
-        ${a[1]} &nbsp; ${escapeHTML(a[0])}
-      </button>
-
-    `).join("");
-
-});
-
-
-/* ---------- SWIPE / GESTURES ---------- */
-
-let touchStartY=0;
-let touchStartX=0;
-
-ios.addEventListener("touchstart",e=>{
-
-  touchStartY=e.touches[0].clientY;
-  touchStartX=e.touches[0].clientX;
-
-},{passive:true});
-
-
-ios.addEventListener("touchend",e=>{
-
-  const endY=e.changedTouches[0].clientY;
-  const endX=e.changedTouches[0].clientX;
-
-  const dy=endY-touchStartY;
-  const dx=endX-touchStartX;
-
-  /* swipe up from home */
-
-  if(
-    Math.abs(dy)>100 &&
-    dy<0 &&
-    !appWindow.classList.contains("open")
-  ){
-
-    openSearch();
-
-  }
-
-  /* swipe down */
-
-  if(
-    Math.abs(dy)>100 &&
-    dy>0 &&
-    !appWindow.classList.contains("open")
-  ){
-
-    document
-      .getElementById("controlCenter")
-      .classList.add("open");
-
-  }
-
-});
-
-
-/* ---------- KEYBOARD ---------- */
-
-document.addEventListener("keydown",e=>{
-
-  if(e.key==="Escape"){
-
-    search.classList.remove("open");
-
-    closeControlCenter();
-
-    closeAppWindow();
-
-  }
-
-  if(
-    e.key.toLowerCase()==="s" &&
-    !e.metaKey &&
-    !e.ctrlKey
-  ){
-
-    if(!appWindow.classList.contains("open"))
-      openSearch();
-
-  }
-
-});
-
-
-/* ---------- BATTERY ---------- */
-
-setInterval(()=>{
-
-  if(battery>5){
-
-    battery-=0.02;
-
-    document
-      .getElementById("batteryFill")
-      .style.width=
-      battery+"%";
-
-  }
-
-},3000);
-
-
-/* ---------- DYNAMIC ISLAND ---------- */
-
-function islandMessage(message){
-
-  island.classList.add("active");
-
-  showToast(message);
+  document.body.classList.add("flash");
 
   setTimeout(
-    ()=>island.classList.remove("active"),
-    1800
+   clearEffects,
+   2200
   );
 
-}
+ }
 
+ if(effect==="blackout"){
 
-/* ---------- ICON FALLBACK ---------- */
+  document.body.classList.add("blackout");
 
-function getIcon(name){
+  setTimeout(
+   clearEffects,
+   3000
+  );
 
-  const app=
-    apps.find(a=>a[0]===name);
+ }
 
-  return app ? app[1] : "📱";
+ if(effect==="scan"){
 
-}
+  document.body.classList.add("scanlines");
 
+ }
 
-/* ---------- ESCAPE ---------- */
+ if(effect==="glitch"){
 
-function escapeHTML(str){
+  document.body.classList.add("shake");
 
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-function escapeAttribute(str){
-
-  return String(str)
-    .replaceAll("'","\\'")
-    .replaceAll('"','\\"');
-
-}
-
-
-/* ---------- INITIAL SETUP ---------- */
-
-document.getElementById("setupContinue")
-.addEventListener("click",()=>{
-
-  document
-    .getElementById("setup")
-    .classList.remove("open");
-
-  showToast("Welcome!");
-
-});
-
-
-/* ---------- POWER BUTTON ---------- */
-
-document.querySelector(".power")
-.addEventListener("click",()=>{
-
-  if(!locked){
-
-    locked=true;
-
-    home.classList.remove("visible");
-
-    lock.style.display="flex";
-
-    lock.classList.remove("unlocking");
-
-    showToast("iPhone locked");
-
-  }else{
-
-    unlock();
-
-  }
-
-});
-
-
-/* ---------- VOLUME ---------- */
-
-document.querySelector(".volume")
-.addEventListener("click",()=>{
-
-  volume=Math.min(100,volume+5);
-
-  showToast("🔊 Volume "+volume+"%");
-
-});
-
-
-document.querySelector(".volume2")
-.addEventListener("click",()=>{
-
-  volume=Math.max(0,volume-5);
-
-  showToast("🔉 Volume "+volume+"%");
-
-});
-
-
-/* ---------- DOUBLE CLICK HOME ---------- */
-
-let lastHomeTap=0;
-
-document.querySelector(".home-indicator")
-.addEventListener("dblclick",()=>{
-
-  closeAppWindow();
-
-});
-
-
-/* ---------- FIRST BOOT ---------- */
-
-window.addEventListener("load",()=>{
+  document.body.style.filter=
+   "contrast(1.5) saturate(1.8)";
 
   setTimeout(()=>{
 
-    if(
-      localStorage.getItem("iphoneHasBooted")
-    ){
+   document.body.classList.remove("shake");
 
-      /* normal simulator boot */
+   document.body.style.filter="";
 
-    }
+  },1800);
 
-  },500);
+ }
 
-});
+ if(effect==="confetti"){
 
+  for(let i=0;i<80;i++){
 
-/* ---------- RANDOM NOTIFICATION ---------- */
+   const piece=
+    document.createElement("div");
 
-setTimeout(()=>{
+   piece.className="confetti";
 
-  if(!locked){
+   piece.textContent=
+    ["🟢","⭐","🎉","🔵","⚡"][
+     Math.floor(Math.random()*5)
+    ];
 
-    islandMessage("📩 New message");
+   piece.style.left=
+    Math.random()*100+"vw";
+
+   piece.style.transition=
+    "top 2.2s linear,transform 2.2s linear";
+
+   document.body.appendChild(piece);
+
+   requestAnimationFrame(()=>{
+
+    piece.style.top="110vh";
+
+    piece.style.transform=
+     `rotate(${Math.random()*1000}deg)`;
+
+   });
+
+   setTimeout(
+    ()=>piece.remove(),
+    2400
+   );
 
   }
 
-},15000);
+ }
+
+ if(effect==="clear")
+  clearEffects();
+
+}
 
 
-/* ---------- CONSOLE ---------- */
+/* ================= FULLSCREEN ================= */
 
-console.log(
-  "%ciPhone Simulator loaded.",
-  "font-size:20px;font-weight:bold"
-);
+window.goFullscreen=()=>{
 
-console.log(
-  "50+ simulated applications available."
-);
+ if(document.documentElement.requestFullscreen){
+
+  document.documentElement
+   .requestFullscreen()
+   .catch(()=>{});
+
+ }
+
+};
+
+
+/* ================= NAV BINDING ================= */
+
+document
+ .querySelectorAll(".nav button")
+ .forEach(button=>{
+
+  button.addEventListener(
+   "click",
+   ()=>setTab(button.dataset.tab)
+  );
+
+ });
+
+
+/* ================= AUTO URL MODE ================= */
+
+/*
+
+These work:
+
+YOUR-GITHUB-PAGES-URL/?mode=control
+YOUR-GITHUB-PAGES-URL/?mode=normal
+
+You can also use:
+
+YOUR-GITHUB-PAGES-URL/control
+YOUR-GITHUB-PAGES-URL/normal
+
+*/
+
+function detectURLMode(){
+
+ const path=
+  location.pathname.toLowerCase();
+
+ const params=
+  new URLSearchParams(location.search);
+
+ const mode=
+  params.get("mode");
+
+ if(
+  mode==="control" ||
+  path.endsWith("/control")
+ ){
+
+  openCreate();
+
+ }
+
+ if(
+  mode==="normal" ||
+  path.endsWith("/normal")
+ ){
+
+  openJoin();
+
+ }
+
+}
+
+detectURLMode();
 
 </script>
+
+<!-- ======================================================
+FIREBASE REALTIME DATABASE TEST RULES
+
+For a private/test project, you can temporarily use:
+
+{
+  "rules": {
+    "rooms": {
+      "$room": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
+
+For a public project, DO NOT leave a production database
+open like this. Add proper authentication and security
+rules before sharing it publicly.
+
+Also enable:
+
+Firebase Console
+→ Authentication
+→ Sign-in method
+→ Anonymous
+
+and:
+
+Firebase Console
+→ Realtime Database
+→ Create database
+
+====================================================== -->
 
 </body>
 </html>
