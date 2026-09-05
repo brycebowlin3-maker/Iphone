@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SAFEHOUSE // Emergency Simulator</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07090d;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
+button{font:inherit}
+#game{position:relative;width:100vw;height:100vh;background:#111}
+#world{
+ position:absolute;inset:0;
+ background:
+ linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+ linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+ #151922;
+ background-size:40px 40px;
+}
+.room{
+ position:absolute;border:2px solid #384052;background:#202531;
+ box-shadow:inset 0 0 50px #0008;
+}
+.label{position:absolute;top:8px;left:10px;color:#7f8ba3;font-size:12px;letter-spacing:2px}
+#hall{left:5%;top:10%;width:90%;height:75%}
+#bedroom{left:8%;top:18%;width:34%;height:34%;background:#242936}
+#living{left:48%;top:18%;width:42%;height:42%;background:#20252e}
+#kitchen{left:48%;top:65%;width:42%;height:17%;background:#20252e}
+
+.object{
+ position:absolute;border:1px solid #59657d;background:#303747;
+ color:#fff;border-radius:8px;padding:8px 10px;
+ font-size:12px;cursor:pointer;z-index:5;
+}
+.object:hover{filter:brightness(1.25)}
+.door{background:#553b25;border-color:#a77942}
+.phone{background:#263d62;border-color:#668dcc}
+.camera{background:#243f36;border-color:#4c9d79}
+.exit{background:#254d38;border-color:#57b98a}
+
+#player{
+ position:absolute;width:24px;height:24px;border-radius:50%;
+ background:#59a7ff;border:3px solid white;
+ box-shadow:0 0 20px #59a7ff;z-index:20;
+ transform:translate(-50%,-50%);
+ left:25%;top:35%;
+}
+#crosshair{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:12px;height:12px;border:1px solid #fff8;border-radius:50%;
+ pointer-events:none;z-index:30;
+}
+#hud{
+ position:absolute;left:12px;top:12px;z-index:50;
+ background:#090c12dd;border:1px solid #354055;border-radius:12px;
+ padding:10px 12px;backdrop-filter:blur(8px);min-width:180px;
+}
+#hud b{color:#70b7ff}
+#objective{
+ position:absolute;left:50%;top:14px;transform:translateX(-50%);
+ z-index:50;background:#090c12e8;border:1px solid #354055;
+ border-radius:12px;padding:10px 16px;text-align:center;max-width:75%;
+}
+#controls{
+ position:absolute;bottom:15px;left:15px;z-index:60;
+ display:grid;grid-template-columns:55px 55px 55px;gap:6px;
+}
+#controls button,.action{
+ background:#171c27;color:white;border:1px solid #455067;
+ border-radius:10px;padding:12px;cursor:pointer;
+}
+#up{grid-column:2}
+#left{grid-column:1}.down{grid-column:2}.right{grid-column:3}
+#actions{
+ position:absolute;right:15px;bottom:15px;z-index:60;
+ display:flex;flex-direction:column;gap:7px;
+}
+.action{background:#101722e8}
+#log{
+ position:absolute;right:15px;top:80px;width:250px;max-height:220px;
+ overflow:auto;background:#090c12dd;border:1px solid #354055;
+ border-radius:12px;padding:10px;font-size:12px;z-index:50;
+}
+.logline{padding:5px 0;border-bottom:1px solid #ffffff12}
+.good{color:#72e6a5}.bad{color:#ff7777}.info{color:#8fb9ff}
+#overlay{
+ position:absolute;inset:0;background:#05070bf5;z-index:100;
+ display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.panel{
+ max-width:600px;width:100%;background:#111722;
+ border:1px solid #42516a;border-radius:18px;padding:25px;
+ box-shadow:0 20px 80px #000;
+}
+.panel h1{margin-top:0;font-size:28px}
+.panel button{
+ background:#2878d8;color:white;border:0;border-radius:10px;
+ padding:13px 18px;margin-top:10px;cursor:pointer;font-weight:700;
+}
+#modal{
+ display:none;position:absolute;inset:0;background:#0009;z-index:90;
+ align-items:center;justify-content:center;padding:20px;
+}
+#modalBox{
+ max-width:520px;width:100%;background:#111722;
+ border:1px solid #46536a;border-radius:16px;padding:20px;
+}
+#modalBox h2{margin-top:0}
+.choice{
+ display:block;width:100%;margin:8px 0;padding:12px;
+ background:#1b2432;border:1px solid #46536a;color:#fff;
+ border-radius:10px;text-align:left;cursor:pointer;
+}
+.choice:hover{background:#26344a}
+#danger{
+ display:none;position:absolute;inset:0;z-index:80;
+ pointer-events:none;border:7px solid #e33;
+ box-shadow:inset 0 0 80px #e33;
+ animation:pulse .8s infinite alternate;
+}
+@keyframes pulse{to{opacity:.35}}
+@media(max-width:700px){
+ #log{width:190px;top:auto;bottom:15px;right:15px;transform:translateY(-150px)}
+ #objective{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div id="game">
+  <div id="world">
+
+    <div id="hall" class="room"><div class="label">MAIN HALL</div></div>
+    <div id="bedroom" class="room"><div class="label">BEDROOM</div></div>
+    <div id="living" class="room"><div class="label">LIVING ROOM</div></div>
+    <div id="kitchen" class="room"><div class="label">KITCHEN</div></div>
+
+    <button class="object door" style="left:45%;top:38%" onclick="interact('front')">FRONT DOOR</button>
+    <button class="object door" style="left:40%;top:25%" onclick="interact('bedDoor')">BEDROOM DOOR</button>
+    <button class="object camera" style="left:78%;top:27%" onclick="interact('camera')">📹 SECURITY CAMERA</button>
+    <button class="object phone" style="left:17%;top:40%" onclick="interact('phone')">📱 PHONE</button>
+    <button class="object" style="left:62%;top:72%" onclick="interact('kitchen')">KITCHEN</button>
+    <button class="object exit" style="left:84%;top:48%" onclick="interact('backExit')">SAFE EXIT</button>
+
+    <div id="player"></div>
+  </div>
+
+  <div id="crosshair"></div>
+
+  <div id="hud">
+    🛡️ <b>SAFEHOUSE</b><br>
+    Scenario: <span id="scenario">Normal</span><br>
+    Score: <b id="score">0</b><br>
+    Time: <span id="timer">00:00</span>
+  </div>
+
+  <div id="objective">
+    Explore the house. Your objective will update when an emergency begins.
+  </div>
+
+  <div id="log">
+    <div class="logline info">SYSTEM: Training simulation ready.</div>
+  </div>
+
+  <div id="controls">
+    <button id="up">▲</button>
+    <button id="left">◀</button>
+    <button class="down" id="down">▼</button>
+    <button class="right" id="right">▶</button>
+  </div>
+
+  <div id="actions">
+    <button class="action" onclick="startEmergency()">🚨 START SCENARIO</button>
+    <button class="action" onclick="interact('phone')">📞 Emergency Training</button>
+    <button class="action" onclick="showHelp()">❓ Help</button>
+  </div>
+
+  <div id="danger"></div>
+
+  <div id="overlay">
+    <div class="panel">
+      <h1>🛡️ SAFEHOUSE</h1>
+      <p><b>Emergency Response Simulator</b></p>
+      <p>
+        This is a fictional training game. Move around the house,
+        inspect objects, recognize danger, and make decisions.
+      </p>
+      <p>🎯 Goal: make the safest decision — not the bravest one.</p>
+      <button onclick="begin()">ENTER SIMULATION</button>
+    </div>
+  </div>
+
+  <div id="modal">
+    <div id="modalBox"></div>
+  </div>
+</div>
+
+<script>
+const player=document.getElementById("player");
+const objective=document.getElementById("objective");
+const log=document.getElementById("log");
+const scoreEl=document.getElementById("score");
+const scenarioEl=document.getElementById("scenario");
+const timerEl=document.getElementById("timer");
+const danger=document.getElementById("danger");
+
+let x=25,y=35;
+let score=0;
+let started=false;
+let emergency=false;
+let scenario=null;
+let seconds=0;
+let timerInt=null;
+
+const scenarios=[
+ {
+  name:"UNKNOWN PERSON",
+  objective:"You see an unknown person on the security camera.",
+  choices:[
+   ["Go investigate the person","bad", -20],
+   ["Stay secure, avoid confrontation, and contact emergency help","good",30],
+   ["Open the door and ask who they are","bad",-15]
+  ]
+ },
+ {
+  name:"FORCED ENTRY",
+  objective:"You hear loud banging from the front door.",
+  choices:[
+   ["Walk toward the front door to investigate","bad",-20],
+   ["Move to a secure location and contact emergency help","good",30],
+   ["Open the door immediately","bad",-30]
+  ]
+ },
+ {
+  name:"SMOKE",
+  objective:"You notice smoke coming from another room.",
+  choices:[
+   ["Investigate the smoke closely","bad",-20],
+   ["Move away from the danger and contact emergency help","good",30],
+   ["Ignore it completely","bad",-10]
+  ]
+ },
+ {
+  name:"POWER OUTAGE",
+  objective:"The lights suddenly go out and you hear a strange noise.",
+  choices:[
+   ["Go searching through the house","bad",-15],
+   ["Stay somewhere safe and contact a trusted adult","good",25],
+   ["Run outside without checking whether the route is safe","bad",-10]
+  ]
+ },
+ {
+  name:"UNKNOWN NOISE",
+  objective:"You hear repeated noises but have no evidence of an intruder.",
+  choices:[
+   ["Immediately confront whoever might be there","bad",-25],
+   ["Stay calm, secure yourself, and contact a trusted adult","good",25],
+   ["Keep repeatedly checking every door","bad",-10]
+  ]
+ }
+];
+
+function begin(){
+ document.getElementById("overlay").style.display="none";
+ started=true;
+ addLog("Simulation started.","info");
+ startClock();
+}
+
+function startClock(){
+ timerInt=setInterval(()=>{
+   if(!started)return;
+   seconds++;
+   let m=String(Math.floor(seconds/60)).padStart(2,"0");
+   let s=String(seconds%60).padStart(2,"0");
+   timerEl.textContent=m+":"+s;
+ },1000);
+}
+
+function move(dx,dy){
+ if(!started)return;
+ x=Math.max(7,Math.min(93,x+dx));
+ y=Math.max(12,Math.min(82,y+dy));
+ player.style.left=x+"%";
+ player.style.top=y+"%";
+}
+
+document.getElementById("up").onclick=()=>move(0,-3);
+document.getElementById("down").onclick=()=>move(0,3);
+document.getElementById("left").onclick=()=>move(-3,0);
+document.getElementById("right").onclick=()=>move(3,0);
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowUp"||e.key.toLowerCase()==="w")move(0,-3);
+ if(e.key==="ArrowDown"||e.key.toLowerCase()==="s")move(0,3);
+ if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")move(-3,0);
+ if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")move(3,0);
+});
+
+function addLog(text,type="info"){
+ const d=document.createElement("div");
+ d.className="logline "+type;
+ d.textContent=text;
+ log.prepend(d);
+}
+
+function startEmergency(){
+ if(!started)return;
+ emergency=true;
+ scenario=scenarios[Math.floor(Math.random()*scenarios.length)];
+ scenarioEl.textContent=scenario.name;
+ objective.textContent="🚨 "+scenario.objective;
+ danger.style.display="block";
+ addLog("EMERGENCY: "+scenario.name,"bad");
+
+ setTimeout(()=>{
+   danger.style.display="none";
+   chooseScenario();
+ },2500);
+}
+
+function chooseScenario(){
+ const box=document.getElementById("modalBox");
+ box.innerHTML="<h2>🚨 What do you do?</h2><p>"+scenario.objective+
+ "<br><br><b>Choose the safest response.</b></p>";
+
+ scenario.choices.forEach(c=>{
+   const b=document.createElement("button");
+   b.className="choice";
+   b.textContent=c[0];
+   b.onclick=()=>answer(c);
+   box.appendChild(b);
+ });
+ document.getElementById("modal").style.display="flex";
+}
+
+function answer(choice){
+ score+=choice[2];
+ scoreEl.textContent=score;
+
+ document.getElementById("modal").style.display="none";
+
+ if(choice[1]==="good"){
+   addLog("✓ Good decision: "+choice[0],"good");
+   objective.textContent="✓ Good job. Stay safe and wait for help.";
+ }else{
+   addLog("✗ Risky decision: "+choice[0],"bad");
+   objective.textContent="⚠️ Risky choice. Remember: don't confront danger.";
+ }
+
+ emergency=false;
+ scenario=null;
+ scenarioEl.textContent="Normal";
+}
+
+function interact(type){
+ if(!started)return;
+
+ if(type==="phone"){
+   showModal(
+    "📱 EMERGENCY PHONE",
+    "In a real emergency, use your phone to contact emergency services or a trusted adult. This simulator does not place real calls.",
+    [
+     ["Practice: What information should you give?",()=>{
+       showModal("📞 CALL INFORMATION",
+       "Give your location, explain what is happening, and follow the emergency dispatcher’s instructions.",[
+        ["Got it",closeModal]
+       ]);
+     }],
+     ["Close",closeModal]
+    ]
+   );
+ }
+
+ if(type==="camera"){
+   showModal(
+    "📹 SECURITY CAMERA",
+    emergency
+      ?"The camera feed is simulated. Avoid approaching the suspected danger."
+      :"CAMERA STATUS: ONLINE<br><br>No current threat detected.",
+    [["Close",closeModal]]
+   );
+ }
+
+ if(type==="front"){
+   showModal(
+    "🚪 FRONT DOOR",
+    "The door is part of the simulation. During a suspected intrusion, don't open the door to investigate.",
+    [["Close",closeModal]]
+   );
+ }
+
+ if(type==="bedDoor"){
+   showModal(
+    "🚪 BEDROOM DOOR",
+    "A locked interior door can provide separation from a simulated threat.",
+    [["Close",closeModal]]
+   );
+ }
+
+ if(type==="backExit"){
+   showModal(
+    "🚪 SAFE EXIT",
+    "This is a training exit. In a real emergency, only leave if the route is clearly safe and emergency instructions support doing so.",
+    [["Close",closeModal]]
+   );
+ }
+
+ if(type==="kitchen"){
+   showModal(
+    "🍳 KITCHEN",
+    "Nothing unusual here. You can continue exploring.",
+    [["Close",closeModal]]
+   );
+ }
+
+}
+
+function showModal(title,text,buttons){
+ const box=document.getElementById("modalBox");
+ box.innerHTML="<h2>"+title+"</h2><p>"+text+"</p>";
+ buttons.forEach(item=>{
+   const b=document.createElement("button");
+   b.className="choice";
+   b.textContent=item[0];
+   b.onclick=item[1];
+   box.appendChild(b);
+ });
+ document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+ document.getElementById("modal").style.display="none";
+}
+
+function showHelp(){
+ showModal(
+  "❓ TRAINING GUIDE",
+  "<b>Movement:</b> use the arrow buttons, WASD, or arrow keys.<br><br>"+
+  "<b>Objects:</b> tap objects around the house.<br><br>"+
+  "<b>Emergencies:</b> choose the safest response. You are rewarded for avoiding confrontation and getting appropriate help.<br><br>"+
+  "<b>Real life:</b> get somewhere safe, contact a trusted adult or emergency services when appropriate, and follow their instructions.",
+  [["Close",closeModal]]
+ );
+}
+</script>
+</body>
+</html>
