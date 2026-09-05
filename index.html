@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f7fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>COMMAND — Mission Control</title>
+
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-database-compat.js"></script>
+
+<style>
+:root{
+  --bg:#f5f6fa;
+  --card:#ffffff;
+  --card2:#f0f2f7;
+  --text:#111318;
+  --muted:#69707d;
+  --line:#e1e4ea;
+  --accent:#635bff;
+  --accent2:#847cff;
+  --green:#19a463;
+  --red:#e5484d;
+  --orange:#e88918;
+  --shadow:0 15px 45px rgba(25,30,45,.08);
+  --radius:24px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+#app{min-height:100vh}
+
+.screen{
+  min-height:100vh;
+  width:100%;
+}
+
+.centerScreen{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.startCard{
+  width:min(560px,100%);
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:32px;
+  padding:34px;
+  box-shadow:var(--shadow);
+}
+
+.logo{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  background:var(--accent);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-size:25px;
+  font-weight:900;
+  margin-bottom:22px;
+}
+
+h1,h2,h3,p{margin-top:0}
+h1{font-size:38px;letter-spacing:-1.5px;margin-bottom:8px}
+h2{font-size:25px;letter-spacing:-.6px}
+h3{font-size:17px}
+
+.subtitle{
+  color:var(--muted);
+  line-height:1.55;
+  margin-bottom:28px;
+}
+
+.bigButtons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.btn{
+  border:0;
+  border-radius:16px;
+  min-height:50px;
+  padding:0 18px;
+  font-weight:750;
+  transition:.15s transform,.15s opacity;
+}
+
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:white}
+.btn.secondary{background:var(--card2);color:var(--text)}
+.btn.green{background:var(--green);color:white}
+.btn.red{background:var(--red);color:white}
+.btn.orange{background:var(--orange);color:white}
+.btn.full{width:100%}
+
+.input{
+  width:100%;
+  min-height:52px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:white;
+  padding:0 16px;
+  outline:none;
+  color:var(--text);
+}
+
+textarea.input{
+  padding:15px;
+  min-height:110px;
+  resize:vertical;
+}
+
+.input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(99,91,255,.10);
+}
+
+.label{
+  display:block;
+  font-size:13px;
+  font-weight:800;
+  color:var(--muted);
+  margin:18px 0 8px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+
+.joinBox{
+  display:flex;
+  gap:10px;
+}
+
+.codeInput{
+  text-transform:uppercase;
+  text-align:center;
+  font-weight:900;
+  letter-spacing:5px;
+  font-size:22px;
+}
+
+.errorBox{
+  margin-top:18px;
+  padding:15px;
+  background:#fff0f0;
+  color:#a5252b;
+  border:1px solid #ffd0d0;
+  border-radius:15px;
+  line-height:1.45;
+  font-size:14px;
+}
+
+/* APP */
+
+.appShell{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  height:72px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  letter-spacing:-.4px;
+}
+
+.brandIcon{
+  width:35px;
+  height:35px;
+  border-radius:11px;
+  background:var(--accent);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+}
+
+.roomBadge{
+  background:var(--card2);
+  padding:9px 13px;
+  border-radius:12px;
+  font-weight:850;
+  letter-spacing:1.5px;
+  font-size:13px;
+}
+
+.topActions{
+  display:flex;
+  gap:8px;
+}
+
+.iconBtn{
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:12px;
+  background:var(--card2);
+  color:var(--text);
+  font-weight:900;
+}
+
+.main{
+  width:min(1250px,100%);
+  margin:auto;
+  padding:24px;
+  flex:1;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-bottom:22px;
+  padding-bottom:2px;
+}
+
+.tab{
+  white-space:nowrap;
+  border:0;
+  background:transparent;
+  padding:11px 15px;
+  border-radius:12px;
+  font-weight:800;
+  color:var(--muted);
+}
+
+.tab.active{
+  background:var(--text);
+  color:white;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:16px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:0 5px 20px rgba(20,25,40,.035);
+}
+
+.span12{grid-column:span 12}
+.span8{grid-column:span 8}
+.span6{grid-column:span 6}
+.span4{grid-column:span 4}
+
+.cardTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.cardTitle h2{
+  margin:0;
+}
+
+.small{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.statGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.stat{
+  padding:17px;
+  background:var(--card2);
+  border-radius:18px;
+}
+
+.statNumber{
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.statLabel{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+  margin-top:3px;
+}
+
+.typeGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.typeCard{
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:white;
+  text-align:left;
+  transition:.15s;
+}
+
+.typeCard:hover{border-color:#bbb}
+.typeCard.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(99,91,255,.10);
+}
+
+.typeIcon{
+  font-size:25px;
+  margin-bottom:10px;
+}
+
+.typeName{
+  font-weight:850;
+}
+
+.typeDesc{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:3px;
+}
+
+.difficulty{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.diff{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:white;
+  min-height:44px;
+  font-weight:800;
+}
+
+.diff.selected{
+  background:var(--text);
+  color:white;
+  border-color:var(--text);
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.row>*{flex:1}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.preview{
+  background:#111318;
+  color:white;
+  border-radius:22px;
+  overflow:hidden;
+}
+
+.previewHeader{
+  padding:20px;
+  background:linear-gradient(135deg,#171820,#292a38);
+}
+
+.previewBody{
+  padding:20px;
+}
+
+.previewTag{
+  display:inline-block;
+  padding:6px 9px;
+  border-radius:9px;
+  background:rgba(255,255,255,.10);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+
+.objective{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.objective:last-child{border-bottom:0}
+
+.check{
+  width:24px;
+  height:24px;
+  border-radius:8px;
+  border:2px solid #c7cad2;
+  flex:none;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  font-weight:900;
+}
+
+.check.done{
+  background:var(--green);
+  border-color:var(--green);
+  color:white;
+}
+
+.agent{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.agent:last-child{border-bottom:0}
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:13px;
+  background:var(--card2);
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+
+.online{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--green);
+  display:inline-block;
+  margin-left:5px;
+}
+
+.chat{
+  height:430px;
+  display:flex;
+  flex-direction:column;
+}
+
+.messages{
+  flex:1;
+  overflow:auto;
+  padding:5px;
+}
+
+.message{
+  margin-bottom:11px;
+}
+
+.messageName{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:3px;
+}
+
+.bubble{
+  display:inline-block;
+  max-width:85%;
+  background:var(--card2);
+  padding:10px 13px;
+  border-radius:14px;
+  line-height:1.4;
+  font-size:14px;
+}
+
+.myMessage{text-align:right}
+.myMessage .bubble{
+  background:var(--accent);
+  color:white;
+}
+
+.chatInput{
+  display:flex;
+  gap:8px;
+  padding-top:10px;
+}
+
+.log{
+  max-height:420px;
+  overflow:auto;
+}
+
+.logItem{
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+.logTime{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:3px;
+}
+
+.callCard{
+  background:#111318;
+  color:white;
+  border-radius:20px;
+  padding:22px;
+  position:relative;
+  overflow:hidden;
+}
+
+.callPulse{
+  position:absolute;
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.15);
+  right:-40px;
+  top:-40px;
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  50%{transform:scale(1.3);opacity:.2}
+}
+
+.bigCode{
+  font-size:48px;
+  letter-spacing:8px;
+  font-weight:950;
+  text-align:center;
+  padding:22px;
+}
+
+.agentHero{
+  background:#111318;
+  color:white;
+  border-radius:28px;
+  padding:25px;
+  margin-bottom:16px;
+}
+
+.agentTitle{
+  font-size:34px;
+  letter-spacing:-1px;
+  margin:12px 0;
+}
+
+.timer{
+  font-size:48px;
+  font-weight:950;
+  letter-spacing:-2px;
+  font-variant-numeric:tabular-nums;
+}
+
+.timer.warning{color:#ffb020}
+.timer.danger{color:#ff5a61}
+
+.clue{
+  padding:14px;
+  border-radius:15px;
+  background:#fff8e8;
+  border:1px solid #f3dfb1;
+  margin-bottom:9px;
+}
+
+.clue b{
+  display:block;
+  font-size:12px;
+  text-transform:uppercase;
+  color:#9a6815;
+  margin-bottom:4px;
+}
+
+.fx{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  pointer-events:none;
+  opacity:0;
+}
+
+.fx.flash{
+  animation:flash .5s ease;
+  background:white;
+}
+
+@keyframes flash{
+  0%,100%{opacity:0}
+  25%{opacity:1}
+}
+
+body.shake{
+  animation:shake .45s;
+}
+
+@keyframes shake{
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+
+.glitch{
+  animation:glitch .5s;
+}
+
+@keyframes glitch{
+  20%{transform:skewX(8deg)}
+  40%{transform:skewX(-8deg)}
+  60%{transform:translateX(7px)}
+  80%{transform:translateX(-7px)}
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(12px);
+  z-index:500;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal{
+  width:min(500px,100%);
+  background:white;
+  border-radius:28px;
+  padding:25px;
+  box-shadow:0 25px 80px rgba(0,0,0,.25);
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111318;
+  color:white;
+  padding:13px 17px;
+  border-radius:14px;
+  z-index:2000;
+  font-size:13px;
+  font-weight:700;
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:9px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.status.active{background:#e9f8f1;color:#087b48}
+.status.waiting{background:#fff4dd;color:#986312}
+.status.failed{background:#ffeded;color:#a3292e}
+
+@media(max-width:850px){
+  .span8,.span6,.span4{grid-column:span 12}
+  .statGrid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:600px){
+  .startCard{padding:25px;border-radius:26px}
+  h1{font-size:32px}
+  .bigButtons{grid-template-columns:1fr}
+  .main{padding:15px}
+  .topbar{padding:0 13px}
+  .brand span{display:none}
+  .typeGrid{grid-template-columns:repeat(2,1fr)}
+  .difficulty{grid-template-columns:repeat(2,1fr)}
+  .agentTitle{font-size:27px}
+  .timer{font-size:40px}
+  .bigCode{font-size:38px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- START -->
+  <section id="startScreen" class="screen centerScreen">
+    <div class="startCard">
+      <div class="logo">C</div>
+      <h1>COMMAND</h1>
+      <p class="subtitle">
+        Build missions. Create an HQ. Deploy agents.
+        Everything syncs live between devices.
+      </p>
+
+      <div class="bigButtons">
+        <button class="btn primary" onclick="showCreate()">CREATE HQ</button>
+        <button class="btn secondary" onclick="showJoin()">JOIN HQ</button>
+      </div>
+
+      <div id="startError"></div>
+    </div>
+  </section>
+
+  <!-- CREATE -->
+  <section id="createScreen" class="screen centerScreen hidden">
+    <div class="startCard">
+      <div class="logo">+</div>
+      <h1>Create HQ</h1>
+      <p class="subtitle">
+        You're the commander. Design the mission before deploying it.
+      </p>
+
+      <button class="btn primary full" onclick="createHQ()">CREATE COMMAND ROOM</button>
+      <br><br>
+      <button class="btn secondary full" onclick="backHome()">BACK</button>
+
+      <div id="createError"></div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section id="joinScreen" class="screen centerScreen hidden">
+    <div class="startCard">
+      <div class="logo">→</div>
+      <h1>Join HQ</h1>
+      <p class="subtitle">
+        Enter the five-character room code given to you by the commander.
+      </p>
+
+      <input
+        id="joinCode"
+        class="input codeInput"
+        maxlength="5"
+        placeholder="ABCDE"
+        autocomplete="off"
+      >
+
+      <br><br>
+
+      <input
+        id="agentName"
+        class="input"
+        maxlength="24"
+        placeholder="Your agent name"
+      >
+
+      <br><br>
+
+      <button class="btn primary full" onclick="joinHQ()">JOIN MISSION</button>
+      <br><br>
+      <button class="btn secondary full" onclick="backHome()">BACK</button>
+
+      <div id="joinError"></div>
+    </div>
+  </section>
+
+  <!-- CONTROL APP -->
+  <section id="controlScreen" class="screen hidden"></section>
+
+  <!-- AGENT APP -->
+  <section id="agentScreen" class="screen hidden"></section>
+
+</div>
+
+<div id="fx" class="fx"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+/* =========================================================
+   FIREBASE
+========================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAwziSLxKnyFi8of5Ab3SNXOmVQwo1Ngn5M",
+  authDomain: "web-walkie-talkie-eb91f.firebaseapp.com",
+  databaseURL: "https://web-walkie-talkie-eb91f-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "web-walkie-talkie-eb91f",
+  storageBucket: "web-walkie-talkie-eb91f.firebasestorage.app",
+  messagingSenderId: "174542114980",
+  appId: "1:174542114980:web:f4a48ec7fe322030bdd631",
+  measurementId: "G-C30GXQBM4G"
+};
+
+let db = null;
+let auth = null;
+let currentUser = null;
+let roomCode = null;
+let isCommander = false;
+let playerName = "";
+let roomData = null;
+let currentTab = "design";
+
+let missionDraft = {
+  type:"recon",
+  difficulty:"standard",
+  title:"",
+  briefing:"",
+  objectives:[""],
+  clues:[""],
+  countdown:10,
+  success:"",
+  failure:""
+};
+
+const missionTypes = {
+  recon:{
+    icon:"◎",
+    name:"Recon",
+    desc:"Observe and report"
+  },
+  extraction:{
+    icon:"⇩",
+    name:"Extraction",
+    desc:"Retrieve a target"
+  },
+  investigation:{
+    icon:"⌕",
+    name:"Investigation",
+    desc:"Solve the mystery"
+  },
+  escort:{
+    icon:"◇",
+    name:"Escort",
+    desc:"Protect the target"
+  },
+  survival:{
+    icon:"△",
+    name:"Survival",
+    desc:"Stay operational"
+  },
+  covert:{
+    icon:"◈",
+    name:"Covert",
+    desc:"Complete silently"
+  }
+};
+
+const difficulties = ["easy","standard","hard","extreme"];
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+function initFirebase(){
+  try{
+    if(!firebase.apps.length){
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    auth = firebase.auth();
+    db = firebase.database();
+
+    return true;
+  }catch(err){
+    showGlobalError("Firebase failed to initialize: " + err.message);
+    return false;
+  }
+}
+
+async function ensureAuth(){
+  if(!auth) initFirebase();
+
+  if(auth.currentUser){
+    currentUser = auth.currentUser;
+    return currentUser;
+  }
+
+  try{
+    const result = await auth.signInAnonymously();
+    currentUser = result.user;
+    return currentUser;
+  }catch(err){
+    throw new Error(
+      "Anonymous Authentication is not enabled or Firebase rejected the request. " +
+      err.message
+    );
+  }
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function hideAll(){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));
+}
+
+function showCreate(){
+  hideAll();
+  document.getElementById("createScreen").classList.remove("hidden");
+}
+
+function showJoin(){
+  hideAll();
+  document.getElementById("joinScreen").classList.remove("hidden");
+}
+
+function backHome(){
+  hideAll();
+  document.getElementById("startScreen").classList.remove("hidden");
+}
+
+function showGlobalError(message){
+  hideAll();
+  const box = document.getElementById("startScreen");
+  box.classList.remove("hidden");
+
+  document.querySelector("#startScreen .startCard").insertAdjacentHTML(
+    "beforeend",
+    `<div class="errorBox">
+      <b>Firebase Error</b><br><br>${escapeHTML(message)}
+    </div>`
+  );
+}
+
+
+/* =========================================================
+   ROOM CREATION
+========================================================= */
+
+function randomCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+
+  for(let i=0;i<5;i++){
+    code += chars[Math.floor(Math.random()*chars.length)];
+  }
+
+  return code;
+}
+
+async function createHQ(){
+
+  const error = document.getElementById("createError");
+  error.innerHTML = "";
+
+  try{
+    await ensureAuth();
+
+    let code = randomCode();
+    let snap = await db.ref("rooms/"+code).once("value");
+
+    while(snap.exists()){
+      code = randomCode();
+      snap = await db.ref("rooms/"+code).once("value");
+    }
+
+    roomCode = code;
+    isCommander = true;
+    playerName = "COMMANDER";
+
+    await db.ref("rooms/"+roomCode).set({
+      createdAt:firebase.database.ServerValue.TIMESTAMP,
+      creator:currentUser.uid,
+      status:"LOBBY",
+      mission:null,
+      players:{},
+      chat:{},
+      command:null,
+      dj:null,
+      call:null,
+      effect:null,
+      activity:{
+        created:{
+          text:"HQ created",
+          time:firebase.database.ServerValue.TIMESTAMP
+        }
+      }
+    });
+
+    openControl();
+
+  }catch(err){
+    error.innerHTML = `<div class="errorBox">${escapeHTML(err.message)}</div>`;
+  }
+}
+
+
+/* =========================================================
+   JOIN
+========================================================= */
+
+async function joinHQ(){
+
+  const error = document.getElementById("joinError");
+  error.innerHTML = "";
+
+  const code = document.getElementById("joinCode").value
+    .trim()
+    .toUpperCase();
+
+  const name = document.getElementById("agentName").value.trim();
+
+  if(code.length !== 5){
+    error.innerHTML = `<div class="errorBox">Enter a valid 5-character HQ code.</div>`;
+    return;
+  }
+
+  if(!name){
+    error.innerHTML = `<div class="errorBox">Enter an agent name.</div>`;
+    return;
+  }
+
+  try{
+    await ensureAuth();
+
+    const snap = await db.ref("rooms/"+code).once("value");
+
+    if(!snap.exists()){
+      throw new Error("That HQ does not exist.");
+    }
+
+    roomCode = code;
+    playerName = name;
+    isCommander = false;
+
+    await db.ref(
+      `rooms/${roomCode}/players/${currentUser.uid}`
+    ).set({
+      name:playerName,
+      joinedAt:firebase.database.ServerValue.TIMESTAMP,
+      online:true,
+      role:"AGENT"
+    });
+
+    await db.ref(`rooms/${roomCode}/activity`).push({
+      text:`${playerName} joined the HQ`,
+      time:firebase.database.ServerValue.TIMESTAMP
+    });
+
+    openAgent();
+
+  }catch(err){
+    error.innerHTML = `<div class="errorBox">${escapeHTML(err.message)}</div>`;
+  }
+}
+
+
+/* =========================================================
+   CONTROL UI
+========================================================= */
+
+function openControl(){
+
+  hideAll();
+
+  const screen = document.getElementById("controlScreen");
+  screen.classList.remove("hidden");
+
+  screen.innerHTML = `
+    <div class="appShell">
+
+      <header class="topbar">
+        <div class="brand">
+          <div class="brandIcon">C</div>
+          <span>COMMAND HQ</span>
+        </div>
+
+        <div class="row" style="flex:none">
+          <div class="roomBadge">${roomCode}</div>
+          <button class="iconBtn" onclick="fullscreen()">⛶</button>
+        </div>
+      </header>
+
+      <main class="main">
+
+        <div class="tabs">
+          <button class="tab active" data-tab="design" onclick="setControlTab('design')">DESIGN</button>
+          <button class="tab" data-tab="agents" onclick="setControlTab('agents')">AGENTS</button>
+          <button class="tab" data-tab="chat" onclick="setControlTab('chat')">CHAT</button>
+          <button class="tab" data-tab="command" onclick="setControlTab('command')">COMMAND</button>
+          <button class="tab" data-tab="activity" onclick="setControlTab('activity')">ACTIVITY</button>
+        </div>
+
+        <div id="controlContent"></div>
+
+      </main>
+    </div>
+  `;
+
+  listenToRoom();
+  renderControl();
+}
+
+function setControlTab(tab){
+  currentTab = tab;
+
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.tab===tab);
+  });
+
+  renderControl();
+}
+
+
+/* =========================================================
+   CONTROL RENDER
+========================================================= */
+
+function renderControl(){
+
+  const root = document.getElementById("controlContent");
+  if(!root) return;
+
+  if(currentTab==="design") root.innerHTML = renderDesigner();
+  if(currentTab==="agents") root.innerHTML = renderAgents();
+  if(currentTab==="chat") root.innerHTML = renderChat(true);
+  if(currentTab==="command") root.innerHTML = renderCommand();
+  if(currentTab==="activity") root.innerHTML = renderActivity();
+
+  if(currentTab==="chat") scrollChat();
+}
+
+
+/* =========================================================
+   DESIGNER
+========================================================= */
+
+function renderDesigner(){
+
+  const mission = roomData?.mission;
+
+  return `
+    <div class="grid">
+
+      <div class="card span8">
+
+        <div class="cardTitle">
+          <div>
+            <h2>Mission Designer</h2>
+            <div class="small">Build the mission first. Agents receive the finished version.</div>
+          </div>
+
+          ${
+            mission
+            ? `<span class="status active">MISSION LIVE</span>`
+            : `<span class="status waiting">DRAFT</span>`
+          }
+        </div>
+
+        <label class="label">Mission Type</label>
+
+        <div class="typeGrid">
+          ${Object.entries(missionTypes).map(([key,t])=>`
+            <button
+              class="typeCard ${missionDraft.type===key?'selected':''}"
+              onclick="setMissionType('${key}')"
+            >
+              <div class="typeIcon">${t.icon}</div>
+              <div class="typeName">${t.name}</div>
+              <div class="typeDesc">${t.desc}</div>
+            </button>
+          `).join("")}
+        </div>
+
+        <label class="label">Difficulty</label>
+
+        <div class="difficulty">
+          ${difficulties.map(d=>`
+            <button
+              class="diff ${missionDraft.difficulty===d?'selected':''}"
+              onclick="setDifficulty('${d}')"
+            >
+              ${capitalize(d)}
+            </button>
+          `).join("")}
+        </div>
+
+        <label class="label">Mission Title</label>
+
+        <input
+          class="input"
+          value="${escapeAttr(missionDraft.title)}"
+          placeholder="Operation Nightfall"
+          oninput="missionDraft.title=this.value"
+        >
+
+        <label class="label">Briefing</label>
+
+        <textarea
+          class="input"
+          placeholder="Explain what the agents need to know..."
+          oninput="missionDraft.briefing=this.value"
+        >${escapeHTML(missionDraft.briefing)}</textarea>
+
+        <label class="label">Time Limit — Minutes</label>
+
+        <input
+          class="input"
+          type="number"
+          min="1"
+          max="180"
+          value="${missionDraft.countdown}"
+          oninput="missionDraft.countdown=Math.max(1,Number(this.value)||1)"
+        >
+
+        <label class="label">Objectives</label>
+
+        <div id="objectiveEditor">
+          ${missionDraft.objectives.map((x,i)=>`
+            <div class="row" style="margin-bottom:9px">
+              <input
+                class="input"
+                value="${escapeAttr(x)}"
+                placeholder="Objective ${i+1}"
+                oninput="missionDraft.objectives[${i}]=this.value"
+              >
+              <button
+                class="iconBtn"
+                onclick="removeObjective(${i})"
+                ${missionDraft.objectives.length===1?'disabled':''}
+              >×</button>
+            </div>
+          `).join("")}
+        </div>
+
+        <button class="btn secondary" onclick="addObjective()">+ ADD OBJECTIVE</button>
+
+        <label class="label">Clues</label>
+
+        <div>
+          ${missionDraft.clues.map((x,i)=>`
+            <div class="row" style="margin-bottom:9px">
+              <input
+                class="input"
+                value="${escapeAttr(x)}"
+                placeholder="Clue ${i+1}"
+                oninput="missionDraft.clues[${i}]=this.value"
+              >
+              <button
+                class="iconBtn"
+                onclick="removeClue(${i})"
+                ${missionDraft.clues.length===1?'disabled':''}
+              >×</button>
+            </div>
+          `).join("")}
+        </div>
+
+        <button class="btn secondary" onclick="addClue()">+ ADD CLUE</button>
+
+        <label class="label">Success Condition</label>
+
+        <textarea
+          class="input"
+          placeholder="What must agents accomplish?"
+          oninput="missionDraft.success=this.value"
+        >${escapeHTML(missionDraft.success)}</textarea>
+
+        <label class="label">Failure Condition</label>
+
+        <textarea
+          class="input"
+          placeholder="What causes mission failure?"
+          oninput="missionDraft.failure=this.value"
+        >${escapeHTML(missionDraft.failure)}</textarea>
+
+        <br>
+
+        <div class="actions">
+          <button class="btn primary" onclick="deployMission()">DEPLOY MISSION</button>
+          <button class="btn secondary" onclick="clearMission()">CLEAR DRAFT</button>
+        </div>
+
+      </div>
+
+      <div class="span4">
+        ${renderMissionPreview()}
+      </div>
+
+    </div>
+  `;
+}
+
+function renderMissionPreview(){
+
+  const title = missionDraft.title || "Untitled Operation";
+  const briefing = missionDraft.briefing || "Mission briefing will appear here.";
+  const objectives = missionDraft.objectives.filter(Boolean);
+
+  return `
+    <div class="preview">
+
+      <div class="previewHeader">
+        <span class="previewTag">
+          ${capitalize(missionDraft.difficulty)} · ${missionTypes[missionDraft.type].name}
+        </span>
+
+        <h2 style="margin:15px 0 5px;color:white">${escapeHTML(title)}</h2>
+
+        <div style="opacity:.72;font-size:13px">
+          ${missionDraft.countdown} minute operation
+        </div>
+      </div>
+
+      <div class="previewBody">
+
+        <p style="opacity:.82;line-height:1.5">
+          ${escapeHTML(briefing)}
+        </p>
+
+        <h3>OBJECTIVES</h3>
+
+        ${
+          objectives.length
+          ? objectives.map((x,i)=>`
+              <div class="objective">
+                <div class="check"></div>
+                <div>${escapeHTML(x)}</div>
+              </div>
+            `).join("")
+          : `<div style="opacity:.55">No objectives yet.</div>`
+        }
+
+      </div>
+    </div>
+  `;
+}
+
+function setMissionType(type){
+  missionDraft.type=type;
+  renderControl();
+}
+
+function setDifficulty(difficulty){
+  missionDraft.difficulty=difficulty;
+  renderControl();
+}
+
+function addObjective(){
+  missionDraft.objectives.push("");
+  renderControl();
+}
+
+function removeObjective(i){
+  missionDraft.objectives.splice(i,1);
+  renderControl();
+}
+
+function addClue(){
+  missionDraft.clues.push("");
+  renderControl();
+}
+
+function removeClue(i){
+  missionDraft.clues.splice(i,1);
+  renderControl();
+}
+
+function clearMission(){
+  missionDraft={
+    type:"recon",
+    difficulty:"standard",
+    title:"",
+    briefing:"",
+    objectives:[""],
+    clues:[""],
+    countdown:10,
+    success:"",
+    failure:""
+  };
+
+  renderControl();
+}
+
+async function deployMission(){
+
+  const title=missionDraft.title.trim();
+  const briefing=missionDraft.briefing.trim();
+
+  if(!title){
+    toast("Give the mission a title first.");
+    return;
+  }
+
+  if(!briefing){
+    toast("Add a briefing first.");
+    return;
+  }
+
+  const objectives=missionDraft.objectives
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  if(!objectives.length){
+    toast("Add at least one objective.");
+    return;
+  }
+
+  const mission={
+    id:"M"+Date.now(),
+    type:missionDraft.type,
+    difficulty:missionDraft.difficulty,
+    title,
+    briefing,
+    objectives,
+    clues:missionDraft.clues.map(x=>x.trim()).filter(Boolean),
+    countdown:Number(missionDraft.countdown)||10,
+    success:missionDraft.success.trim(),
+    failure:missionDraft.failure.trim(),
+    deployedAt:firebase.database.ServerValue.TIMESTAMP,
+    status:"ACTIVE",
+    objectiveState:objectives.map(()=>false)
+  };
+
+  await db.ref(`rooms/${roomCode}`).update({
+    mission,
+    status:"ACTIVE"
+  });
+
+  await logActivity("Mission deployed: "+title);
+
+  toast("MISSION DEPLOYED");
+
+  currentTab="command";
+  renderControl();
+}
+
+
+/* =========================================================
+   AGENTS
+========================================================= */
+
+function renderAgents(){
+
+  const players=roomData?.players||{};
+  const list=Object.entries(players);
+
+  return `
+    <div class="grid">
+
+      <div class="card span8">
+
+        <div class="cardTitle">
+          <div>
+            <h2>Agents</h2>
+            <div class="small">${list.length} connected</div>
+          </div>
+        </div>
+
+        ${
+          list.length
+          ? list.map(([uid,p])=>`
+            <div class="agent">
+
+              <div class="avatar">
+                ${escapeHTML((p.name||"?").charAt(0).toUpperCase())}
+              </div>
+
+              <div style="flex:1">
+                <b>${escapeHTML(p.name||"Unknown")}</b>
+                <div class="small">
+                  ${p.role||"AGENT"}
+                  <span class="online"></span>
+                </div>
+              </div>
+
+              <button class="btn secondary" onclick="sendPrivateCall('${uid}')">
+                CALL
+              </button>
+
+            </div>
+          `).join("")
+          : `<div class="small">No agents have joined yet.</div>`
+        }
+
+      </div>
+
+      <div class="card span4">
+
+        <h2>HQ Code</h2>
+
+        <div class="bigCode">${roomCode}</div>
+
+        <button class="btn primary full" onclick="copyRoomCode()">
+          COPY CODE
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+function renderChat(){
+
+  const messages=roomData?.chat||{};
+
+  const list=Object.entries(messages)
+    .sort((a,b)=>(a[1].time||0)-(b[1].time||0));
+
+  return `
+    <div class="card">
+
+      <div class="cardTitle">
+        <div>
+          <h2>Live HQ Chat</h2>
+          <div class="small">Messages sync instantly.</div>
+        </div>
+      </div>
+
+      <div class="chat">
+
+        <div class="messages" id="messages">
+
+          ${
+            list.length
+            ? list.map(([id,m])=>`
+              <div class="message ${m.uid===currentUser?.uid?'myMessage':''}">
+
+                <div class="messageName">
+                  ${escapeHTML(m.name||"Agent")}
+                </div>
+
+                <div class="bubble">
+                  ${escapeHTML(m.text||"")}
+                </div>
+
+              </div>
+            `).join("")
+            : `<div class="small">No messages yet.</div>`
+          }
+
+        </div>
+
+        <div class="chatInput">
+          <input
+            id="chatText"
+            class="input"
+            placeholder="Send a message..."
+            onkeydown="if(event.key==='Enter')sendChat()"
+          >
+
+          <button class="btn primary" onclick="sendChat()">SEND</button>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+async function sendChat(){
+
+  const input=document.getElementById("chatText");
+  if(!input)return;
+
+  const text=input.value.trim();
+  if(!text)return;
+
+  await db.ref(`rooms/${roomCode}/chat`).push({
+    uid:currentUser.uid,
+    name:playerName,
+    text,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  input.value="";
+}
+
+function scrollChat(){
+  setTimeout(()=>{
+    const box=document.getElementById("messages");
+    if(box)box.scrollTop=box.scrollHeight;
+  },30);
+}
+
+
+/* =========================================================
+   COMMAND CENTER
+========================================================= */
+
+function renderCommand(){
+
+  const mission=roomData?.mission;
+
+  return `
+    <div class="grid">
+
+      <div class="card span8">
+
+        <div class="cardTitle">
+          <div>
+            <h2>Remote Command</h2>
+            <div class="small">Everything here is sent to connected agents.</div>
+          </div>
+        </div>
+
+        <h3>MISSION</h3>
+
+        <div class="actions">
+
+          <button class="btn green" onclick="sendMissionSignal('START')">
+            START
+          </button>
+
+          <button class="btn orange" onclick="sendMissionSignal('HOLD')">
+            HOLD
+          </button>
+
+          <button class="btn red" onclick="sendMissionSignal('ABORT')">
+            ABORT
+          </button>
+
+        </div>
+
+        <br>
+
+        <h3>REMOTE EFFECTS</h3>
+
+        <div class="actions">
+
+          <button class="btn secondary" onclick="sendEffect('flash')">FLASH</button>
+          <button class="btn secondary" onclick="sendEffect('shake')">SHAKE</button>
+          <button class="btn secondary" onclick="sendEffect('glitch')">GLITCH</button>
+
+        </div>
+
+        <br>
+
+        <h3>REMOTE SOUNDS</h3>
+
+        <div class="actions">
+
+          <button class="btn secondary" onclick="sendSound('beep')">BEEP</button>
+          <button class="btn secondary" onclick="sendSound('alert')">ALERT</button>
+          <button class="btn secondary" onclick="sendSound('success')">SUCCESS</button>
+
+        </div>
+
+        <br>
+
+        <h3>HQ CALL</h3>
+
+        <div class="actions">
+
+          <button class="btn primary" onclick="sendCall()">
+            INCOMING HQ CALL
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="span4">
+
+        <div class="callCard">
+
+          <div class="callPulse"></div>
+
+          <div style="font-size:11px;font-weight:900;opacity:.6">
+            LIVE COMMAND
+          </div>
+
+          <h2 style="color:white">
+            ${mission ? escapeHTML(mission.title) : "No active mission"}
+          </h2>
+
+          <p style="opacity:.7">
+            ${
+              mission
+              ? "Agents are receiving commands."
+              : "Deploy a mission from DESIGN."
+            }
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
+
+async function sendMissionSignal(signal){
+
+  await db.ref(`rooms/${roomCode}/command`).set({
+    type:signal,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity("Command sent: "+signal);
+
+  toast("COMMAND SENT: "+signal);
+}
+
+async function sendEffect(effect){
+
+  await db.ref(`rooms/${roomCode}/effect`).set({
+    type:effect,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity("Effect triggered: "+effect);
+
+  toast("EFFECT SENT");
+}
+
+async function sendSound(sound){
+
+  await db.ref(`rooms/${roomCode}/dj`).set({
+    sound,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity("Remote sound: "+sound);
+
+  toast("SOUND SENT");
+}
+
+async function sendCall(){
+
+  await db.ref(`rooms/${roomCode}/call`).set({
+    active:true,
+    from:"COMMAND",
+    message:"Incoming HQ transmission",
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity("HQ call transmitted");
+
+  toast("HQ CALL SENT");
+}
+
+async function sendPrivateCall(uid){
+
+  await db.ref(`rooms/${roomCode}/call`).set({
+    active:true,
+    target:uid,
+    from:"COMMAND",
+    message:"Private HQ transmission",
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  toast("PRIVATE CALL SENT");
+}
+
+
+/* =========================================================
+   ACTIVITY
+========================================================= */
+
+function renderActivity(){
+
+  const logs=roomData?.activity||{};
+
+  const list=Object.values(logs)
+    .sort((a,b)=>(b.time||0)-(a.time||0));
+
+  return `
+    <div class="card">
+
+      <div class="cardTitle">
+        <div>
+          <h2>Activity Log</h2>
+          <div class="small">Live HQ events.</div>
+        </div>
+      </div>
+
+      <div class="log">
+
+        ${
+          list.length
+          ? list.map(x=>`
+            <div class="logItem">
+              <div class="logTime">
+                ${formatTime(x.time)}
+              </div>
+              ${escapeHTML(x.text||"")}
+            </div>
+          `).join("")
+          : `<div class="small">Nothing has happened yet.</div>`
+        }
+
+      </div>
+
+    </div>
+  `;
+}
+
+async function logActivity(text){
+
+  await db.ref(`rooms/${roomCode}/activity`).push({
+    text,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+}
+
+
+/* =========================================================
+   AGENT APP
+========================================================= */
+
+function openAgent(){
+
+  hideAll();
+
+  const screen=document.getElementById("agentScreen");
+  screen.classList.remove("hidden");
+
+  screen.innerHTML=`
+    <div class="appShell">
+
+      <header class="topbar">
+
+        <div class="brand">
+          <div class="brandIcon">A</div>
+          <span>AGENT MODE</span>
+        </div>
+
+        <div class="row" style="flex:none">
+          <div class="roomBadge">${roomCode}</div>
+          <button class="iconBtn" onclick="fullscreen()">⛶</button>
+        </div>
+
+      </header>
+
+      <main class="main">
+        <div id="agentContent"></div>
+      </main>
+
+    </div>
+  `;
+
+  listenToRoom();
+  renderAgent();
+}
+
+function renderAgent(){
+
+  const root=document.getElementById("agentContent");
+  if(!root)return;
+
+  const mission=roomData?.mission;
+
+  if(!mission){
+
+    root.innerHTML=`
+      <div class="card" style="text-align:center;padding:50px 20px">
+
+        <div class="logo" style="margin:0 auto 20px">⌛</div>
+
+        <h2>Waiting for Mission</h2>
+
+        <p class="subtitle">
+          You're connected to HQ as <b>${escapeHTML(playerName)}</b>.
+          The commander hasn't deployed the mission yet.
+        </p>
+
+        <div class="status waiting">CONNECTED TO HQ</div>
+
+        <br><br>
+
+        <button class="btn secondary" onclick="enableAudio()">
+          ENABLE AUDIO
+        </button>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  root.innerHTML=`
+
+    <div class="agentHero">
+
+      <div class="previewTag">
+        ${escapeHTML(mission.type.toUpperCase())} ·
+        ${escapeHTML(mission.difficulty.toUpperCase())}
+      </div>
+
+      <div class="agentTitle">
+        ${escapeHTML(mission.title)}
+      </div>
+
+      <p style="opacity:.72;line-height:1.5">
+        ${escapeHTML(mission.briefing)}
+      </p>
+
+      <div class="timer" id="agentTimer">
+        ${formatTimer(getRemainingSeconds())}
+      </div>
+
+    </div>
+
+    <div class="grid">
+
+      <div class="card span8">
+
+        <div class="cardTitle">
+          <div>
+            <h2>Objectives</h2>
+            <div class="small">Complete every objective.</div>
+          </div>
+        </div>
+
+        <div id="agentObjectives">
+          ${renderAgentObjectives(mission)}
+        </div>
+
+        <br>
+
+        <div class="actions">
+
+          <button class="btn green" onclick="missionSuccess()">
+            MISSION SUCCESS
+          </button>
+
+          <button class="btn red" onclick="missionFailure()">
+            MISSION FAILED
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card span4">
+
+        <h2>Clues</h2>
+
+        ${
+          mission.clues?.length
+          ? mission.clues.map((c,i)=>`
+              <div class="clue">
+                <b>Clue ${i+1}</b>
+                ${escapeHTML(c)}
+              </div>
+            `).join("")
+          : `<div class="small">No clues provided.</div>`
+        }
+
+        <br>
+
+        <button class="btn secondary full" onclick="enableAudio()">
+          ENABLE AUDIO
+        </button>
+
+      </div>
+
+      <div class="card span12">
+
+        <div class="cardTitle">
+          <div>
+            <h2>HQ Chat</h2>
+            <div class="small">Talk with command and other agents.</div>
+          </div>
+        </div>
+
+        ${renderChat()}
+
+      </div>
+
+    </div>
+  `;
+
+  startAgentTimer();
+}
+
+function renderAgentObjectives(mission){
+
+  return mission.objectives.map((obj,i)=>{
+
+    const done=mission.objectiveState?.[i]===true;
+
+    return `
+      <div
+        class="objective"
+        onclick="toggleObjective(${i})"
+        style="cursor:pointer"
+      >
+
+        <div class="check ${done?'done':''}">
+          ${done?'✓':''}
+        </div>
+
+        <div>
+          <b>${escapeHTML(obj)}</b>
+
+          ${
+            done
+            ? `<div class="small">Completed</div>`
+            : `<div class="small">Tap to mark complete</div>`
+          }
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+async function toggleObjective(index){
+
+  const mission=roomData?.mission;
+  if(!mission)return;
+
+  const state=[...(mission.objectiveState||[])];
+
+  state[index]=!state[index];
+
+  await db.ref(`rooms/${roomCode}/mission/objectiveState`).set(state);
+
+  await logActivity(
+    `${playerName} ${state[index]?'completed':'uncompleted'} objective ${index+1}`
+  );
+}
+
+async function missionSuccess(){
+
+  await db.ref(`rooms/${roomCode}/command`).set({
+    type:"MISSION_SUCCESS",
+    by:playerName,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity(`${playerName} reported mission success`);
+
+  toast("MISSION SUCCESS");
+}
+
+async function missionFailure(){
+
+  await db.ref(`rooms/${roomCode}/command`).set({
+    type:"MISSION_FAILURE",
+    by:playerName,
+    time:firebase.database.ServerValue.TIMESTAMP
+  });
+
+  await logActivity(`${playerName} reported mission failure`);
+
+  toast("MISSION FAILED");
+}
+
+
+/* =========================================================
+   REALTIME LISTENER
+========================================================= */
+
+let roomListenerStarted=false;
+let lastEffectTime=0;
+let lastSoundTime=0;
+let lastCallTime=0;
+let timerInterval=null;
+let missionStartTime=null;
+
+function listenToRoom(){
+
+  if(roomListenerStarted)return;
+
+  roomListenerStarted=true;
+
+  db.ref(`rooms/${roomCode}`).on("value",snap=>{
+
+    roomData=snap.val();
+
+    if(!roomData){
+      toast("HQ was closed.");
+      backHome();
+      return;
+    }
+
+    if(isCommander){
+      renderControl();
+    }else{
+      renderAgent();
+    }
+
+    handleRealtimeSignals();
+
+  });
+}
+
+function handleRealtimeSignals(){
+
+  const effect=roomData?.effect;
+
+  if(effect && effect.time && effect.time!==lastEffectTime){
+
+    lastEffectTime=effect.time;
+    applyEffect(effect.type);
+  }
+
+  const sound=roomData?.dj;
+
+  if(sound && sound.time && sound.time!==lastSoundTime){
+
+    lastSoundTime=sound.time;
+    playSound(sound.sound);
+  }
+
+  const call=roomData?.call;
+
+  if(
+    call &&
+    call.time &&
+    call.time!==lastCallTime &&
+    (!call.target || call.target===currentUser?.uid)
+  ){
+
+    lastCallTime=call.time;
+    showCall(call.message||"Incoming HQ transmission");
+  }
+
+  const command=roomData?.command;
+
+  if(command?.type==="MISSION_SUCCESS"){
+    if(!isCommander) toast("HQ RECEIVED: MISSION SUCCESS");
+  }
+
+  if(command?.type==="MISSION_FAILURE"){
+    if(!isCommander) toast("HQ RECEIVED: MISSION FAILURE");
+  }
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function getRemainingSeconds(){
+
+  const mission=roomData?.mission;
+
+  if(!mission)return 0;
+
+  if(!mission.deployedAt)return mission.countdown*60;
+
+  const start=
+    typeof mission.deployedAt==="number"
+    ? mission.deployedAt
+    : Date.now();
+
+  const elapsed=Math.floor((Date.now()-start)/1000);
+
+  return Math.max(0,(mission.countdown*60)-elapsed);
+}
+
+function startAgentTimer(){
+
+  clearInterval(timerInterval);
+
+  timerInterval=setInterval(()=>{
+
+    const el=document.getElementById("agentTimer");
+
+    if(!el)return;
+
+    const sec=getRemainingSeconds();
+
+    el.textContent=formatTimer(sec);
+
+    el.classList.toggle("warning",sec<=60 && sec>20);
+    el.classList.toggle("danger",sec<=20);
+
+    if(sec===0){
+      clearInterval(timerInterval);
+    }
+
+  },1000);
+}
+
+function formatTimer(seconds){
+
+  seconds=Math.max(0,seconds);
+
+  const m=Math.floor(seconds/60)
+    .toString()
+    .padStart(2,"0");
+
+  const s=(seconds%60)
+    .toString()
+    .padStart(2,"0");
+
+  return `${m}:${s}`;
+}
+
+
+/* =========================================================
+   EFFECTS
+========================================================= */
+
+function applyEffect(type){
+
+  if(type==="flash"){
+
+    const fx=document.getElementById("fx");
+
+    fx.className="fx flash";
+
+    setTimeout(()=>{
+      fx.className="fx";
+    },550);
+
+  }
+
+  if(type==="shake"){
+
+    document.body.classList.add("shake");
+
+    setTimeout(()=>{
+      document.body.classList.remove("shake");
+    },500);
+
+  }
+
+  if(type==="glitch"){
+
+    document.body.classList.add("glitch");
+
+    setTimeout(()=>{
+      document.body.classList.remove("glitch");
+    },550);
+
+  }
+}
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioContext=null;
+
+function ensureAudio(){
+
+  if(!audioContext){
+
+    audioContext=
+      new (window.AudioContext||window.webkitAudioContext)();
+
+  }
+
+  if(audioContext.state==="suspended"){
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+function enableAudio(){
+
+  try{
+    ensureAudio();
+    toast("AUDIO ENABLED");
+  }catch(e){
+    toast("Audio unavailable");
+  }
+}
+
+function tone(freq,duration,type="sine"){
+
+  try{
+
+    const ctx=ensureAudio();
+
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+
+    osc.type=type;
+    osc.frequency.value=freq;
+
+    gain.gain.setValueAtTime(.0001,ctx.currentTime);
+
+    gain.gain.exponentialRampToValueAtTime(
+      .25,
+      ctx.currentTime+.02
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      .0001,
+      ctx.currentTime+duration
+    );
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime+duration+.03);
+
+  }catch(e){}
+}
+
+function playSound(sound){
+
+  if(sound==="beep"){
+    tone(700,.18);
+  }
+
+  if(sound==="alert"){
+    tone(850,.16);
+    setTimeout(()=>tone(550,.16),190);
+    setTimeout(()=>tone(850,.16),380);
+  }
+
+  if(sound==="success"){
+    tone(520,.12);
+    setTimeout(()=>tone(660,.12),130);
+    setTimeout(()=>tone(880,.22),260);
+  }
+}
+
+
+/* =========================================================
+   CALL UI
+========================================================= */
+
+function showCall(message){
+
+  const existing=document.getElementById("callOverlay");
+
+  if(existing)existing.remove();
+
+  document.body.insertAdjacentHTML("beforeend",`
+
+    <div class="overlay" id="callOverlay">
+
+      <div class="modal">
+
+        <div style="font-size:11px;font-weight:900;color:var(--accent)">
+          INCOMING HQ TRANSMISSION
+        </div>
+
+        <h2>COMMAND IS CALLING</h2>
+
+        <p class="subtitle">
+          ${escapeHTML(message)}
+        </p>
+
+        <button
+          class="btn green full"
+          onclick="answerCall()"
+        >
+          ANSWER
+        </button>
+
+        <br><br>
+
+        <button
+          class="btn secondary full"
+          onclick="document.getElementById('callOverlay').remove()"
+        >
+          DISMISS
+        </button>
+
+      </div>
+
+    </div>
+  `);
+
+  playSound("alert");
+}
+
+function answerCall(){
+
+  const el=document.getElementById("callOverlay");
+
+  if(el)el.remove();
+
+  playSound("success");
+
+  toast("HQ CHANNEL OPEN");
+}
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function copyRoomCode(){
+
+  navigator.clipboard?.writeText(roomCode)
+    .then(()=>toast("HQ CODE COPIED"))
+    .catch(()=>toast("Code: "+roomCode));
+}
+
+function fullscreen(){
+
+  if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }else if(document.documentElement.webkitRequestFullscreen){
+    document.documentElement.webkitRequestFullscreen();
+  }
+}
+
+function toast(message){
+
+  const el=document.getElementById("toast");
+
+  if(!el)return;
+
+  el.textContent=message;
+  el.classList.remove("hidden");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    el.classList.add("hidden");
+  },2200);
+}
+
+function capitalize(str){
+
+  return str.charAt(0).toUpperCase()+str.slice(1);
+}
+
+function formatTime(timestamp){
+
+  if(!timestamp)return "—";
+
+  const date=new Date(timestamp);
+
+  return date.toLocaleTimeString([],{
+    hour:"numeric",
+    minute:"2-digit",
+    second:"2-digit"
+  });
+}
+
+function escapeHTML(value){
+
+  return String(value??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function escapeAttr(value){
+  return escapeHTML(value);
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+initFirebase();
+
+</script>
+
+</body>
+</html>
