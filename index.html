@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050509">
+<title>NEVERA Phone</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#050509;
+  color:white;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+}
+
+button,input,textarea{
+  font:inherit;
+}
+
+button{
+  border:0;
+  color:white;
+  cursor:pointer;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  position:relative;
+  overflow:hidden;
+}
+
+/* =========================
+   UNBOXING
+========================= */
+
+#unboxing{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 45%,#252536 0%,#101017 38%,#050509 75%);
+  z-index:100;
+}
+
+.brand{
+  position:absolute;
+  top:10%;
+  text-align:center;
+  font-size:22px;
+  letter-spacing:.5em;
+  font-weight:800;
+}
+
+.tagline{
+  position:absolute;
+  top:15%;
+  color:#aaa;
+  font-size:11px;
+  letter-spacing:.25em;
+}
+
+.boxArea{
+  width:min(80vw,390px);
+  height:390px;
+  position:relative;
+  perspective:1000px;
+}
+
+.box{
+  position:absolute;
+  width:78%;
+  height:48%;
+  left:11%;
+  bottom:12%;
+  border-radius:22px;
+  background:linear-gradient(145deg,#303039,#101015);
+  box-shadow:0 40px 80px #000;
+}
+
+.lid{
+  position:absolute;
+  z-index:4;
+  width:86%;
+  height:23%;
+  left:7%;
+  top:15%;
+  border-radius:20px;
+  background:linear-gradient(145deg,#393942,#121217);
+  box-shadow:0 25px 50px #000;
+  transition:1.5s cubic-bezier(.2,.8,.2,1);
+}
+
+.lidLogo{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  letter-spacing:.35em;
+  font-size:20px;
+  font-weight:800;
+}
+
+.phone{
+  position:absolute;
+  z-index:3;
+  width:30%;
+  aspect-ratio:.48;
+  left:35%;
+  bottom:16%;
+  border:5px solid #19191f;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 30%,#5961ff,#16162b 45%,#030305);
+  box-shadow:0 25px 70px #000;
+  transform:translateY(30px);
+  transition:1.7s cubic-bezier(.15,.85,.15,1);
+}
+
+.phoneScreen{
+  position:absolute;
+  inset:5px;
+  border-radius:21px;
+  background:
+    radial-gradient(circle at 30% 20%,#765dff,transparent 35%),
+    radial-gradient(circle at 80% 70%,#18d8ff,transparent 35%),
+    #090914;
+}
+
+#unboxButton{
+  position:absolute;
+  bottom:8%;
+  padding:15px 30px;
+  border-radius:999px;
+  background:white;
+  color:#08080b;
+  font-weight:800;
+  box-shadow:0 10px 40px #000;
+}
+
+#unboxing.open .lid{
+  transform:translateY(-170px) rotateX(25deg);
+  opacity:.15;
+}
+
+#unboxing.open .phone{
+  transform:translateY(-80px) scale(1.08);
+  box-shadow:0 10px 100px #7185ff88;
+}
+
+#unboxing.open #unboxButton{
+  opacity:0;
+  pointer-events:none;
+}
+
+/* =========================
+   PHONE
+========================= */
+
+#phone{
+  position:absolute;
+  inset:0;
+  background:#111;
+}
+
+.wallpaper{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 20% 15%,#7467ff99,transparent 32%),
+    radial-gradient(circle at 85% 35%,#21d8ff66,transparent 30%),
+    radial-gradient(circle at 50% 100%,#ff4fc866,transparent 35%),
+    linear-gradient(145deg,#080812,#19152b,#08080e);
+  overflow:hidden;
+}
+
+.wallpaper:after{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:conic-gradient(
+    transparent,
+    #ffffff0a,
+    transparent,
+    #ffffff08,
+    transparent
+  );
+  animation:spin 20s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.statusBar{
+  position:absolute;
+  top:max(10px,env(safe-area-inset-top));
+  left:0;
+  right:0;
+  height:30px;
+  padding:0 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  z-index:20;
+  font-size:13px;
+  font-weight:700;
+}
+
+.statusRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.battery{
+  width:24px;
+  height:12px;
+  border:1px solid white;
+  border-radius:4px;
+  padding:1px;
+}
+
+.batteryFill{
+  width:82%;
+  height:100%;
+  background:white;
+  border-radius:2px;
+}
+
+.homeScreen{
+  position:absolute;
+  inset:0;
+  padding:75px 18px 110px;
+  z-index:5;
+}
+
+.bigClock{
+  font-size:clamp(60px,16vw,95px);
+  font-weight:200;
+  letter-spacing:-.07em;
+  text-shadow:0 5px 30px #0008;
+}
+
+.date{
+  color:#ddd;
+  font-size:16px;
+  margin-bottom:30px;
+}
+
+.apps{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px 14px;
+  max-width:440px;
+}
+
+.appIcon{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  text-shadow:0 2px 8px #000;
+}
+
+.icon{
+  width:clamp(52px,14vw,68px);
+  aspect-ratio:1;
+  border-radius:19px;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  background:#ffffff20;
+  backdrop-filter:blur(18px);
+  box-shadow:
+    inset 0 1px #ffffff33,
+    0 8px 20px #0005;
+}
+
+.dock{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:27px;
+  height:78px;
+  border-radius:27px;
+  background:#ffffff20;
+  backdrop-filter:blur(25px);
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  z-index:10;
+}
+
+.dock .icon{
+  width:56px;
+}
+
+.gesture{
+  position:absolute;
+  z-index:30;
+  bottom:8px;
+  left:50%;
+  transform:translateX(-50%);
+  width:115px;
+  height:5px;
+  border-radius:999px;
+  background:white;
+}
+
+/* =========================
+   APP PANEL
+========================= */
+
+#panel{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  background:#08080dea;
+  backdrop-filter:blur(28px);
+  transform:translateY(110%);
+  transition:.45s cubic-bezier(.2,.8,.2,1);
+  overflow:auto;
+  padding:
+    max(60px,env(safe-area-inset-top))
+    18px
+    50px;
+}
+
+#panel.open{
+  transform:translateY(0);
+}
+
+.close{
+  position:absolute;
+  top:max(55px,calc(env(safe-area-inset-top) + 15px));
+  right:18px;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#ffffff18;
+  font-size:22px;
+}
+
+.panelTitle{
+  font-size:32px;
+  margin:0 0 20px;
+}
+
+.card{
+  background:#ffffff0e;
+  border:1px solid #ffffff10;
+  border-radius:20px;
+  padding:17px;
+  margin:10px 0;
+}
+
+.primary{
+  width:100%;
+  padding:15px;
+  border-radius:15px;
+  background:white;
+  color:#08080a;
+  font-weight:800;
+  margin-top:10px;
+}
+
+input,textarea{
+  width:100%;
+  background:#0008;
+  border:1px solid #ffffff18;
+  border-radius:13px;
+  padding:13px;
+  color:white;
+  outline:none;
+}
+
+textarea{
+  height:260px;
+  resize:none;
+}
+
+.listButton{
+  width:100%;
+  padding:16px;
+  margin:5px 0;
+  text-align:left;
+  border-radius:15px;
+  background:#ffffff0d;
+}
+
+/* Calculator */
+
+.calcDisplay{
+  height:80px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  font-size:38px;
+  overflow:hidden;
+}
+
+.calcGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.calcGrid button{
+  height:60px;
+  border-radius:17px;
+  background:#ffffff12;
+  font-size:20px;
+}
+
+.calcGrid button:active{
+  background:#ffffff30;
+}
+
+.wide{
+  grid-column:span 2;
+}
+
+/* =========================
+   SETUP
+========================= */
+
+#setup{
+  position:absolute;
+  inset:0;
+  z-index:80;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:35px;
+  background:
+    radial-gradient(circle at 70% 20%,#636aff55,transparent 35%),
+    linear-gradient(145deg,#080811,#17132a);
+}
+
+#setup h1{
+  font-size:52px;
+  margin:5px 0;
+}
+
+#setup p{
+  color:#aaa;
+  line-height:1.5;
+  max-width:450px;
+}
+
+.small{
+  font-size:12px;
+  letter-spacing:.25em;
+  color:#aaa;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast{
+  position:absolute;
+  z-index:200;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%) translateY(30px);
+  background:#fff;
+  color:#08080a;
+  padding:12px 18px;
+  border-radius:999px;
+  font-weight:700;
+  opacity:0;
+  transition:.3s;
+  pointer-events:none;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+.hidden{
+  display:none!important;
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- =========================
+     UNBOXING
+========================= -->
+
+<section id="unboxing">
+
+  <div class="brand">NEVERA</div>
+  <div class="tagline">A DIFFERENT KIND OF PHONE</div>
+
+  <div class="boxArea">
+
+    <div class="box"></div>
+
+    <div class="phone">
+      <div class="phoneScreen"></div>
+    </div>
+
+    <div class="lid">
+      <div class="lidLogo">NEVERA</div>
+    </div>
+
+  </div>
+
+  <button id="unboxButton">
+    OPEN THE BOX
+  </button>
+
+</section>
+
+
+<!-- =========================
+     PHONE OS
+========================= -->
+
+<section id="phone" class="hidden">
+
+  <div class="wallpaper"></div>
+
+  <div class="statusBar">
+
+    <span id="statusTime">9:41</span>
+
+    <div class="statusRight">
+      <span>⌁</span>
+      <span>◉</span>
+
+      <div class="battery">
+        <div class="batteryFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- HOME SCREEN -->
+
+  <div class="homeScreen">
+
+    <div class="bigClock" id="clock">
+      9:41
+    </div>
+
+    <div class="date" id="date">
+      Friday, September 4
+    </div>
+
+
+    <div class="apps">
+
+      <div class="appIcon" onclick="openApp('calculator')">
+        <div class="icon">🧮</div>
+        Calculator
+      </div>
+
+      <div class="appIcon" onclick="openApp('notes')">
+        <div class="icon">📝</div>
+        Notes
+      </div>
+
+      <div class="appIcon" onclick="openApp('messages')">
+        <div class="icon">💬</div>
+        Messages
+      </div>
+
+      <div class="appIcon" onclick="openApp('camera')">
+        <div class="icon">📷</div>
+        Camera
+      </div>
+
+      <div class="appIcon" onclick="openApp('music')">
+        <div class="icon">🎵</div>
+        Music
+      </div>
+
+      <div class="appIcon" onclick="openApp('files')">
+        <div class="icon">📁</div>
+        Files
+      </div>
+
+      <div class="appIcon" onclick="openApp('settings')">
+        <div class="icon">⚙️</div>
+        Settings
+      </div>
+
+      <div class="appIcon" onclick="openApp('about')">
+        <div class="icon">✨</div>
+        About
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DOCK -->
+
+  <div class="dock">
+
+    <div class="appIcon" onclick="openApp('phone')">
+      <div class="icon">☎️</div>
+    </div>
+
+    <div class="appIcon" onclick="openApp('browser')">
+      <div class="icon">🌐</div>
+    </div>
+
+    <div class="appIcon" onclick="openApp('messages')">
+      <div class="icon">💬</div>
+    </div>
+
+    <div class="appIcon" onclick="openApp('settings')">
+      <div class="icon">⚙️</div>
+    </div>
+
+  </div>
+
+  <div class="gesture"></div>
+
+
+  <!-- APP PANEL -->
+
+  <div id="panel">
+
+    <button class="close" onclick="closePanel()">×</button>
+
+    <div id="panelContent"></div>
+
+  </div>
+
+
+  <!-- SETUP -->
+
+  <div id="setup">
+
+    <div class="small">
+      WELCOME
+    </div>
+
+    <h1>NEVERA</h1>
+
+    <p>
+      Your new imaginary phone is ready.
+      This is a browser-based phone simulator.
+      Nothing here makes real calls or sends real messages.
+    </p>
+
+    <label class="small">
+      DEVICE NAME
+    </label>
+
+    <input
+      id="deviceName"
+      placeholder="NEVERA Phone"
+    >
+
+    <button
+      class="primary"
+      onclick="finishSetup()"
+    >
+      CONTINUE →
+    </button>
+
+  </div>
+
+</section>
+
+
+<div id="toast"></div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   BASIC SETUP
+========================= */
+
+const unboxing =
+  document.getElementById("unboxing");
+
+const phone =
+  document.getElementById("phone");
+
+const setup =
+  document.getElementById("setup");
+
+const panel =
+  document.getElementById("panel");
+
+const panelContent =
+  document.getElementById("panelContent");
+
+const toast =
+  document.getElementById("toast");
+
+
+let notes =
+  localStorage.getItem("neveraNotes") || "";
+
+let deviceName =
+  localStorage.getItem("neveraDevice")
+  || "NEVERA Phone";
+
+
+/* =========================
+   FULLSCREEN
+========================= */
+
+function goFullscreen(){
+
+  const element = document.documentElement;
+
+  if(
+    !document.fullscreenElement &&
+    element.requestFullscreen
+  ){
+
+    element.requestFullscreen().catch(()=>{});
+
+  }
+
+}
+
+
+/* =========================
+   UNBOX
+========================= */
+
+document
+.getElementById("unboxButton")
+.onclick = function(){
+
+  goFullscreen();
+
+  unboxing.classList.add("open");
+
+  this.textContent = "POWERING ON…";
+
+  setTimeout(()=>{
+
+    unboxing.classList.add("hidden");
+
+    phone.classList.remove("hidden");
+
+  },1800);
+
+};
+
+
+/* =========================
+   CLOCK
+========================= */
+
+function updateClock(){
+
+  const now = new Date();
+
+  const time =
+    now.toLocaleTimeString([],{
+      hour:"numeric",
+      minute:"2-digit"
+    });
+
+  document.getElementById("clock")
+    .textContent = time;
+
+  document.getElementById("statusTime")
+    .textContent = time;
+
+  document.getElementById("date")
+    .textContent =
+    now.toLocaleDateString([],{
+      weekday:"long",
+      month:"long",
+      day:"numeric"
+    });
+
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+/* =========================
+   TOAST
+========================= */
+
+function showToast(message){
+
+  toast.textContent = message;
+
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },1800);
+
+}
+
+
+/* =========================
+   OPEN APP
+========================= */
+
+function openApp(app){
+
+  let html = "";
+
+  if(app==="calculator"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Calculator
+      </h2>
+
+      <div class="card">
+
+        <div
+          class="calcDisplay"
+          id="calcDisplay"
+        >
+          0
+        </div>
+
+        <div class="calcGrid">
+
+          <button onclick="calc('7')">7</button>
+          <button onclick="calc('8')">8</button>
+          <button onclick="calc('9')">9</button>
+          <button onclick="calc('/')">÷</button>
+
+          <button onclick="calc('4')">4</button>
+          <button onclick="calc('5')">5</button>
+          <button onclick="calc('6')">6</button>
+          <button onclick="calc('*')">×</button>
+
+          <button onclick="calc('1')">1</button>
+          <button onclick="calc('2')">2</button>
+          <button onclick="calc('3')">3</button>
+          <button onclick="calc('-')">−</button>
+
+          <button onclick="calc('0')">0</button>
+          <button onclick="calc('.')">.</button>
+          <button onclick="calculateResult()">=</button>
+          <button onclick="calc('+')">+</button>
+
+          <button
+            class="wide"
+            onclick="clearCalc()"
+          >
+            CLEAR
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="notes"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Notes
+      </h2>
+
+      <div class="card">
+
+        <textarea
+          id="notesArea"
+          placeholder="Write something…"
+        >${escapeHTML(notes)}</textarea>
+
+        <button
+          class="primary"
+          onclick="saveNotes()"
+        >
+          SAVE NOTE
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="messages"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Messages
+      </h2>
+
+      <div class="card">
+
+        <div class="small">
+          NEVERA DEMO CHAT
+        </div>
+
+        <p>
+          👋 Welcome to your fake phone.
+        </p>
+
+        <p style="text-align:right">
+          This is a simulator 😎
+        </p>
+
+        <input
+          id="messageInput"
+          placeholder="Message…"
+        >
+
+        <button
+          class="primary"
+          onclick="sendMessage()"
+        >
+          SEND
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="camera"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Camera
+      </h2>
+
+      <div
+        class="card"
+        style="text-align:center"
+      >
+
+        <div
+          style="
+          font-size:90px;
+          margin:40px 0;
+          "
+        >
+          📷
+        </div>
+
+        <p>
+          Camera Simulator
+        </p>
+
+        <button
+          class="primary"
+          onclick="showToast('📸 Photo captured!')"
+        >
+          TAKE PHOTO
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="music"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Music
+      </h2>
+
+      <div
+        class="card"
+        style="text-align:center"
+      >
+
+        <div style="font-size:90px">
+          🎵
+        </div>
+
+        <h3>
+          NEVERA MIX
+        </h3>
+
+        <p style="color:#aaa">
+          Simulated music player.
+        </p>
+
+        <button
+          class="primary"
+          onclick="showToast('▶️ Playing demo track')"
+        >
+          PLAY
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="files"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Files
+      </h2>
+
+      <div class="card">
+
+        <button class="listButton">
+          📄 Welcome.txt
+        </button>
+
+        <button class="listButton">
+          🖼️ Wallpaper.nevera
+        </button>
+
+        <button class="listButton">
+          ⚙️ Settings.json
+        </button>
+
+        <p style="color:#777">
+          Demo files only.
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="settings"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Settings
+      </h2>
+
+      <div class="card">
+
+        <button
+          class="listButton"
+          onclick="changeWallpaper()"
+        >
+          🎨 Change Wallpaper
+        </button>
+
+        <button
+          class="listButton"
+          onclick="goFullscreen()"
+        >
+          ⛶ Fullscreen
+        </button>
+
+        <button
+          class="listButton"
+          onclick="resetPhone()"
+        >
+          ♻️ Reset NEVERA
+        </button>
+
+      </div>
+
+      <div class="card">
+
+        <b>
+          Device
+        </b>
+
+        <p style="color:#aaa">
+          ${escapeHTML(deviceName)}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="about"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        About NEVERA
+      </h2>
+
+      <div class="card">
+
+        <h2>
+          NEVERA Phone
+        </h2>
+
+        <p>
+          A single-file phone simulator.
+        </p>
+
+        <p style="color:#aaa">
+          Version 1.0
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="phone"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        Phone
+      </h2>
+
+      <div
+        class="card"
+        style="text-align:center"
+      >
+
+        <div style="font-size:80px">
+          ☎️
+        </div>
+
+        <p style="color:#aaa">
+          No real calls are made.
+        </p>
+
+        <button
+          class="primary"
+          onclick="showToast('☎️ Demo call started')"
+        >
+          CALL DEMO
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  else if(app==="browser"){
+
+    html = `
+
+      <h2 class="panelTitle">
+        NEVERA Browser
+      </h2>
+
+      <div class="card">
+
+        <input
+          id="searchBox"
+          placeholder="Search the NEVERA web…"
+        >
+
+        <button
+          class="primary"
+          onclick="fakeSearch()"
+        >
+          GO
+        </button>
+
+        <div
+          id="searchResult"
+          style="
+          margin-top:20px;
+          color:#aaa;
+          "
+        ></div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  panelContent.innerHTML = html;
+
+  panel.classList.add("open");
+
+}
+
+
+/* =========================
+   CLOSE
+========================= */
+
+function closePanel(){
+
+  panel.classList.remove("open");
+
+}
+
+
+/* =========================
+   CALCULATOR
+========================= */
+
+let expression = "";
+
+function calc(value){
+
+  expression += value;
+
+  document.getElementById(
+    "calcDisplay"
+  ).textContent = expression;
+
+}
+
+function clearCalc(){
+
+  expression = "";
+
+  document.getElementById(
+    "calcDisplay"
+  ).textContent = "0";
+
+}
+
+function calculateResult(){
+
+  try{
+
+    const result =
+      Function(
+        "return " + expression
+      )();
+
+    expression =
+      String(result);
+
+    document.getElementById(
+      "calcDisplay"
+    ).textContent = expression;
+
+  }
+
+  catch{
+
+    expression = "";
+
+    document.getElementById(
+      "calcDisplay"
+    ).textContent = "Error";
+
+  }
+
+}
+
+
+/* =========================
+   NOTES
+========================= */
+
+function escapeHTML(text){
+
+  return text
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+function saveNotes(){
+
+  notes =
+    document.getElementById(
+      "notesArea"
+    ).value;
+
+  localStorage.setItem(
+    "neveraNotes",
+    notes
+  );
+
+  showToast("✓ Note saved");
+
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function sendMessage(){
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+  if(!input.value.trim()){
+
+    showToast("Type something first");
+
+    return;
+
+  }
+
+  input.value = "";
+
+  showToast("💬 Message sent");
+
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+function fakeSearch(){
+
+  const q =
+    document.getElementById(
+      "searchBox"
+    ).value.trim();
+
+  if(!q){
+
+    showToast("Type a search");
+
+    return;
+
+  }
+
+  document.getElementById(
+    "searchResult"
+  ).textContent =
+    `NEVERA Search found no real results for "${q}" — this browser is a simulation.`;
+
+}
+
+
+/* =========================
+   WALLPAPER
+========================= */
+
+function changeWallpaper(){
+
+  const wallpapers = [
+
+    `
+    radial-gradient(
+      circle at 20% 20%,
+      #ff5ebc99,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      #21d8ff77,
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #090914,
+      #24132c
+    )
+    `,
+
+    `
+    radial-gradient(
+      circle at 80% 20%,
+      #54ffad88,
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 20% 80%,
+      #3478ff88,
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #03110e,
+      #071427
+    )
+    `,
+
+    `
+    radial-gradient(
+      circle at 50% 15%,
+      #ffffff55,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 30% 80%,
+      #ff9b3c77,
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #17100a,
+      #2b1320
+    )
+    `
+
+  ];
+
+  document.querySelector(
+    ".wallpaper"
+  ).style.background =
+    wallpapers[
+      Math.floor(
+        Math.random()*wallpapers.length
+      )
+    ];
+
+  showToast("🎨 Wallpaper changed");
+
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetPhone(){
+
+  localStorage.removeItem("neveraNotes");
+
+  localStorage.removeItem("neveraDevice");
+
+  location.reload();
+
+}
+
+
+/* =========================
+   SETUP
+========================= */
+
+document.getElementById(
+  "deviceName"
+).value = deviceName;
+
+
+function finishSetup(){
+
+  const name =
+    document.getElementById(
+      "deviceName"
+    ).value.trim()
+    || "NEVERA Phone";
+
+  localStorage.setItem(
+    "neveraDevice",
+    name
+  );
+
+  deviceName = name;
+
+  setup.classList.add("hidden");
+
+  showToast(
+    "Welcome to NEVERA 👋"
+  );
+
+}
+
+</script>
+
+</body>
+</html>
