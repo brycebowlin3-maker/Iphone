@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#050509">
-<title>NEVERA Phone</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>iPhone Simulator</title>
 
 <style>
 *{
@@ -17,481 +16,1072 @@ html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  background:#050509;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;
+  background:#111;
   color:white;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
 }
 
-button,input,textarea{
+button,input{
   font:inherit;
 }
 
 button{
   border:0;
-  color:white;
   cursor:pointer;
 }
 
-#app{
+#stage{
   width:100%;
   height:100%;
-  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at 50% 35%,#273044 0,#111 38%,#050505 75%);
   overflow:hidden;
 }
 
-/* =========================
-   UNBOXING
-========================= */
-
-#unboxing{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:
-    radial-gradient(circle at 50% 45%,#252536 0%,#101017 38%,#050509 75%);
-  z-index:100;
-}
-
-.brand{
-  position:absolute;
-  top:10%;
-  text-align:center;
-  font-size:22px;
-  letter-spacing:.5em;
-  font-weight:800;
-}
-
-.tagline{
-  position:absolute;
-  top:15%;
-  color:#aaa;
-  font-size:11px;
-  letter-spacing:.25em;
-}
-
-.boxArea{
-  width:min(80vw,390px);
-  height:390px;
-  position:relative;
-  perspective:1000px;
-}
-
-.box{
-  position:absolute;
-  width:78%;
-  height:48%;
-  left:11%;
-  bottom:12%;
-  border-radius:22px;
-  background:linear-gradient(145deg,#303039,#101015);
-  box-shadow:0 40px 80px #000;
-}
-
-.lid{
-  position:absolute;
-  z-index:4;
-  width:86%;
-  height:23%;
-  left:7%;
-  top:15%;
-  border-radius:20px;
-  background:linear-gradient(145deg,#393942,#121217);
-  box-shadow:0 25px 50px #000;
-  transition:1.5s cubic-bezier(.2,.8,.2,1);
-}
-
-.lidLogo{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  letter-spacing:.35em;
-  font-size:20px;
-  font-weight:800;
-}
+/* PHONE */
 
 .phone{
+  width:min(390px,92vw);
+  height:min(844px,94vh);
+  position:relative;
+  border-radius:52px;
+  background:#050505;
+  padding:8px;
+  box-shadow:
+    0 50px 100px rgba(0,0,0,.65),
+    0 0 0 2px #444,
+    inset 0 0 0 2px #111;
+  transition:
+    transform .5s cubic-bezier(.2,.8,.2,1),
+    opacity .5s;
+  z-index:10;
+}
+
+.phone.hidden{
+  opacity:0;
+  transform:scale(.8) translateY(100px);
+  pointer-events:none;
+}
+
+.phone-screen{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  position:relative;
+  border-radius:45px;
+  background:#111;
+}
+
+/* DYNAMIC ISLAND */
+
+.dynamic-island{
   position:absolute;
-  z-index:3;
-  width:30%;
-  aspect-ratio:.48;
-  left:35%;
-  bottom:16%;
-  border:5px solid #19191f;
-  border-radius:28px;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:120px;
+  height:34px;
+  border-radius:22px;
+  background:#000;
+  z-index:9999;
+  transition:.35s;
+}
+
+.dynamic-island.active{
+  width:210px;
+}
+
+/* SIDE BUTTONS */
+
+.side{
+  position:absolute;
+  background:#333;
+  right:-4px;
+  width:4px;
+  border-radius:3px;
+}
+
+.power{
+  top:170px;
+  height:100px;
+}
+
+.volume{
+  left:-4px;
+  right:auto;
+  width:4px;
+  top:160px;
+  height:65px;
+}
+
+.volume2{
+  left:-4px;
+  right:auto;
+  width:4px;
+  top:235px;
+  height:65px;
+}
+
+/* UNBOXING */
+
+#unboxing{
+  position:fixed;
+  inset:0;
+  z-index:50000;
   background:
-    radial-gradient(circle at 50% 30%,#5961ff,#16162b 45%,#030305);
-  box-shadow:0 25px 70px #000;
-  transform:translateY(30px);
-  transition:1.7s cubic-bezier(.15,.85,.15,1);
+    radial-gradient(circle at 50% 25%,#fff 0,#d7d7d7 20%,#777 55%,#111 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition:opacity 1s;
 }
 
-.phoneScreen{
-  position:absolute;
-  inset:5px;
-  border-radius:21px;
-  background:
-    radial-gradient(circle at 30% 20%,#765dff,transparent 35%),
-    radial-gradient(circle at 80% 70%,#18d8ff,transparent 35%),
-    #090914;
-}
-
-#unboxButton{
-  position:absolute;
-  bottom:8%;
-  padding:15px 30px;
-  border-radius:999px;
-  background:white;
-  color:#08080b;
-  font-weight:800;
-  box-shadow:0 10px 40px #000;
-}
-
-#unboxing.open .lid{
-  transform:translateY(-170px) rotateX(25deg);
-  opacity:.15;
-}
-
-#unboxing.open .phone{
-  transform:translateY(-80px) scale(1.08);
-  box-shadow:0 10px 100px #7185ff88;
-}
-
-#unboxing.open #unboxButton{
+#unboxing.hide{
   opacity:0;
   pointer-events:none;
 }
 
-/* =========================
-   PHONE
-========================= */
+.box{
+  width:min(330px,78vw);
+  height:min(480px,70vh);
+  position:relative;
+  perspective:1000px;
+}
 
-#phone{
+.box-base{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:72%;
+  border-radius:18px;
+  background:linear-gradient(135deg,#eee,#aaa);
+  box-shadow:0 35px 60px rgba(0,0,0,.4);
+}
+
+.box-lid{
+  position:absolute;
+  top:0;
+  left:-4%;
+  width:108%;
+  height:35%;
+  border-radius:18px;
+  background:linear-gradient(135deg,#fff,#bcbcbc);
+  transform-origin:bottom;
+  transition:1.5s cubic-bezier(.2,.8,.2,1);
+  z-index:5;
+  box-shadow:0 15px 30px rgba(0,0,0,.3);
+}
+
+.box.open .box-lid{
+  transform:rotateX(75deg) translateY(-180px);
+}
+
+.box-logo{
   position:absolute;
   inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:85px;
+  color:#111;
+}
+
+.box-phone{
+  position:absolute;
+  width:72%;
+  height:88%;
+  left:14%;
+  bottom:5%;
+  border-radius:42px;
+  background:
+    radial-gradient(circle at 30% 20%,#8bc7ff,#3472ff 40%,#07142f 100%);
+  border:6px solid #111;
+  transform:translateY(100px) scale(.8);
+  opacity:0;
+  transition:1.2s .5s cubic-bezier(.2,.8,.2,1);
+  z-index:3;
+}
+
+.box.open .box-phone{
+  transform:translateY(-20px) scale(1);
+  opacity:1;
+}
+
+.box-phone::before{
+  content:"";
+  position:absolute;
+  width:105px;
+  height:28px;
+  background:#000;
+  border-radius:20px;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.unbox-content{
+  position:absolute;
+  bottom:7%;
+  left:0;
+  right:0;
+  text-align:center;
+  z-index:20;
+  color:#111;
+}
+
+.unbox-content h1{
+  margin:0;
+  font-size:28px;
+}
+
+.unbox-content p{
+  margin:8px 0 18px;
+}
+
+#openBox{
+  padding:14px 28px;
+  border-radius:30px;
   background:#111;
+  color:white;
+  font-weight:700;
+  box-shadow:0 10px 25px #0004;
+}
+
+#openBox:active{
+  transform:scale(.94);
+}
+
+/* IOS */
+
+#ios{
+  position:absolute;
+  inset:0;
+  background:#000;
+  display:none;
+}
+
+#ios.visible{
+  display:block;
 }
 
 .wallpaper{
   position:absolute;
   inset:0;
   background:
-    radial-gradient(circle at 20% 15%,#7467ff99,transparent 32%),
-    radial-gradient(circle at 85% 35%,#21d8ff66,transparent 30%),
-    radial-gradient(circle at 50% 100%,#ff4fc866,transparent 35%),
-    linear-gradient(145deg,#080812,#19152b,#08080e);
-  overflow:hidden;
+    radial-gradient(circle at 25% 20%,rgba(255,255,255,.5),transparent 25%),
+    radial-gradient(circle at 75% 70%,#6b4cff,transparent 35%),
+    radial-gradient(circle at 30% 80%,#00aaff,transparent 40%),
+    linear-gradient(135deg,#090b22,#40118c 55%,#081c3d);
 }
 
-.wallpaper:after{
-  content:"";
+.dark .wallpaper{
+  filter:brightness(.65);
+}
+
+/* STATUS BAR */
+
+.status{
   position:absolute;
-  inset:-40%;
-  background:conic-gradient(
-    transparent,
-    #ffffff0a,
-    transparent,
-    #ffffff08,
-    transparent
-  );
-  animation:spin 20s linear infinite;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.statusBar{
-  position:absolute;
-  top:max(10px,env(safe-area-inset-top));
+  top:0;
   left:0;
   right:0;
-  height:30px;
-  padding:0 20px;
+  height:50px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  z-index:20;
-  font-size:13px;
-  font-weight:700;
+  padding:0 22px;
+  z-index:1000;
+  font-size:14px;
+  font-weight:600;
 }
 
-.statusRight{
+.status-right{
   display:flex;
-  gap:8px;
+  gap:7px;
   align-items:center;
 }
 
-.battery{
-  width:24px;
-  height:12px;
-  border:1px solid white;
-  border-radius:4px;
-  padding:1px;
+.signal{
+  letter-spacing:-3px;
 }
 
-.batteryFill{
-  width:82%;
+.battery{
+  width:25px;
+  height:12px;
+  border:1.5px solid white;
+  border-radius:4px;
+  position:relative;
+}
+
+.battery::after{
+  content:"";
+  position:absolute;
+  right:-4px;
+  top:3px;
+  width:2px;
+  height:5px;
+  background:white;
+  border-radius:1px;
+}
+
+.battery-fill{
   height:100%;
+  width:78%;
   background:white;
   border-radius:2px;
 }
 
-.homeScreen{
+/* LOCK SCREEN */
+
+#lock{
   position:absolute;
   inset:0;
-  padding:75px 18px 110px;
-  z-index:5;
-}
-
-.bigClock{
-  font-size:clamp(60px,16vw,95px);
-  font-weight:200;
-  letter-spacing:-.07em;
-  text-shadow:0 5px 30px #0008;
-}
-
-.date{
-  color:#ddd;
-  font-size:16px;
-  margin-bottom:30px;
-}
-
-.apps{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:22px 14px;
-  max-width:440px;
-}
-
-.appIcon{
+  z-index:900;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
-  font-size:11px;
-  text-shadow:0 2px 8px #000;
+  padding-top:80px;
+  transition:.45s;
 }
 
-.icon{
-  width:clamp(52px,14vw,68px);
-  aspect-ratio:1;
-  border-radius:19px;
-  display:grid;
-  place-items:center;
-  font-size:28px;
-  background:#ffffff20;
-  backdrop-filter:blur(18px);
-  box-shadow:
-    inset 0 1px #ffffff33,
-    0 8px 20px #0005;
+#lock.unlocking{
+  transform:translateY(-100%);
+  opacity:0;
 }
 
-.dock{
+.lock-time{
+  font-size:72px;
+  font-weight:300;
+  letter-spacing:-4px;
+}
+
+.lock-date{
+  font-size:18px;
+  margin-top:-8px;
+}
+
+.lock-notification{
+  width:calc(100% - 30px);
+  margin-top:50px;
+  padding:15px;
+  border-radius:22px;
+  background:rgba(255,255,255,.18);
+  backdrop-filter:blur(20px);
+}
+
+.lock-bottom{
   position:absolute;
-  left:14px;
-  right:14px;
-  bottom:27px;
-  height:78px;
-  border-radius:27px;
-  background:#ffffff20;
-  backdrop-filter:blur(25px);
+  bottom:30px;
+  width:100%;
   display:flex;
-  align-items:center;
   justify-content:space-around;
-  z-index:10;
 }
 
-.dock .icon{
-  width:56px;
-}
-
-.gesture{
-  position:absolute;
-  z-index:30;
-  bottom:8px;
-  left:50%;
-  transform:translateX(-50%);
-  width:115px;
-  height:5px;
-  border-radius:999px;
-  background:white;
-}
-
-/* =========================
-   APP PANEL
-========================= */
-
-#panel{
-  position:absolute;
-  inset:0;
-  z-index:50;
-  background:#08080dea;
-  backdrop-filter:blur(28px);
-  transform:translateY(110%);
-  transition:.45s cubic-bezier(.2,.8,.2,1);
-  overflow:auto;
-  padding:
-    max(60px,env(safe-area-inset-top))
-    18px
-    50px;
-}
-
-#panel.open{
-  transform:translateY(0);
-}
-
-.close{
-  position:absolute;
-  top:max(55px,calc(env(safe-area-inset-top) + 15px));
-  right:18px;
-  width:38px;
-  height:38px;
+.circle-btn{
+  width:52px;
+  height:52px;
   border-radius:50%;
-  background:#ffffff18;
+  background:rgba(255,255,255,.22);
+  color:white;
   font-size:22px;
 }
 
-.panelTitle{
-  font-size:32px;
-  margin:0 0 20px;
+.swipe{
+  position:absolute;
+  bottom:7px;
+  font-size:12px;
+  opacity:.7;
 }
 
-.card{
-  background:#ffffff0e;
-  border:1px solid #ffffff10;
+/* HOME */
+
+#home{
+  position:absolute;
+  inset:0;
+  padding:70px 14px 80px;
+  display:none;
+  z-index:100;
+}
+
+#home.visible{
+  display:block;
+}
+
+.widgets{
+  height:80px;
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.widget{
+  flex:1;
   border-radius:20px;
-  padding:17px;
-  margin:10px 0;
+  background:rgba(255,255,255,.18);
+  backdrop-filter:blur(15px);
+  padding:10px;
+  overflow:hidden;
 }
 
-.primary{
-  width:100%;
-  padding:15px;
+.widget strong{
+  display:block;
+  font-size:12px;
+}
+
+.widget span{
+  font-size:22px;
+  font-weight:600;
+}
+
+.app-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px 12px;
+}
+
+.app{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:white;
+  background:none;
+}
+
+.icon{
+  width:58px;
+  height:58px;
   border-radius:15px;
-  background:white;
-  color:#08080a;
-  font-weight:800;
-  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  box-shadow:0 5px 12px #0004;
+  position:relative;
 }
 
-input,textarea{
+.app span{
+  margin-top:5px;
+  font-size:11px;
+  text-shadow:0 1px 4px #000;
+}
+
+.badge{
+  position:absolute;
+  right:-5px;
+  top:-5px;
+  min-width:19px;
+  height:19px;
+  padding:2px 5px;
+  border-radius:12px;
+  background:#ff304f;
+  color:white;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* DOCK */
+
+#dock{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:20px;
+  height:78px;
+  border-radius:27px;
+  background:rgba(255,255,255,.2);
+  backdrop-filter:blur(25px);
+  z-index:500;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+
+#dock .icon{
+  width:57px;
+  height:57px;
+}
+
+/* APP WINDOW */
+
+#appWindow{
+  position:absolute;
+  inset:0;
+  z-index:3000;
+  display:none;
+  background:#f5f5f7;
+  color:#111;
+  animation:appOpen .35s;
+}
+
+#appWindow.open{
+  display:block;
+}
+
+@keyframes appOpen{
+  from{transform:scale(.75);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+.app-header{
+  height:75px;
+  padding:35px 18px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #ddd;
+}
+
+.app-header h2{
+  margin:0;
+  font-size:22px;
+}
+
+.close-app{
+  color:#007aff;
+  background:none;
+  font-weight:600;
+}
+
+.app-content{
+  height:calc(100% - 75px);
+  overflow:auto;
+  padding:18px;
+}
+
+/* SEARCH */
+
+#search{
+  position:absolute;
+  inset:0;
+  z-index:2000;
+  display:none;
+  background:rgba(10,10,15,.96);
+  backdrop-filter:blur(30px);
+  padding:70px 20px;
+}
+
+#search.open{
+  display:block;
+}
+
+.search-input{
   width:100%;
-  background:#0008;
-  border:1px solid #ffffff18;
-  border-radius:13px;
-  padding:13px;
+  padding:14px 18px;
+  border:0;
+  border-radius:18px;
+  background:#333;
   color:white;
   outline:none;
 }
 
-textarea{
-  height:260px;
-  resize:none;
+.search-results{
+  margin-top:15px;
 }
 
-.listButton{
-  width:100%;
-  padding:16px;
-  margin:5px 0;
+/* CONTROL CENTER */
+
+#controlCenter{
+  position:absolute;
+  inset:0;
+  z-index:5000;
+  display:none;
+  padding:65px 15px;
+  background:rgba(20,20,30,.9);
+  backdrop-filter:blur(35px);
+}
+
+#controlCenter.open{
+  display:block;
+}
+
+.cc-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.cc-card{
+  padding:18px;
+  border-radius:24px;
+  background:#333;
+}
+
+.cc-toggle{
+  padding:20px;
+  border-radius:20px;
+  background:#444;
+  color:white;
   text-align:left;
-  border-radius:15px;
-  background:#ffffff0d;
 }
 
-/* Calculator */
+.cc-toggle.active{
+  background:#087cff;
+}
 
-.calcDisplay{
-  height:80px;
+.brightness{
+  width:100%;
+  margin-top:20px;
+}
+
+/* PASSCODE */
+
+#passcode{
+  position:absolute;
+  inset:0;
+  z-index:10000;
+  display:none;
+  background:rgba(0,0,0,.9);
+  backdrop-filter:blur(30px);
+  align-items:center;
+  flex-direction:column;
+  padding-top:120px;
+}
+
+#passcode.open{
+  display:flex;
+}
+
+.pass-title{
+  font-size:25px;
+  margin-bottom:25px;
+}
+
+.pass-dots{
+  display:flex;
+  gap:12px;
+  margin-bottom:35px;
+}
+
+.pass-dot{
+  width:13px;
+  height:13px;
+  border:1px solid white;
+  border-radius:50%;
+}
+
+.pass-dot.filled{
+  background:white;
+}
+
+.keypad{
+  width:270px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+}
+
+.key{
+  width:75px;
+  height:75px;
+  border-radius:50%;
+  background:#333;
+  color:white;
+  font-size:27px;
+}
+
+.key:active{
+  background:#666;
+  transform:scale(.95);
+}
+
+.pass-cancel{
+  margin-top:20px;
+  background:none;
+  color:#0a84ff;
+}
+
+/* SETTINGS */
+
+.settings-section{
+  background:white;
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+
+.setting-row{
+  min-height:55px;
+  padding:12px 15px;
   display:flex;
   align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #ddd;
+}
+
+.setting-row:last-child{
+  border-bottom:0;
+}
+
+.setting-left{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.setting-icon{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#007aff;
+  color:white;
+}
+
+.switch{
+  width:50px;
+  height:30px;
+  background:#bbb;
+  border-radius:20px;
+  padding:3px;
+  transition:.25s;
+}
+
+.switch i{
+  display:block;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:white;
+  transition:.25s;
+}
+
+.switch.on{
+  background:#34c759;
+}
+
+.switch.on i{
+  transform:translateX(20px);
+}
+
+/* CALCULATOR */
+
+.calc{
+  display:flex;
+  flex-direction:column;
+  height:100%;
   justify-content:flex-end;
-  font-size:38px;
+}
+
+.calc-display{
+  text-align:right;
+  font-size:55px;
+  padding:15px;
   overflow:hidden;
 }
 
-.calcGrid{
+.calc-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:8px;
 }
 
-.calcGrid button{
-  height:60px;
-  border-radius:17px;
-  background:#ffffff12;
-  font-size:20px;
+.calc-btn{
+  height:68px;
+  border-radius:50%;
+  background:#333;
+  color:white;
+  font-size:25px;
 }
 
-.calcGrid button:active{
-  background:#ffffff30;
+.calc-btn.operator{
+  background:#ff9500;
 }
 
-.wide{
-  grid-column:span 2;
+.calc-btn.gray{
+  background:#aaa;
+  color:#111;
 }
 
-/* =========================
-   SETUP
-========================= */
+/* NOTES */
 
-#setup{
-  position:absolute;
-  inset:0;
-  z-index:80;
+.note-input{
+  width:100%;
+  min-height:300px;
+  border:0;
+  outline:none;
+  resize:none;
+  font-size:18px;
+}
+
+/* MUSIC */
+
+.album{
+  width:220px;
+  height:220px;
+  margin:25px auto;
+  border-radius:18px;
+  background:
+    linear-gradient(135deg,#ff3b30,#af52de,#5856d6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:75px;
+  box-shadow:0 20px 35px #0003;
+}
+
+.music-title{
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+}
+
+.music-artist{
+  text-align:center;
+  color:#777;
+}
+
+.progress{
+  width:100%;
+  margin-top:25px;
+}
+
+.music-controls{
+  display:flex;
+  justify-content:center;
+  gap:35px;
+  margin-top:25px;
+}
+
+.music-controls button{
+  font-size:28px;
+  background:none;
+}
+
+/* MESSAGES */
+
+.message-list{
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  padding:35px;
+  gap:10px;
+}
+
+.message{
+  padding:12px 15px;
+  border-radius:20px;
+  max-width:75%;
+  background:#ddd;
+}
+
+.message.me{
+  margin-left:auto;
+  background:#007aff;
+  color:white;
+}
+
+/* SAFARI */
+
+.browser{
+  display:flex;
+  gap:7px;
+  margin-bottom:15px;
+}
+
+.browser input{
+  flex:1;
+  padding:11px;
+  border-radius:14px;
+  border:1px solid #ccc;
+}
+
+.browser button{
+  padding:10px 14px;
+  border-radius:14px;
+  background:#007aff;
+  color:white;
+}
+
+.browser-page{
+  min-height:400px;
+  border-radius:18px;
+  background:white;
+  padding:25px;
+  text-align:center;
+}
+
+/* CAMERA */
+
+.camera{
+  background:#000;
+  color:white;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  padding-bottom:40px;
+}
+
+.camera-preview{
+  position:absolute;
+  inset:0;
   background:
-    radial-gradient(circle at 70% 20%,#636aff55,transparent 35%),
-    linear-gradient(145deg,#080811,#17132a);
+    radial-gradient(circle at 70% 20%,#777,transparent 20%),
+    linear-gradient(130deg,#222,#777,#222);
+  animation:cameraMove 6s infinite alternate;
 }
 
-#setup h1{
-  font-size:52px;
-  margin:5px 0;
+@keyframes cameraMove{
+  from{filter:brightness(.8)}
+  to{filter:brightness(1.2)}
 }
 
-#setup p{
-  color:#aaa;
-  line-height:1.5;
-  max-width:450px;
+.shutter{
+  width:80px;
+  height:80px;
+  border:6px solid white;
+  border-radius:50%;
+  background:white;
+  box-shadow:inset 0 0 0 5px #111;
+  position:relative;
+  z-index:2;
 }
 
-.small{
-  font-size:12px;
-  letter-spacing:.25em;
-  color:#aaa;
+/* HOME INDICATOR */
+
+.home-indicator{
+  position:absolute;
+  width:135px;
+  height:5px;
+  border-radius:5px;
+  background:white;
+  bottom:8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:99999;
 }
 
-/* =========================
-   TOAST
-========================= */
+/* TOAST */
 
 #toast{
   position:absolute;
-  z-index:200;
-  bottom:100px;
+  top:70px;
   left:50%;
-  transform:translateX(-50%) translateY(30px);
-  background:#fff;
-  color:#08080a;
+  transform:translateX(-50%) translateY(-20px);
+  background:rgba(30,30,30,.9);
+  color:white;
   padding:12px 18px;
-  border-radius:999px;
-  font-weight:700;
+  border-radius:20px;
+  z-index:30000;
   opacity:0;
-  transition:.3s;
   pointer-events:none;
+  transition:.3s;
+  white-space:nowrap;
 }
 
 #toast.show{
   opacity:1;
   transform:translateX(-50%) translateY(0);
 }
+
+/* RESPONSIVE */
+
+@media(max-height:650px){
+  .phone{
+    height:96vh;
+  }
+  .app-grid{
+    gap:8px;
+  }
+  .icon{
+    width:48px;
+    height:48px;
+    font-size:22px;
+  }
+}
+
+@media(min-width:700px){
+  .phone{
+    transform:scale(1.03);
+  }
+}
+
+/* LIGHT APP */
+
+body.lightApps #appWindow{
+  background:#f5f5f7;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar{
+  width:0;
+}
+
+/* INSTALL SCREEN */
+
+#setup{
+  position:absolute;
+  inset:0;
+  z-index:15000;
+  background:
+    radial-gradient(circle at 50% 20%,#5667ff,#111 65%);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px;
+}
+
+#setup.open{
+  display:flex;
+}
+
+.setup-box h1{
+  font-size:38px;
+  margin-bottom:8px;
+}
+
+.setup-box p{
+  opacity:.8;
+  line-height:1.5;
+}
+
+.setup-button{
+  margin-top:25px;
+  padding:15px 25px;
+  border-radius:30px;
+  background:white;
+  color:#111;
+  font-weight:700;
+}
+
+/* APP GENERIC */
+
+.generic-card{
+  padding:18px;
+  background:white;
+  border-radius:18px;
+  margin-bottom:12px;
+}
+
+.dark .generic-card{
+  background:#222;
+  color:white;
+}
+
+.big-number{
+  font-size:42px;
+  font-weight:700;
+}
+
+.row-button{
+  width:100%;
+  text-align:left;
+  padding:15px;
+  background:white;
+  border-radius:15px;
+  margin-bottom:8px;
+}
+
+/* HIDDEN */
 
 .hidden{
   display:none!important;
@@ -501,305 +1091,531 @@ textarea{
 
 <body>
 
-<div id="app">
+<div id="stage">
 
-<!-- =========================
-     UNBOXING
-========================= -->
+<!-- UNBOXING -->
 
-<section id="unboxing">
+<div id="unboxing">
 
-  <div class="brand">NEVERA</div>
-  <div class="tagline">A DIFFERENT KIND OF PHONE</div>
+  <div class="box" id="box">
 
-  <div class="boxArea">
+    <div class="box-base"></div>
 
-    <div class="box"></div>
+    <div class="box-phone"></div>
 
-    <div class="phone">
-      <div class="phoneScreen"></div>
+    <div class="box-lid">
+      <div class="box-logo"></div>
     </div>
 
-    <div class="lid">
-      <div class="lidLogo">NEVERA</div>
-    </div>
-
-  </div>
-
-  <button id="unboxButton">
-    OPEN THE BOX
-  </button>
-
-</section>
-
-
-<!-- =========================
-     PHONE OS
-========================= -->
-
-<section id="phone" class="hidden">
-
-  <div class="wallpaper"></div>
-
-  <div class="statusBar">
-
-    <span id="statusTime">9:41</span>
-
-    <div class="statusRight">
-      <span>⌁</span>
-      <span>◉</span>
-
-      <div class="battery">
-        <div class="batteryFill"></div>
-      </div>
+    <div class="unbox-content">
+      <h1>iPhone</h1>
+      <p>Your new iPhone is ready.</p>
+      <button id="openBox">Open Box</button>
     </div>
 
   </div>
 
-
-  <!-- HOME SCREEN -->
-
-  <div class="homeScreen">
-
-    <div class="bigClock" id="clock">
-      9:41
-    </div>
-
-    <div class="date" id="date">
-      Friday, September 4
-    </div>
+</div>
 
 
-    <div class="apps">
+<!-- PHONE -->
 
-      <div class="appIcon" onclick="openApp('calculator')">
-        <div class="icon">🧮</div>
-        Calculator
+<div class="phone hidden" id="phone">
+
+  <div class="side power"></div>
+  <div class="side volume"></div>
+  <div class="side volume2"></div>
+
+  <div class="phone-screen">
+
+    <div class="dynamic-island" id="island"></div>
+
+    <div id="ios">
+
+      <div class="wallpaper"></div>
+
+      <!-- STATUS -->
+
+      <div class="status">
+
+        <span id="timeStatus">9:41</span>
+
+        <div class="status-right">
+          <span class="signal">▮▮▮</span>
+          <span>Wi-Fi</span>
+          <div class="battery">
+            <div class="battery-fill" id="batteryFill"></div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('notes')">
-        <div class="icon">📝</div>
-        Notes
+
+      <!-- LOCK SCREEN -->
+
+      <div id="lock">
+
+        <div class="lock-time" id="lockTime">9:41</div>
+        <div class="lock-date" id="lockDate">Friday, September 4</div>
+
+        <div class="lock-notification">
+          <b>Welcome to your iPhone</b>
+          <br>
+          <small>Swipe up to unlock</small>
+        </div>
+
+        <div class="lock-bottom">
+
+          <button class="circle-btn" id="flashBtn">🔦</button>
+          <button class="circle-btn" id="cameraLockBtn">📷</button>
+
+        </div>
+
+        <div class="swipe">━━━━━━</div>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('messages')">
-        <div class="icon">💬</div>
-        Messages
+
+      <!-- HOME -->
+
+      <div id="home">
+
+        <div class="widgets">
+
+          <div class="widget">
+            <strong>Weather</strong>
+            <span>72°</span>
+          </div>
+
+          <div class="widget">
+            <strong>Calendar</strong>
+            <span id="widgetDay">4</span>
+          </div>
+
+        </div>
+
+        <div class="app-grid" id="appGrid"></div>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('camera')">
-        <div class="icon">📷</div>
-        Camera
+
+      <!-- DOCK -->
+
+      <div id="dock">
+
+        <button class="app" data-app="Phone">
+          <div class="icon">📞</div>
+        </button>
+
+        <button class="app" data-app="Messages">
+          <div class="icon">
+            💬
+            <i class="badge">3</i>
+          </div>
+        </button>
+
+        <button class="app" data-app="Safari">
+          <div class="icon">🧭</div>
+        </button>
+
+        <button class="app" data-app="Music">
+          <div class="icon">🎵</div>
+        </button>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('music')">
-        <div class="icon">🎵</div>
-        Music
+
+      <!-- APP WINDOW -->
+
+      <div id="appWindow">
+
+        <div class="app-header">
+
+          <h2 id="appTitle">App</h2>
+
+          <button class="close-app" id="closeApp">
+            Done
+          </button>
+
+        </div>
+
+        <div class="app-content" id="appContent"></div>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('files')">
-        <div class="icon">📁</div>
-        Files
+
+      <!-- SEARCH -->
+
+      <div id="search">
+
+        <input
+          class="search-input"
+          id="searchInput"
+          placeholder="Search"
+          autocomplete="off"
+        >
+
+        <div class="search-results" id="searchResults"></div>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('settings')">
-        <div class="icon">⚙️</div>
-        Settings
+
+      <!-- CONTROL CENTER -->
+
+      <div id="controlCenter">
+
+        <h2>Control Center</h2>
+
+        <div class="cc-grid">
+
+          <button class="cc-toggle active" id="wifiToggle">
+            📶 Wi-Fi<br>
+            <small>Connected</small>
+          </button>
+
+          <button class="cc-toggle active" id="bluetoothToggle">
+            🟦 Bluetooth<br>
+            <small>On</small>
+          </button>
+
+          <button class="cc-toggle" id="airplaneToggle">
+            ✈️ Airplane Mode<br>
+            <small>Off</small>
+          </button>
+
+          <button class="cc-toggle" id="darkToggle">
+            🌙 Dark Mode<br>
+            <small>Off</small>
+          </button>
+
+        </div>
+
+        <div class="cc-card">
+          🔆 Brightness
+          <input
+            class="brightness"
+            id="brightness"
+            type="range"
+            min="30"
+            max="100"
+            value="100"
+          >
+        </div>
+
+        <div class="cc-card">
+          🔊 Volume
+          <input
+            class="brightness"
+            type="range"
+            min="0"
+            max="100"
+            value="70"
+          >
+        </div>
+
+        <button
+          onclick="closeControlCenter()"
+          style="
+            margin-top:25px;
+            padding:15px 25px;
+            border-radius:25px;
+            width:100%;
+          "
+        >
+          Done
+        </button>
+
       </div>
 
-      <div class="appIcon" onclick="openApp('about')">
-        <div class="icon">✨</div>
-        About
+
+      <!-- PASSCODE -->
+
+      <div id="passcode">
+
+        <div class="pass-title" id="passTitle">
+          Enter Passcode
+        </div>
+
+        <div class="pass-dots">
+
+          <i class="pass-dot"></i>
+          <i class="pass-dot"></i>
+          <i class="pass-dot"></i>
+          <i class="pass-dot"></i>
+          <i class="pass-dot"></i>
+          <i class="pass-dot"></i>
+
+        </div>
+
+        <div class="keypad">
+
+          <button class="key" data-key="1">1</button>
+          <button class="key" data-key="2">2</button>
+          <button class="key" data-key="3">3</button>
+
+          <button class="key" data-key="4">4</button>
+          <button class="key" data-key="5">5</button>
+          <button class="key" data-key="6">6</button>
+
+          <button class="key" data-key="7">7</button>
+          <button class="key" data-key="8">8</button>
+          <button class="key" data-key="9">9</button>
+
+          <button class="key" data-key="0" style="grid-column:2">0</button>
+
+        </div>
+
+        <button class="pass-cancel" id="passCancel">
+          Cancel
+        </button>
+
       </div>
+
+
+      <!-- SETUP -->
+
+      <div id="setup">
+
+        <div class="setup-box">
+
+          <div style="font-size:70px"></div>
+
+          <h1>Welcome to iPhone</h1>
+
+          <p>
+            This is your simulated iPhone.
+            Let's get it ready.
+          </p>
+
+          <button class="setup-button" id="setupContinue">
+            Continue
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div id="toast"></div>
+
+      <div class="home-indicator"></div>
 
     </div>
 
   </div>
 
-
-  <!-- DOCK -->
-
-  <div class="dock">
-
-    <div class="appIcon" onclick="openApp('phone')">
-      <div class="icon">☎️</div>
-    </div>
-
-    <div class="appIcon" onclick="openApp('browser')">
-      <div class="icon">🌐</div>
-    </div>
-
-    <div class="appIcon" onclick="openApp('messages')">
-      <div class="icon">💬</div>
-    </div>
-
-    <div class="appIcon" onclick="openApp('settings')">
-      <div class="icon">⚙️</div>
-    </div>
-
-  </div>
-
-  <div class="gesture"></div>
-
-
-  <!-- APP PANEL -->
-
-  <div id="panel">
-
-    <button class="close" onclick="closePanel()">×</button>
-
-    <div id="panelContent"></div>
-
-  </div>
-
-
-  <!-- SETUP -->
-
-  <div id="setup">
-
-    <div class="small">
-      WELCOME
-    </div>
-
-    <h1>NEVERA</h1>
-
-    <p>
-      Your new imaginary phone is ready.
-      This is a browser-based phone simulator.
-      Nothing here makes real calls or sends real messages.
-    </p>
-
-    <label class="small">
-      DEVICE NAME
-    </label>
-
-    <input
-      id="deviceName"
-      placeholder="NEVERA Phone"
-    >
-
-    <button
-      class="primary"
-      onclick="finishSetup()"
-    >
-      CONTINUE →
-    </button>
-
-  </div>
-
-</section>
-
-
-<div id="toast"></div>
+</div>
 
 </div>
 
 
 <script>
 
-/* =========================
-   BASIC SETUP
-========================= */
-
-const unboxing =
-  document.getElementById("unboxing");
-
-const phone =
-  document.getElementById("phone");
-
-const setup =
-  document.getElementById("setup");
-
-const panel =
-  document.getElementById("panel");
-
-const panelContent =
-  document.getElementById("panelContent");
-
-const toast =
-  document.getElementById("toast");
+/* ============================================================
+   IPHONE SIMULATOR
+   SINGLE FILE ENGINE
+   ============================================================ */
 
 
-let notes =
-  localStorage.getItem("neveraNotes") || "";
+/* ---------- ELEMENTS ---------- */
 
-let deviceName =
-  localStorage.getItem("neveraDevice")
-  || "NEVERA Phone";
+const unboxing = document.getElementById("unboxing");
+const box = document.getElementById("box");
+const openBox = document.getElementById("openBox");
+const phone = document.getElementById("phone");
+const ios = document.getElementById("ios");
+const lock = document.getElementById("lock");
+const home = document.getElementById("home");
+const appGrid = document.getElementById("appGrid");
+const appWindow = document.getElementById("appWindow");
+const appTitle = document.getElementById("appTitle");
+const appContent = document.getElementById("appContent");
+const closeApp = document.getElementById("closeApp");
+const toast = document.getElementById("toast");
+const passcode = document.getElementById("passcode");
+const passTitle = document.getElementById("passTitle");
+const passCancel = document.getElementById("passCancel");
+const island = document.getElementById("island");
+const search = document.getElementById("search");
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
 
 
-/* =========================
-   FULLSCREEN
-========================= */
+/* ---------- STATE ---------- */
 
-function goFullscreen(){
+let currentApp = null;
+let currentPass = "";
+let savedPasscode = localStorage.getItem("iphonePasscode") || "123456";
+let passMode = "unlock";
+let locked = true;
+let battery = 78;
+let darkMode = false;
+let airplane = false;
+let wifi = true;
+let bluetooth = true;
+let volume = 70;
+let noteText = localStorage.getItem("iphoneNote") || "";
+let calcValue = "";
+let musicPlaying = false;
 
-  const element = document.documentElement;
 
-  if(
-    !document.fullscreenElement &&
-    element.requestFullscreen
-  ){
+/* ---------- 50+ APPS ---------- */
 
-    element.requestFullscreen().catch(()=>{});
+const apps = [
 
-  }
+  ["Phone","📞","#34c759"],
+  ["Messages","💬","#34c759"],
+  ["Safari","🧭","#ffffff"],
+  ["Music","🎵","#ff375f"],
+
+  ["Camera","📷","#777"],
+  ["Photos","🌈","#fff"],
+  ["Mail","✉️","#1683ff"],
+  ["Calendar","📅","#fff"],
+
+  ["Weather","☀️","#4aa3ff"],
+  ["Clock","🕐","#111"],
+  ["Maps","🗺️","#fff"],
+  ["Notes","📝","#ffe900"],
+
+  ["Reminders","✅","#fff"],
+  ["Contacts","👤","#ddd"],
+  ["App Store","🛍️","#1683ff"],
+  ["Settings","⚙️","#888"],
+
+  ["Calculator","🧮","#222"],
+  ["Files","📁","#1683ff"],
+  ["Find My","📍","#fff"],
+  ["Health","❤️","#fff"],
+
+  ["Wallet","💳","#111"],
+  ["Home","🏠","#f5f5f5"],
+  ["Podcasts","🎙️","#fff"],
+  ["News","📰","#fff"],
+
+  ["TV","📺","#111"],
+  ["Books","📚","#fff"],
+  ["Stocks","📈","#111"],
+  ["Translate","🌐","#fff"],
+
+  ["Tips","💡","#ffe400"],
+  ["Voice Memos","🎙️","#fff"],
+  ["Measure","📏","#fff"],
+  ["Compass","🧭","#111"],
+
+  ["Shortcuts","🔗","#fff"],
+  ["Watch","⌚","#111"],
+  ["Fitness","🏃","#111"],
+  ["Freeform","🖍️","#fff"],
+
+  ["FaceTime","📹","#34c759"],
+  ["iTunes Store","🎵","#ff375f"],
+  ["GarageBand","🎸","#ff375f"],
+  ["iMovie","🎬","#fff"],
+
+  ["Files Pro","🗂️","#1683ff"],
+  ["Passwords","🔑","#111"],
+  ["Dictionary","📖","#fff"],
+  ["Magnifier","🔎","#111"],
+
+  ["Voice Control","🎤","#777"],
+  ["Safari Dev","💻","#111"],
+  ["Games","🎮","#222"],
+  ["Arcade","🕹️","#111"],
+
+  ["Calculator Pro","🔢","#222"],
+  ["Weather Pro","🌦️","#1683ff"],
+  ["Drive","☁️","#fff"],
+  ["Browser","🌎","#1683ff"]
+
+];
+
+
+/* ---------- CREATE HOME ---------- */
+
+function buildHome(){
+
+  appGrid.innerHTML = "";
+
+  apps.forEach((a,index)=>{
+
+    const btn = document.createElement("button");
+
+    btn.className = "app";
+
+    btn.dataset.app = a[0];
+
+    btn.innerHTML = `
+      <div class="icon" style="background:${a[2]}">
+        ${a[1]}
+        ${index===1 ? '<i class="badge">3</i>' : ''}
+      </div>
+      <span>${a[0]}</span>
+    `;
+
+    btn.addEventListener("click",()=>openApp(a[0]));
+
+    appGrid.appendChild(btn);
+
+  });
 
 }
 
+buildHome();
 
-/* =========================
-   UNBOX
-========================= */
 
-document
-.getElementById("unboxButton")
-.onclick = function(){
+/* ---------- UNBOXING ---------- */
 
-  goFullscreen();
+openBox.addEventListener("click",()=>{
 
-  unboxing.classList.add("open");
+  box.classList.add("open");
 
-  this.textContent = "POWERING ON…";
+  showToast("Opening your new iPhone…");
 
   setTimeout(()=>{
 
-    unboxing.classList.add("hidden");
+    unboxing.classList.add("hide");
 
     phone.classList.remove("hidden");
 
+    setTimeout(()=>{
+
+      ios.classList.add("visible");
+
+    },500);
+
   },1800);
 
-};
+});
 
 
-/* =========================
-   CLOCK
-========================= */
+/* ---------- CLOCK ---------- */
 
 function updateClock(){
 
   const now = new Date();
 
-  const time =
-    now.toLocaleTimeString([],{
-      hour:"numeric",
-      minute:"2-digit"
-    });
+  let h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2,"0");
 
-  document.getElementById("clock")
-    .textContent = time;
+  const ampm = h >= 12 ? "PM" : "AM";
 
-  document.getElementById("statusTime")
-    .textContent = time;
+  h = h % 12 || 12;
 
-  document.getElementById("date")
-    .textContent =
-    now.toLocaleDateString([],{
-      weekday:"long",
-      month:"long",
-      day:"numeric"
-    });
+  const time = `${h}:${m}`;
+
+  document.getElementById("lockTime").textContent = time;
+  document.getElementById("timeStatus").textContent = time;
+
+  const date = now.toLocaleDateString("en-US",{
+    weekday:"long",
+    month:"long",
+    day:"numeric"
+  });
+
+  document.getElementById("lockDate").textContent = date;
+
+  document.getElementById("widgetDay").textContent = now.getDate();
 
 }
 
@@ -807,703 +1623,1897 @@ setInterval(updateClock,1000);
 updateClock();
 
 
-/* =========================
-   TOAST
-========================= */
+/* ---------- TOAST ---------- */
+
+let toastTimer;
 
 function showToast(message){
 
   toast.textContent = message;
-
   toast.classList.add("show");
 
-  setTimeout(()=>{
+  clearTimeout(toastTimer);
+
+  toastTimer=setTimeout(()=>{
     toast.classList.remove("show");
   },1800);
 
 }
 
 
-/* =========================
-   OPEN APP
-========================= */
+/* ---------- UNLOCK ---------- */
 
-function openApp(app){
+function unlock(){
 
-  let html = "";
+  if(savedPasscode){
 
-  if(app==="calculator"){
+    passMode="unlock";
+    passcode.classList.add("open");
+    passTitle.textContent="Enter Passcode";
+    currentPass="";
 
-    html = `
+    updatePassDots();
 
-      <h2 class="panelTitle">
-        Calculator
-      </h2>
+  }else{
 
-      <div class="card">
+    enterHome();
+
+  }
+
+}
+
+lock.addEventListener("click",(e)=>{
+
+  if(e.target.closest(".circle-btn")) return;
+
+  unlock();
+
+});
+
+document.querySelector(".swipe").addEventListener("click",unlock);
+
+
+/* ---------- PASSCODE ---------- */
+
+document.querySelectorAll(".key").forEach(key=>{
+
+  key.addEventListener("click",()=>{
+
+    if(currentPass.length>=6) return;
+
+    currentPass += key.dataset.key;
+
+    updatePassDots();
+
+    if(currentPass.length===6){
+
+      setTimeout(checkPass,200);
+
+    }
+
+  });
+
+});
+
+
+function updatePassDots(){
+
+  document.querySelectorAll(".pass-dot").forEach((dot,i)=>{
+
+    dot.classList.toggle(
+      "filled",
+      i<currentPass.length
+    );
+
+  });
+
+}
+
+
+function checkPass(){
+
+  if(passMode==="create"){
+
+    savedPasscode=currentPass;
+
+    localStorage.setItem(
+      "iphonePasscode",
+      savedPasscode
+    );
+
+    currentPass="";
+
+    passMode="unlock";
+
+    passcode.classList.remove("open");
+
+    enterHome();
+
+    showToast("Passcode created");
+
+    return;
+
+  }
+
+  if(currentPass===savedPasscode){
+
+    passcode.classList.remove("open");
+
+    enterHome();
+
+    currentPass="";
+
+  }else{
+
+    showToast("Incorrect passcode");
+
+    currentPass="";
+
+    updatePassDots();
+
+  }
+
+}
+
+
+function enterHome(){
+
+  locked=false;
+
+  lock.classList.add("unlocking");
+
+  setTimeout(()=>{
+
+    lock.style.display="none";
+    home.classList.add("visible");
+
+  },400);
+
+}
+
+
+passCancel.addEventListener("click",()=>{
+
+  passcode.classList.remove("open");
+  currentPass="";
+
+  updatePassDots();
+
+});
+
+
+/* ---------- HOME INDICATOR ---------- */
+
+document.querySelector(".home-indicator")
+.addEventListener("click",()=>{
+
+  closeAppWindow();
+
+});
+
+
+/* ---------- OPEN APP ---------- */
+
+function openApp(name){
+
+  currentApp=name;
+
+  appTitle.textContent=name;
+
+  appContent.innerHTML=getAppHTML(name);
+
+  appWindow.classList.add("open");
+
+  island.classList.add("active");
+
+  setTimeout(()=>island.classList.remove("active"),900);
+
+  attachAppEvents(name);
+
+}
+
+
+function closeAppWindow(){
+
+  appWindow.classList.remove("open");
+
+  currentApp=null;
+
+}
+
+
+/* ---------- CLOSE ---------- */
+
+closeApp.addEventListener(
+  "click",
+  closeAppWindow
+);
+
+
+/* ---------- APP HTML ---------- */
+
+function getAppHTML(name){
+
+  switch(name){
+
+    case "Calculator":
+    case "Calculator Pro":
+
+      return `
+
+      <div class="calc">
 
         <div
-          class="calcDisplay"
+          class="calc-display"
           id="calcDisplay"
-        >
-          0
-        </div>
+        >0</div>
 
-        <div class="calcGrid">
+        <div class="calc-grid">
 
-          <button onclick="calc('7')">7</button>
-          <button onclick="calc('8')">8</button>
-          <button onclick="calc('9')">9</button>
-          <button onclick="calc('/')">÷</button>
+          <button class="calc-btn gray" data-calc="AC">AC</button>
+          <button class="calc-btn gray" data-calc="+/-">±</button>
+          <button class="calc-btn gray" data-calc="%">%</button>
+          <button class="calc-btn operator" data-calc="/">÷</button>
 
-          <button onclick="calc('4')">4</button>
-          <button onclick="calc('5')">5</button>
-          <button onclick="calc('6')">6</button>
-          <button onclick="calc('*')">×</button>
+          <button class="calc-btn" data-calc="7">7</button>
+          <button class="calc-btn" data-calc="8">8</button>
+          <button class="calc-btn" data-calc="9">9</button>
+          <button class="calc-btn operator" data-calc="*">×</button>
 
-          <button onclick="calc('1')">1</button>
-          <button onclick="calc('2')">2</button>
-          <button onclick="calc('3')">3</button>
-          <button onclick="calc('-')">−</button>
+          <button class="calc-btn" data-calc="4">4</button>
+          <button class="calc-btn" data-calc="5">5</button>
+          <button class="calc-btn" data-calc="6">6</button>
+          <button class="calc-btn operator" data-calc="-">−</button>
 
-          <button onclick="calc('0')">0</button>
-          <button onclick="calc('.')">.</button>
-          <button onclick="calculateResult()">=</button>
-          <button onclick="calc('+')">+</button>
+          <button class="calc-btn" data-calc="1">1</button>
+          <button class="calc-btn" data-calc="2">2</button>
+          <button class="calc-btn" data-calc="3">3</button>
+          <button class="calc-btn operator" data-calc="+">+</button>
 
           <button
-            class="wide"
-            onclick="clearCalc()"
+            class="calc-btn"
+            data-calc="0"
+            style="grid-column:span 2;border-radius:40px"
+          >0</button>
+
+          <button class="calc-btn" data-calc=".">.</button>
+          <button class="calc-btn operator" data-calc="=">=</button>
+
+        </div>
+
+      </div>
+
+      `;
+
+
+    case "Notes":
+
+      return `
+
+        <textarea
+          class="note-input"
+          id="noteInput"
+          placeholder="Start writing..."
+        >${escapeHTML(noteText)}</textarea>
+
+        <button
+          id="saveNote"
+          style="
+            width:100%;
+            padding:15px;
+            border-radius:15px;
+            background:#007aff;
+            color:white;
+            margin-top:15px;
+          "
+        >
+          Save Note
+        </button>
+
+      `;
+
+
+    case "Music":
+
+      return `
+
+        <div class="album">🎵</div>
+
+        <div class="music-title">
+          Midnight Drive
+        </div>
+
+        <div class="music-artist">
+          Simulator Radio
+        </div>
+
+        <input
+          class="progress"
+          type="range"
+          value="45"
+        >
+
+        <div class="music-controls">
+
+          <button>⏮️</button>
+
+          <button id="playMusic">
+            ${musicPlaying ? "⏸️" : "▶️"}
+          </button>
+
+          <button>⏭️</button>
+
+        </div>
+
+      `;
+
+
+    case "Camera":
+
+      return `
+
+        <div class="camera">
+
+          <div class="camera-preview"></div>
+
+          <div class="shutter" id="shutter"></div>
+
+          <div style="
+            position:relative;
+            z-index:3;
+            margin-top:20px;
+          ">
+            PHOTO
+          </div>
+
+        </div>
+
+      `;
+
+
+    case "Messages":
+
+      return `
+
+        <div class="message-list">
+
+          <div class="message">
+            Mom<br>
+            Dinner is ready!
+          </div>
+
+          <div class="message me">
+            I'll be there 😎
+          </div>
+
+          <div class="message">
+            Simulator<br>
+            Welcome to your new iPhone!
+          </div>
+
+          <div class="message me">
+            This is actually sick 🔥
+          </div>
+
+        </div>
+
+        <input
+          id="messageInput"
+          placeholder="iMessage"
+          style="
+            position:absolute;
+            bottom:25px;
+            left:20px;
+            right:20px;
+            width:calc(100% - 40px);
+            padding:14px;
+            border-radius:22px;
+            border:1px solid #ccc;
+          "
+        >
+
+      `;
+
+
+    case "Safari":
+    case "Browser":
+    case "Safari Dev":
+
+      return `
+
+        <div class="browser">
+
+          <input
+            id="browserInput"
+            placeholder="Search or enter website"
           >
-            CLEAR
+
+          <button id="browserGo">
+            Go
           </button>
 
         </div>
 
-      </div>
+        <div
+          class="browser-page"
+          id="browserPage"
+        >
 
-    `;
+          <div style="font-size:60px">🧭</div>
 
-  }
+          <h1>Safari</h1>
+
+          <p>
+            What will you discover?
+          </p>
+
+          <hr>
+
+          <h3>Favorites</h3>
+
+          <p>Apple</p>
+          <p>News</p>
+          <p>Weather</p>
+
+        </div>
+
+      `;
 
 
-  else if(app==="notes"){
+    case "Settings":
 
-    html = `
+      return getSettingsHTML();
 
-      <h2 class="panelTitle">
-        Notes
-      </h2>
 
-      <div class="card">
+    case "Weather":
+    case "Weather Pro":
+
+      return `
+
+        <div style="text-align:center">
+
+          <div style="font-size:90px">
+            ☀️
+          </div>
+
+          <div class="big-number">
+            72°
+          </div>
+
+          <h2>Sunny</h2>
+
+          <p>Thornton, Colorado</p>
+
+          <div class="generic-card">
+            Feels like 70°
+          </div>
+
+          <div class="generic-card">
+            Wind: 8 mph
+          </div>
+
+          <div class="generic-card">
+            Humidity: 38%
+          </div>
+
+        </div>
+
+      `;
+
+
+    case "Clock":
+
+      return `
+
+        <div style="text-align:center">
+
+          <div class="big-number" id="bigClock">
+            9:41
+          </div>
+
+          <p>Local Time</p>
+
+          <hr>
+
+          <div class="generic-card">
+            Alarm<br><b>7:00 AM</b>
+          </div>
+
+          <div class="generic-card">
+            Stopwatch<br>
+            <b>00:00:00</b>
+          </div>
+
+        </div>
+
+      `;
+
+
+    case "Calendar":
+
+      return `
+
+        <div style="text-align:center">
+
+          <h1>September 2026</h1>
+
+          <div class="generic-card">
+
+            <h2>Friday 4</h2>
+
+            <p>No events today</p>
+
+          </div>
+
+          <div class="generic-card">
+            🎂 Birthday coming soon
+          </div>
+
+        </div>
+
+      `;
+
+
+    case "Photos":
+
+      return `
+
+        <h2>Recents</h2>
+
+        <div style="
+          display:grid;
+          grid-template-columns:repeat(3,1fr);
+          gap:5px;
+        ">
+
+          ${[
+            "🌄","🏔️","🌅",
+            "🐶","🌳","🚗",
+            "🍕","🎮","🌌"
+          ].map(x=>`
+            <div style="
+              height:100px;
+              border-radius:8px;
+              background:linear-gradient(135deg,#777,#ddd);
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              font-size:35px;
+            ">${x}</div>
+          `).join("")}
+
+        </div>
+
+      `;
+
+
+    case "Maps":
+
+      return `
+
+        <div style="
+          height:100%;
+          min-height:500px;
+          border-radius:20px;
+          background:
+            linear-gradient(20deg,#9bd38d,#d6efb4 50%,#b7d9ee);
+          position:relative;
+          overflow:hidden;
+        ">
+
+          <div style="
+            position:absolute;
+            top:45%;
+            left:40%;
+            font-size:50px;
+          ">
+            📍
+          </div>
+
+          <div style="
+            position:absolute;
+            bottom:20px;
+            left:15px;
+            right:15px;
+            background:white;
+            padding:15px;
+            border-radius:18px;
+          ">
+            <b>Current Location</b><br>
+            Thornton, Colorado
+          </div>
+
+        </div>
+
+      `;
+
+
+    case "Phone":
+
+      return `
+
+        <div style="text-align:center">
+
+          <div class="big-number">
+            📞
+          </div>
+
+          <h2>Favorites</h2>
+
+          <div class="generic-card">
+            Mom
+          </div>
+
+          <div class="generic-card">
+            Dad
+          </div>
+
+          <div class="generic-card">
+            Home
+          </div>
+
+          <button
+            onclick="showToast('Calling…')"
+            style="
+              background:#34c759;
+              color:white;
+              padding:18px;
+              border-radius:50%;
+              font-size:25px;
+            "
+          >
+            📞
+          </button>
+
+        </div>
+
+      `;
+
+
+    case "App Store":
+
+      return `
+
+        <h1>App Store</h1>
+
+        <div class="generic-card">
+
+          <h2>Featured</h2>
+
+          <p>
+            Discover amazing apps.
+          </p>
+
+          <button
+            onclick="showToast('App installed!')"
+            style="
+              background:#007aff;
+              color:white;
+              padding:10px 18px;
+              border-radius:20px;
+            "
+          >
+            GET
+          </button>
+
+        </div>
+
+        <div class="generic-card">
+          🎮 Games
+        </div>
+
+        <div class="generic-card">
+          📚 Education
+        </div>
+
+        <div class="generic-card">
+          🎵 Music
+        </div>
+
+      `;
+
+
+    case "Mail":
+
+      return `
+
+        <h2>Inbox</h2>
+
+        <div class="generic-card">
+          <b>Welcome to iPhone!</b>
+          <br>
+          Your setup is complete.
+        </div>
+
+        <div class="generic-card">
+          <b>Apple</b>
+          <br>
+          Your new device is ready.
+        </div>
+
+      `;
+
+
+    case "Contacts":
+
+      return `
+
+        <h2>Contacts</h2>
+
+        ${["Mom","Dad","Alex","School","Pizza Place"].map(n=>`
+          <div class="generic-card">
+            👤 <b>${n}</b>
+          </div>
+        `).join("")}
+
+      `;
+
+
+    case "Reminders":
+
+      return `
+
+        <h2>Reminders</h2>
+
+        ${[
+          "Finish homework",
+          "Charge iPhone",
+          "Drink water",
+          "Check messages"
+        ].map(x=>`
+          <div class="generic-card">
+            ⭕ ${x}
+          </div>
+        `).join("")}
+
+      `;
+
+
+    case "Files":
+    case "Files Pro":
+
+      return `
+
+        <h2>Browse</h2>
+
+        ${[
+          "📁 Downloads",
+          "📁 Documents",
+          "📁 iPhone",
+          "📄 Notes.txt",
+          "📄 Project.html"
+        ].map(x=>`
+          <div class="generic-card">
+            ${x}
+          </div>
+        `).join("")}
+
+      `;
+
+
+    case "Wallet":
+
+      return `
+
+        <h2>Wallet</h2>
+
+        <div style="
+          background:linear-gradient(135deg,#111,#555);
+          color:white;
+          height:190px;
+          border-radius:20px;
+          padding:20px;
+        ">
+
+          <small>SIMULATOR CARD</small>
+
+          <div style="
+            margin-top:60px;
+            font-size:20px;
+          ">
+            •••• •••• •••• 1234
+          </div>
+
+        </div>
+
+        <p>
+          Double-click side button to pay.
+        </p>
+
+      `;
+
+
+    case "Health":
+
+      return `
+
+        <h2>Health</h2>
+
+        <div class="generic-card">
+          ❤️ Heart
+          <div class="big-number">72</div>
+          BPM
+        </div>
+
+        <div class="generic-card">
+          🚶 Steps
+          <div class="big-number">4,281</div>
+        </div>
+
+      `;
+
+
+    case "Fitness":
+
+      return `
+
+        <h2>Activity</h2>
+
+        <div class="generic-card">
+          🔥 Move
+          <div class="big-number">428</div>
+          kcal
+        </div>
+
+        <div class="generic-card">
+          🏃 Exercise
+          <div class="big-number">24</div>
+          min
+        </div>
+
+      `;
+
+
+    case "Stocks":
+
+      return `
+
+        <h2>Stocks</h2>
+
+        ${[
+          ["AAPL","+1.42%"],
+          ["GOOG","+0.83%"],
+          ["MSFT","+2.11%"],
+          ["NVDA","+3.04%"]
+        ].map(x=>`
+          <div class="generic-card">
+            <b>${x[0]}</b>
+            <span style="float:right;color:#34c759">
+              ${x[1]}
+            </span>
+          </div>
+        `).join("")}
+
+      `;
+
+
+    case "Translate":
+
+      return `
+
+        <h2>Translate</h2>
 
         <textarea
-          id="notesArea"
-          placeholder="Write something…"
-        >${escapeHTML(notes)}</textarea>
-
-        <button
-          class="primary"
-          onclick="saveNotes()"
-        >
-          SAVE NOTE
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="messages"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Messages
-      </h2>
-
-      <div class="card">
-
-        <div class="small">
-          NEVERA DEMO CHAT
-        </div>
-
-        <p>
-          👋 Welcome to your fake phone.
-        </p>
-
-        <p style="text-align:right">
-          This is a simulator 😎
-        </p>
-
-        <input
-          id="messageInput"
-          placeholder="Message…"
-        >
-
-        <button
-          class="primary"
-          onclick="sendMessage()"
-        >
-          SEND
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="camera"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Camera
-      </h2>
-
-      <div
-        class="card"
-        style="text-align:center"
-      >
-
-        <div
+          id="translateInput"
+          placeholder="Enter text"
           style="
-          font-size:90px;
-          margin:40px 0;
+            width:100%;
+            height:130px;
+            border-radius:15px;
+            border:1px solid #ccc;
+            padding:15px;
+          "
+        ></textarea>
+
+        <button
+          onclick="
+            document.getElementById('translateOutput').textContent=
+            'Hello 👋'
+          "
+          style="
+            margin-top:10px;
+            padding:14px;
+            width:100%;
+            border-radius:15px;
+            background:#007aff;
+            color:white;
           "
         >
-          📷
-        </div>
-
-        <p>
-          Camera Simulator
-        </p>
-
-        <button
-          class="primary"
-          onclick="showToast('📸 Photo captured!')"
-        >
-          TAKE PHOTO
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="music"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Music
-      </h2>
-
-      <div
-        class="card"
-        style="text-align:center"
-      >
-
-        <div style="font-size:90px">
-          🎵
-        </div>
-
-        <h3>
-          NEVERA MIX
-        </h3>
-
-        <p style="color:#aaa">
-          Simulated music player.
-        </p>
-
-        <button
-          class="primary"
-          onclick="showToast('▶️ Playing demo track')"
-        >
-          PLAY
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="files"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Files
-      </h2>
-
-      <div class="card">
-
-        <button class="listButton">
-          📄 Welcome.txt
-        </button>
-
-        <button class="listButton">
-          🖼️ Wallpaper.nevera
-        </button>
-
-        <button class="listButton">
-          ⚙️ Settings.json
-        </button>
-
-        <p style="color:#777">
-          Demo files only.
-        </p>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="settings"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Settings
-      </h2>
-
-      <div class="card">
-
-        <button
-          class="listButton"
-          onclick="changeWallpaper()"
-        >
-          🎨 Change Wallpaper
-        </button>
-
-        <button
-          class="listButton"
-          onclick="goFullscreen()"
-        >
-          ⛶ Fullscreen
-        </button>
-
-        <button
-          class="listButton"
-          onclick="resetPhone()"
-        >
-          ♻️ Reset NEVERA
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <b>
-          Device
-        </b>
-
-        <p style="color:#aaa">
-          ${escapeHTML(deviceName)}
-        </p>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="about"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        About NEVERA
-      </h2>
-
-      <div class="card">
-
-        <h2>
-          NEVERA Phone
-        </h2>
-
-        <p>
-          A single-file phone simulator.
-        </p>
-
-        <p style="color:#aaa">
-          Version 1.0
-        </p>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="phone"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        Phone
-      </h2>
-
-      <div
-        class="card"
-        style="text-align:center"
-      >
-
-        <div style="font-size:80px">
-          ☎️
-        </div>
-
-        <p style="color:#aaa">
-          No real calls are made.
-        </p>
-
-        <button
-          class="primary"
-          onclick="showToast('☎️ Demo call started')"
-        >
-          CALL DEMO
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-
-  else if(app==="browser"){
-
-    html = `
-
-      <h2 class="panelTitle">
-        NEVERA Browser
-      </h2>
-
-      <div class="card">
-
-        <input
-          id="searchBox"
-          placeholder="Search the NEVERA web…"
-        >
-
-        <button
-          class="primary"
-          onclick="fakeSearch()"
-        >
-          GO
+          Translate
         </button>
 
         <div
-          id="searchResult"
-          style="
-          margin-top:20px;
-          color:#aaa;
-          "
-        ></div>
+          class="generic-card"
+          id="translateOutput"
+        >
+          Translation appears here.
+        </div>
+
+      `;
+
+
+    case "Find My":
+
+      return `
+
+        <h2>Find My</h2>
+
+        <div style="
+          min-height:400px;
+          border-radius:20px;
+          background:#dcecff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:70px;
+        ">
+          📍
+        </div>
+
+        <div class="generic-card">
+          iPhone — With You
+        </div>
+
+      `;
+
+
+    case "Home":
+
+      return `
+
+        <h2>Home</h2>
+
+        <div class="generic-card">
+          💡 Bedroom Light
+          <span style="float:right">ON</span>
+        </div>
+
+        <div class="generic-card">
+          🌡️ Thermostat
+          <span style="float:right">72°</span>
+        </div>
+
+      `;
+
+
+    default:
+
+      return `
+
+        <div style="text-align:center">
+
+          <div style="font-size:80px">
+            ${getIcon(name)}
+          </div>
+
+          <h1>${name}</h1>
+
+          <p>
+            This app is simulated and interactive.
+          </p>
+
+          <div class="generic-card">
+            <b>Everything is running locally.</b>
+            <br><br>
+            No account required.
+          </div>
+
+          <button
+            onclick="showToast('${name} is working!')"
+            style="
+              background:#007aff;
+              color:white;
+              padding:15px 25px;
+              border-radius:25px;
+            "
+          >
+            Try It
+          </button>
+
+        </div>
+
+      `;
+
+  }
+
+}
+
+
+/* ---------- SETTINGS HTML ---------- */
+
+function getSettingsHTML(){
+
+  return `
+
+    <h1>Settings</h1>
+
+    <div class="settings-section">
+
+      <div class="setting-row">
+
+        <div class="setting-left">
+
+          <div class="setting-icon">✈️</div>
+
+          Airplane Mode
+
+        </div>
+
+        <div
+          class="switch ${airplane?'on':''}"
+          id="airSwitch"
+        >
+          <i></i>
+        </div>
 
       </div>
 
-    `;
+
+      <div class="setting-row">
+
+        <div class="setting-left">
+
+          <div class="setting-icon">📶</div>
+
+          Wi-Fi
+
+        </div>
+
+        <div
+          class="switch ${wifi?'on':''}"
+          id="wifiSwitch"
+        >
+          <i></i>
+        </div>
+
+      </div>
+
+
+      <div class="setting-row">
+
+        <div class="setting-left">
+
+          <div class="setting-icon">🟦</div>
+
+          Bluetooth
+
+        </div>
+
+        <div
+          class="switch ${bluetooth?'on':''}"
+          id="bluetoothSwitch"
+        >
+          <i></i>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="settings-section">
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-icon">🌙</div>
+          Dark Mode
+        </div>
+
+        <div
+          class="switch ${darkMode?'on':''}"
+          id="darkSwitch"
+        >
+          <i></i>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="settings-section">
+
+      <div
+        class="setting-row"
+        id="changePass"
+        style="cursor:pointer"
+      >
+        <div class="setting-left">
+          <div class="setting-icon">🔐</div>
+          Change Passcode
+        </div>
+        <span>›</span>
+      </div>
+
+
+      <div
+        class="setting-row"
+        id="restartPhone"
+        style="cursor:pointer"
+      >
+        <div class="setting-left">
+          <div class="setting-icon">🔄</div>
+          Restart iPhone
+        </div>
+        <span>›</span>
+      </div>
+
+
+      <div
+        class="setting-row"
+        id="erasePhone"
+        style="cursor:pointer"
+      >
+        <div class="setting-left">
+          <div class="setting-icon">🗑️</div>
+          Reset Simulator
+        </div>
+        <span>›</span>
+      </div>
+
+    </div>
+
+
+    <div class="generic-card">
+
+      <b>iPhone Simulator</b>
+
+      <br>
+
+      iOS-style interface
+
+      <br>
+
+      Version 1.0
+
+    </div>
+
+  `;
+
+}
+
+
+/* ---------- APP EVENTS ---------- */
+
+function attachAppEvents(name){
+
+  if(name==="Calculator" || name==="Calculator Pro"){
+
+    document.querySelectorAll("[data-calc]")
+      .forEach(btn=>{
+
+        btn.addEventListener("click",()=>{
+
+          const v=btn.dataset.calc;
+
+          calculate(v);
+
+        });
+
+      });
 
   }
 
 
-  panelContent.innerHTML = html;
+  if(name==="Notes"){
 
-  panel.classList.add("open");
+    document.getElementById("saveNote")
+      .addEventListener("click",()=>{
 
-}
+        noteText=
+          document.getElementById("noteInput").value;
 
+        localStorage.setItem(
+          "iphoneNote",
+          noteText
+        );
 
-/* =========================
-   CLOSE
-========================= */
+        showToast("Note saved");
 
-function closePanel(){
-
-  panel.classList.remove("open");
-
-}
-
-
-/* =========================
-   CALCULATOR
-========================= */
-
-let expression = "";
-
-function calc(value){
-
-  expression += value;
-
-  document.getElementById(
-    "calcDisplay"
-  ).textContent = expression;
-
-}
-
-function clearCalc(){
-
-  expression = "";
-
-  document.getElementById(
-    "calcDisplay"
-  ).textContent = "0";
-
-}
-
-function calculateResult(){
-
-  try{
-
-    const result =
-      Function(
-        "return " + expression
-      )();
-
-    expression =
-      String(result);
-
-    document.getElementById(
-      "calcDisplay"
-    ).textContent = expression;
+      });
 
   }
 
-  catch{
 
-    expression = "";
+  if(name==="Music"){
 
-    document.getElementById(
-      "calcDisplay"
-    ).textContent = "Error";
+    document.getElementById("playMusic")
+      .addEventListener("click",()=>{
+
+        musicPlaying=!musicPlaying;
+
+        openApp("Music");
+
+      });
 
   }
 
+
+  if(name==="Camera"){
+
+    document.getElementById("shutter")
+      .addEventListener("click",()=>{
+
+        showToast("📸 Photo captured!");
+
+        island.classList.add("active");
+
+        setTimeout(
+          ()=>island.classList.remove("active"),
+          1000
+        );
+
+      });
+
+  }
+
+
+  if(
+    name==="Safari" ||
+    name==="Browser" ||
+    name==="Safari Dev"
+  ){
+
+    document.getElementById("browserGo")
+      .addEventListener("click",()=>{
+
+        const q=
+          document.getElementById("browserInput").value;
+
+        if(!q) return;
+
+        document.getElementById("browserPage")
+          .innerHTML=`
+
+            <div style="font-size:60px">
+              🌐
+            </div>
+
+            <h2>
+              ${escapeHTML(q)}
+            </h2>
+
+            <p>
+              Simulated Safari result
+            </p>
+
+            <div class="generic-card">
+              This browser is running entirely
+              inside the simulator.
+            </div>
+
+          `;
+
+      });
+
+  }
+
+
+  if(name==="Settings"){
+
+    setupSettings();
+
+  }
+
+
 }
 
 
-/* =========================
-   NOTES
-========================= */
+/* ---------- CALCULATOR ---------- */
 
-function escapeHTML(text){
+function calculate(v){
 
-  return text
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+  const display=
+    document.getElementById("calcDisplay");
+
+  if(v==="AC"){
+
+    calcValue="";
+    display.textContent="0";
+    return;
+
+  }
+
+  if(v==="="){
+
+    try{
+
+      calcValue=String(
+        Function(
+          '"use strict";return ('+
+          calcValue+
+          ')'
+        )()
+      );
+
+    }catch{
+
+      calcValue="Error";
+
+    }
+
+    display.textContent=calcValue;
+
+    return;
+
+  }
+
+  if(v==="+/-"){
+
+    if(calcValue)
+      calcValue=String(
+        parseFloat(calcValue)*-1
+      );
+
+    display.textContent=calcValue||"0";
+
+    return;
+
+  }
+
+  if(v==="%"){
+
+    if(calcValue)
+      calcValue=String(
+        parseFloat(calcValue)/100
+      );
+
+    display.textContent=calcValue;
+
+    return;
+
+  }
+
+  calcValue+=v;
+
+  display.textContent=calcValue;
 
 }
 
-function saveNotes(){
 
-  notes =
-    document.getElementById(
-      "notesArea"
-    ).value;
+/* ---------- SETTINGS EVENTS ---------- */
 
-  localStorage.setItem(
-    "neveraNotes",
-    notes
-  );
+function setupSettings(){
 
-  showToast("✓ Note saved");
+  const air=document.getElementById("airSwitch");
+  const wi=document.getElementById("wifiSwitch");
+  const bl=document.getElementById("bluetoothSwitch");
+  const dark=document.getElementById("darkSwitch");
 
-}
+  air.onclick=()=>{
 
+    airplane=!airplane;
 
-/* =========================
-   MESSAGE
-========================= */
+    air.classList.toggle("on",airplane);
 
-function sendMessage(){
-
-  const input =
-    document.getElementById(
-      "messageInput"
+    showToast(
+      airplane
+      ? "Airplane Mode On"
+      : "Airplane Mode Off"
     );
 
-  if(!input.value.trim()){
+  };
 
-    showToast("Type something first");
 
-    return;
+  wi.onclick=()=>{
+
+    wifi=!wifi;
+
+    wi.classList.toggle("on",wifi);
+
+    showToast(
+      wifi
+      ? "Wi-Fi Connected"
+      : "Wi-Fi Disconnected"
+    );
+
+  };
+
+
+  bl.onclick=()=>{
+
+    bluetooth=!bluetooth;
+
+    bl.classList.toggle("on",bluetooth);
+
+    showToast(
+      bluetooth
+      ? "Bluetooth On"
+      : "Bluetooth Off"
+    );
+
+  };
+
+
+  dark.onclick=()=>{
+
+    darkMode=!darkMode;
+
+    dark.classList.toggle("on",darkMode);
+
+    document.body.classList.toggle(
+      "dark",
+      darkMode
+    );
+
+    showToast(
+      darkMode
+      ? "Dark Mode On"
+      : "Dark Mode Off"
+    );
+
+  };
+
+
+  document.getElementById("changePass")
+    .onclick=()=>{
+
+      passMode="create";
+
+      currentPass="";
+
+      passTitle.textContent=
+        "Create New Passcode";
+
+      passcode.classList.add("open");
+
+      updatePassDots();
+
+      closeAppWindow();
+
+    };
+
+
+  document.getElementById("restartPhone")
+    .onclick=()=>{
+
+      closeAppWindow();
+
+      home.classList.remove("visible");
+
+      lock.style.display="flex";
+
+      lock.classList.remove("unlocking");
+
+      locked=true;
+
+      showToast("Restarting…");
+
+    };
+
+
+  document.getElementById("erasePhone")
+    .onclick=()=>{
+
+      if(confirm(
+        "Reset the simulator and delete your saved passcode and note?"
+      )){
+
+        localStorage.removeItem("iphonePasscode");
+        localStorage.removeItem("iphoneNote");
+
+        location.reload();
+
+      }
+
+    };
+
+}
+
+
+/* ---------- CONTROL CENTER ---------- */
+
+function closeControlCenter(){
+
+  document
+    .getElementById("controlCenter")
+    .classList.remove("open");
+
+}
+
+
+document.getElementById("wifiToggle")
+.addEventListener("click",()=>{
+
+  wifi=!wifi;
+
+  document
+    .getElementById("wifiToggle")
+    .classList.toggle("active",wifi);
+
+});
+
+
+document.getElementById("bluetoothToggle")
+.addEventListener("click",()=>{
+
+  bluetooth=!bluetooth;
+
+  document
+    .getElementById("bluetoothToggle")
+    .classList.toggle(
+      "active",
+      bluetooth
+    );
+
+});
+
+
+document.getElementById("airplaneToggle")
+.addEventListener("click",()=>{
+
+  airplane=!airplane;
+
+  document
+    .getElementById("airplaneToggle")
+    .classList.toggle(
+      "active",
+      airplane
+    );
+
+});
+
+
+document.getElementById("darkToggle")
+.addEventListener("click",()=>{
+
+  darkMode=!darkMode;
+
+  document
+    .getElementById("darkToggle")
+    .classList.toggle(
+      "active",
+      darkMode
+    );
+
+  document.body.classList.toggle(
+    "dark",
+    darkMode
+  );
+
+});
+
+
+document.getElementById("brightness")
+.addEventListener("input",e=>{
+
+  const v=e.target.value;
+
+  ios.style.filter=
+    `brightness(${v/100})`;
+
+});
+
+
+/* ---------- FLASHLIGHT ---------- */
+
+document.getElementById("flashBtn")
+.addEventListener("click",()=>{
+
+  showToast("🔦 Flashlight toggled");
+
+});
+
+
+/* ---------- LOCK CAMERA ---------- */
+
+document.getElementById("cameraLockBtn")
+.addEventListener("click",()=>{
+
+  unlock();
+
+  setTimeout(
+    ()=>openApp("Camera"),
+    500
+  );
+
+});
+
+
+/* ---------- SEARCH ---------- */
+
+function openSearch(){
+
+  search.classList.add("open");
+
+  searchInput.focus();
+
+}
+
+searchInput.addEventListener("input",()=>{
+
+  const q=
+    searchInput.value.toLowerCase();
+
+  const matches=
+    apps.filter(a=>
+      a[0].toLowerCase().includes(q)
+    );
+
+  searchResults.innerHTML=
+    matches.map(a=>`
+
+      <button
+        onclick="openApp('${escapeAttribute(a[0])}');search.classList.remove('open')"
+        style="
+          width:100%;
+          text-align:left;
+          padding:14px;
+          margin-bottom:5px;
+          border-radius:15px;
+          background:#222;
+          color:white;
+        "
+      >
+        ${a[1]} &nbsp; ${escapeHTML(a[0])}
+      </button>
+
+    `).join("");
+
+});
+
+
+/* ---------- SWIPE / GESTURES ---------- */
+
+let touchStartY=0;
+let touchStartX=0;
+
+ios.addEventListener("touchstart",e=>{
+
+  touchStartY=e.touches[0].clientY;
+  touchStartX=e.touches[0].clientX;
+
+},{passive:true});
+
+
+ios.addEventListener("touchend",e=>{
+
+  const endY=e.changedTouches[0].clientY;
+  const endX=e.changedTouches[0].clientX;
+
+  const dy=endY-touchStartY;
+  const dx=endX-touchStartX;
+
+  /* swipe up from home */
+
+  if(
+    Math.abs(dy)>100 &&
+    dy<0 &&
+    !appWindow.classList.contains("open")
+  ){
+
+    openSearch();
 
   }
 
-  input.value = "";
+  /* swipe down */
 
-  showToast("💬 Message sent");
+  if(
+    Math.abs(dy)>100 &&
+    dy>0 &&
+    !appWindow.classList.contains("open")
+  ){
 
-}
-
-
-/* =========================
-   SEARCH
-========================= */
-
-function fakeSearch(){
-
-  const q =
-    document.getElementById(
-      "searchBox"
-    ).value.trim();
-
-  if(!q){
-
-    showToast("Type a search");
-
-    return;
+    document
+      .getElementById("controlCenter")
+      .classList.add("open");
 
   }
 
-  document.getElementById(
-    "searchResult"
-  ).textContent =
-    `NEVERA Search found no real results for "${q}" — this browser is a simulation.`;
-
-}
+});
 
 
-/* =========================
-   WALLPAPER
-========================= */
+/* ---------- KEYBOARD ---------- */
 
-function changeWallpaper(){
+document.addEventListener("keydown",e=>{
 
-  const wallpapers = [
+  if(e.key==="Escape"){
 
-    `
-    radial-gradient(
-      circle at 20% 20%,
-      #ff5ebc99,
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 80% 70%,
-      #21d8ff77,
-      transparent 35%
-    ),
-    linear-gradient(
-      145deg,
-      #090914,
-      #24132c
-    )
-    `,
+    search.classList.remove("open");
 
-    `
-    radial-gradient(
-      circle at 80% 20%,
-      #54ffad88,
-      transparent 35%
-    ),
-    radial-gradient(
-      circle at 20% 80%,
-      #3478ff88,
-      transparent 35%
-    ),
-    linear-gradient(
-      145deg,
-      #03110e,
-      #071427
-    )
-    `,
+    closeControlCenter();
 
-    `
-    radial-gradient(
-      circle at 50% 15%,
-      #ffffff55,
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 30% 80%,
-      #ff9b3c77,
-      transparent 35%
-    ),
-    linear-gradient(
-      145deg,
-      #17100a,
-      #2b1320
-    )
-    `
+    closeAppWindow();
 
-  ];
+  }
 
-  document.querySelector(
-    ".wallpaper"
-  ).style.background =
-    wallpapers[
-      Math.floor(
-        Math.random()*wallpapers.length
-      )
-    ];
+  if(
+    e.key.toLowerCase()==="s" &&
+    !e.metaKey &&
+    !e.ctrlKey
+  ){
 
-  showToast("🎨 Wallpaper changed");
+    if(!appWindow.classList.contains("open"))
+      openSearch();
 
-}
+  }
+
+});
 
 
-/* =========================
-   RESET
-========================= */
+/* ---------- BATTERY ---------- */
 
-function resetPhone(){
+setInterval(()=>{
 
-  localStorage.removeItem("neveraNotes");
+  if(battery>5){
 
-  localStorage.removeItem("neveraDevice");
+    battery-=0.02;
 
-  location.reload();
+    document
+      .getElementById("batteryFill")
+      .style.width=
+      battery+"%";
 
-}
+  }
 
-
-/* =========================
-   SETUP
-========================= */
-
-document.getElementById(
-  "deviceName"
-).value = deviceName;
+},3000);
 
 
-function finishSetup(){
+/* ---------- DYNAMIC ISLAND ---------- */
 
-  const name =
-    document.getElementById(
-      "deviceName"
-    ).value.trim()
-    || "NEVERA Phone";
+function islandMessage(message){
 
-  localStorage.setItem(
-    "neveraDevice",
-    name
-  );
+  island.classList.add("active");
 
-  deviceName = name;
+  showToast(message);
 
-  setup.classList.add("hidden");
-
-  showToast(
-    "Welcome to NEVERA 👋"
+  setTimeout(
+    ()=>island.classList.remove("active"),
+    1800
   );
 
 }
+
+
+/* ---------- ICON FALLBACK ---------- */
+
+function getIcon(name){
+
+  const app=
+    apps.find(a=>a[0]===name);
+
+  return app ? app[1] : "📱";
+
+}
+
+
+/* ---------- ESCAPE ---------- */
+
+function escapeHTML(str){
+
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+function escapeAttribute(str){
+
+  return String(str)
+    .replaceAll("'","\\'")
+    .replaceAll('"','\\"');
+
+}
+
+
+/* ---------- INITIAL SETUP ---------- */
+
+document.getElementById("setupContinue")
+.addEventListener("click",()=>{
+
+  document
+    .getElementById("setup")
+    .classList.remove("open");
+
+  showToast("Welcome!");
+
+});
+
+
+/* ---------- POWER BUTTON ---------- */
+
+document.querySelector(".power")
+.addEventListener("click",()=>{
+
+  if(!locked){
+
+    locked=true;
+
+    home.classList.remove("visible");
+
+    lock.style.display="flex";
+
+    lock.classList.remove("unlocking");
+
+    showToast("iPhone locked");
+
+  }else{
+
+    unlock();
+
+  }
+
+});
+
+
+/* ---------- VOLUME ---------- */
+
+document.querySelector(".volume")
+.addEventListener("click",()=>{
+
+  volume=Math.min(100,volume+5);
+
+  showToast("🔊 Volume "+volume+"%");
+
+});
+
+
+document.querySelector(".volume2")
+.addEventListener("click",()=>{
+
+  volume=Math.max(0,volume-5);
+
+  showToast("🔉 Volume "+volume+"%");
+
+});
+
+
+/* ---------- DOUBLE CLICK HOME ---------- */
+
+let lastHomeTap=0;
+
+document.querySelector(".home-indicator")
+.addEventListener("dblclick",()=>{
+
+  closeAppWindow();
+
+});
+
+
+/* ---------- FIRST BOOT ---------- */
+
+window.addEventListener("load",()=>{
+
+  setTimeout(()=>{
+
+    if(
+      localStorage.getItem("iphoneHasBooted")
+    ){
+
+      /* normal simulator boot */
+
+    }
+
+  },500);
+
+});
+
+
+/* ---------- RANDOM NOTIFICATION ---------- */
+
+setTimeout(()=>{
+
+  if(!locked){
+
+    islandMessage("📩 New message");
+
+  }
+
+},15000);
+
+
+/* ---------- CONSOLE ---------- */
+
+console.log(
+  "%ciPhone Simulator loaded.",
+  "font-size:20px;font-weight:bold"
+);
+
+console.log(
+  "50+ simulated applications available."
+);
 
 </script>
 
