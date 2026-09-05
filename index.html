@@ -1,1 +1,2882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#020806">
+<title>ATC COMMAND — PRO</title>
 
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+html,body{
+ margin:0;
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ background:#020705;
+ color:#d9ffe5;
+ font-family:-apple-system,BlinkMacSystemFont,"SFMono-Regular",Consolas,monospace;
+}
+
+button,input{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+#app{
+ position:relative;
+ width:100vw;
+ height:100dvh;
+ overflow:hidden;
+ background:#020705;
+}
+
+/* =========================================================
+   RADAR
+========================================================= */
+
+#radar{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ display:block;
+ background:#020705;
+}
+
+#radarCanvas{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+#top{
+ position:absolute;
+ z-index:20;
+ left:0;
+ right:0;
+ top:0;
+ min-height:58px;
+ padding:
+ max(7px,env(safe-area-inset-top))
+ max(8px,env(safe-area-inset-right))
+ 7px
+ max(8px,env(safe-area-inset-left));
+
+ display:flex;
+ align-items:center;
+ gap:10px;
+
+ background:#06100aeF;
+ border-bottom:1px solid #1c5430;
+ backdrop-filter:blur(10px);
+}
+
+.brand{
+ color:#70ff9d;
+ font-size:14px;
+ font-weight:900;
+ letter-spacing:2px;
+ white-space:nowrap;
+}
+
+.brand small{
+ display:block;
+ color:#578267;
+ font-size:7px;
+ letter-spacing:2px;
+ margin-top:2px;
+}
+
+.topStats{
+ display:flex;
+ gap:8px;
+ margin-left:auto;
+}
+
+.stat{
+ min-width:62px;
+ text-align:center;
+}
+
+.stat b{
+ display:block;
+ color:white;
+ font-size:13px;
+}
+
+.stat span{
+ color:#588268;
+ font-size:7px;
+}
+
+#connection{
+ color:#6dff9b;
+}
+
+/* =========================================================
+   LEFT FLIGHT STRIP
+========================================================= */
+
+#trafficPanel{
+ position:absolute;
+ z-index:25;
+ top:68px;
+ left:8px;
+ width:225px;
+ max-height:48vh;
+ overflow:hidden;
+
+ background:#06100cee;
+ border:1px solid #1d5431;
+ border-radius:9px;
+ box-shadow:0 10px 35px #0009;
+}
+
+.panelTitle{
+ padding:7px 9px;
+ color:#6dff9b;
+ font-size:9px;
+ letter-spacing:2px;
+ border-bottom:1px solid #174126;
+}
+
+#trafficList{
+ max-height:calc(48vh - 31px);
+ overflow:auto;
+}
+
+.flight{
+ padding:7px 8px;
+ border-bottom:1px solid #14351f;
+ color:#9ab7a2;
+ font-size:8px;
+ line-height:1.4;
+}
+
+.flight b{
+ color:#fff;
+}
+
+.flight.selected{
+ background:#123c22;
+ box-shadow:inset 3px 0 #70ff9d;
+}
+
+.flight.danger{
+ color:#ff858c;
+}
+
+.flight button{
+ width:100%;
+ border:0;
+ padding:0;
+ background:none;
+ color:inherit;
+ text-align:left;
+}
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+#radioPanel{
+ position:absolute;
+ z-index:25;
+ left:8px;
+ bottom:max(8px,env(safe-area-inset-bottom));
+ width:330px;
+ max-width:43vw;
+ height:150px;
+
+ background:#06100cee;
+ border:1px solid #1d5431;
+ border-radius:9px;
+ overflow:hidden;
+}
+
+#radioLog{
+ height:calc(100% - 29px);
+ overflow:auto;
+ padding:6px 8px;
+}
+
+.radio{
+ font-size:8px;
+ color:#91b29a;
+ margin:4px 0;
+}
+
+.radio b{
+ color:#fff;
+}
+
+.radio.you{
+ color:#70ff9d;
+}
+
+/* =========================================================
+   RIGHT CONTROL PANEL
+========================================================= */
+
+#controlPanel{
+ position:absolute;
+ z-index:25;
+ right:8px;
+ bottom:max(8px,env(safe-area-inset-bottom));
+ width:300px;
+
+ background:#06100cee;
+ border:1px solid #1d5431;
+ border-radius:9px;
+ padding:8px;
+}
+
+#selectedInfo{
+ padding:5px;
+ margin-bottom:6px;
+ min-height:45px;
+ color:#9ebaa6;
+ font-size:9px;
+ line-height:1.45;
+}
+
+#selectedInfo b{
+ color:#fff;
+ font-size:11px;
+}
+
+.controls{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:5px;
+}
+
+.ctrl{
+ min-height:38px;
+ border:1px solid #285c39;
+ background:#0a1d10;
+ color:#d6ffe0;
+ border-radius:6px;
+ font-size:8px;
+ font-weight:800;
+}
+
+.ctrl:active{
+ background:#175b2d;
+ transform:scale(.98);
+}
+
+.ctrl.red{
+ border-color:#71343a;
+ color:#ffafb5;
+}
+
+.ctrl.blue{
+ border-color:#315e80;
+ color:#a9d9ff;
+}
+
+#clearSelection{
+ width:100%;
+ margin-top:5px;
+}
+
+/* =========================================================
+   WEATHER / ATIS
+========================================================= */
+
+#weatherPanel{
+ position:absolute;
+ z-index:25;
+ right:8px;
+ top:68px;
+ width:205px;
+
+ background:#06100cee;
+ border:1px solid #1d5431;
+ border-radius:9px;
+ padding:9px;
+
+ font-size:8px;
+ line-height:1.7;
+}
+
+.weatherHead{
+ color:#70ff9d;
+ letter-spacing:2px;
+ font-size:9px;
+}
+
+.weatherValue{
+ color:#d9ffe5;
+}
+
+/* =========================================================
+   TOOLS
+========================================================= */
+
+#toolBar{
+ position:absolute;
+ z-index:30;
+ top:70px;
+ left:50%;
+ transform:translateX(-50%);
+
+ display:flex;
+ gap:5px;
+}
+
+.tool{
+ border:1px solid #285c39;
+ background:#07130bee;
+ color:#aee8bd;
+ border-radius:6px;
+ padding:7px 9px;
+ font-size:8px;
+}
+
+.tool.active{
+ background:#185a2d;
+ color:#fff;
+}
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+#notice{
+ position:absolute;
+ z-index:100;
+ top:70px;
+ left:50%;
+ transform:translateX(-50%);
+
+ padding:8px 15px;
+ background:#07130cf2;
+ border:1px solid #438158;
+ border-radius:20px;
+
+ color:#d7ffe1;
+ font-size:9px;
+
+ display:none;
+ pointer-events:none;
+}
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+#alertFlash{
+ position:absolute;
+ inset:0;
+ z-index:15;
+ pointer-events:none;
+ border:0 solid #ff4755;
+ transition:.15s;
+}
+
+#alertFlash.on{
+ border-width:5px;
+ box-shadow:inset 0 0 90px #ff334422;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+#modal{
+ position:absolute;
+ z-index:500;
+ inset:0;
+
+ display:none;
+ align-items:center;
+ justify-content:center;
+
+ padding:20px;
+ background:#000c;
+}
+
+.modalBox{
+ width:min(600px,94vw);
+ max-height:88dvh;
+ overflow:auto;
+
+ background:#07110b;
+ border:1px solid #347048;
+ border-radius:12px;
+
+ padding:20px;
+
+ box-shadow:0 30px 120px #000;
+}
+
+.modalBox h2{
+ margin:0 0 10px;
+ color:#70ff9d;
+}
+
+.modalBox p{
+ color:#a8c2af;
+ font-size:11px;
+ line-height:1.55;
+}
+
+.modalBtn{
+ width:100%;
+ margin:5px 0;
+ padding:12px;
+
+ background:#0c2113;
+ border:1px solid #2c6840;
+ color:#d8ffe1;
+
+ border-radius:7px;
+ font-size:9px;
+}
+
+.modalBtn.primary{
+ background:#155c2c;
+}
+
+.modalBtn.red{
+ border-color:#74383e;
+ color:#ffb6bc;
+}
+
+/* =========================================================
+   START SCREEN
+========================================================= */
+
+#start{
+ position:absolute;
+ inset:0;
+ z-index:900;
+
+ display:flex;
+ align-items:center;
+ justify-content:center;
+
+ padding:20px;
+
+ background:
+ radial-gradient(circle at 50% 45%,#12351f,#020604 70%);
+}
+
+.startBox{
+ width:min(700px,95vw);
+
+ background:#06110a;
+ border:1px solid #2d6c42;
+ border-radius:18px;
+
+ padding:25px;
+
+ box-shadow:0 30px 130px #000;
+}
+
+.startBox h1{
+ margin:0;
+ color:#70ff9d;
+ font-size:34px;
+ letter-spacing:5px;
+}
+
+.startSub{
+ color:#588267;
+ font-size:9px;
+ letter-spacing:3px;
+ margin:5px 0 20px;
+}
+
+.features{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:6px;
+}
+
+.feature{
+ padding:9px;
+ border:1px solid #173b24;
+ border-radius:6px;
+ background:#08170d;
+ color:#a3c0aa;
+ font-size:8px;
+}
+
+.launch{
+ width:100%;
+ padding:15px;
+ margin-top:15px;
+
+ border:1px solid #72ff9d;
+ border-radius:8px;
+
+ background:#155b2d;
+ color:#fff;
+
+ font-weight:900;
+ letter-spacing:1px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+#mobileControls{
+ display:none;
+ position:absolute;
+ z-index:40;
+ right:8px;
+ bottom:165px;
+
+ width:180px;
+
+ grid-template-columns:1fr 1fr;
+ gap:5px;
+}
+
+.mobile{
+ padding:10px 4px;
+ border:1px solid #285c39;
+ border-radius:7px;
+ background:#07150bee;
+ color:#d7ffe0;
+ font-size:8px;
+}
+
+@media(max-width:800px){
+
+ #trafficPanel{
+  width:180px;
+  max-height:34vh;
+ }
+
+ #weatherPanel{
+  display:none;
+ }
+
+ #controlPanel{
+  display:none;
+ }
+
+ #mobileControls{
+  display:grid;
+ }
+
+ #radioPanel{
+  width:calc(100vw - 195px);
+  max-width:none;
+  height:125px;
+ }
+
+ #toolBar{
+  top:64px;
+ }
+
+ .tool{
+  padding:6px;
+ }
+}
+
+@media(max-width:560px){
+
+ .brand small{
+  display:none;
+ }
+
+ .topStats{
+  gap:3px;
+ }
+
+ .stat{
+  min-width:45px;
+ }
+
+ #trafficPanel{
+  width:145px;
+ }
+
+ #radioPanel{
+  width:calc(100vw - 155px);
+  height:110px;
+ }
+
+ #mobileControls{
+  bottom:125px;
+  width:145px;
+ }
+
+ .features{
+  grid-template-columns:1fr 1fr;
+ }
+
+ .startBox h1{
+  font-size:27px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<canvas id="radarCanvas"></canvas>
+
+<div id="alertFlash"></div>
+
+<!-- TOP -->
+<div id="top">
+
+ <div>
+  <div class="brand">
+   ATC COMMAND
+   <small>PROFESSIONAL TRAINING SECTOR</small>
+  </div>
+ </div>
+
+ <div class="topStats">
+
+  <div class="stat">
+   <b id="trafficCount">0</b>
+   <span>TRAFFIC</span>
+  </div>
+
+  <div class="stat">
+   <b id="score">0</b>
+   <span>SCORE</span>
+  </div>
+
+  <div class="stat">
+   <b id="rating">TRAINEE</b>
+   <span>RATING</span>
+  </div>
+
+  <div class="stat">
+   <b id="clock">00:00</b>
+   <span>SHIFT</span>
+  </div>
+
+  <div class="stat">
+   <b id="connection">●</b>
+   <span>RADAR</span>
+  </div>
+
+ </div>
+
+</div>
+
+<!-- TOOLBAR -->
+<div id="toolBar">
+ <button class="tool active" id="radarTool" onclick="setTool('radar')">RADAR</button>
+ <button class="tool" onclick="openFlightPlan()">FLIGHT PLAN</button>
+ <button class="tool" onclick="openAirspace()">AIRSPACE</button>
+ <button class="tool" onclick="openHelp()">HELP</button>
+</div>
+
+<!-- TRAFFIC -->
+<div id="trafficPanel">
+
+ <div class="panelTitle">
+  ACTIVE TRAFFIC
+ </div>
+
+ <div id="trafficList"></div>
+
+</div>
+
+<!-- WEATHER -->
+<div id="weatherPanel">
+
+ <div class="weatherHead">ATIS / WEATHER</div>
+
+ <div class="weatherValue" id="weatherCondition">
+  CLEAR
+ </div>
+
+ <div id="windText">
+  WIND 270° / 08KT
+ </div>
+
+ <div id="visText">
+  VISIBILITY 10SM
+ </div>
+
+ <div id="ceilingText">
+  CEILING 15,000 FT
+ </div>
+
+ <div id="runwayText">
+  RWY 09/27 ACTIVE
+ </div>
+
+</div>
+
+<!-- RADIO -->
+<div id="radioPanel">
+
+ <div class="panelTitle">
+  RADIO / COMMS
+ </div>
+
+ <div id="radioLog"></div>
+
+</div>
+
+<!-- CONTROLS -->
+<div id="controlPanel">
+
+ <div id="selectedInfo">
+  <b>NO AIRCRAFT SELECTED</b><br>
+  Tap an aircraft on radar.
+ </div>
+
+ <div class="controls">
+
+  <button class="ctrl" onclick="headingCommand()">🧭 HEADING</button>
+  <button class="ctrl" onclick="altitudeCommand()">⬆ ALTITUDE</button>
+
+  <button class="ctrl" onclick="speedCommand()">⚡ SPEED</button>
+  <button class="ctrl" onclick="directCommand()">📍 DIRECT</button>
+
+  <button class="ctrl" onclick="holdCommand()">🔄 HOLD</button>
+  <button class="ctrl" onclick="approachCommand()">🛬 APPROACH</button>
+
+  <button class="ctrl" onclick="takeoffCommand()">🛫 TAKEOFF</button>
+  <button class="ctrl" onclick="landCommand()">🛬 LAND</button>
+
+  <button class="ctrl blue" onclick="contactPilot()">📻 CONTACT</button>
+  <button class="ctrl red" onclick="emergencyCommand()">⚠️ EMERGENCY</button>
+
+ </div>
+
+ <button class="ctrl" id="clearSelection" onclick="clearSelection()">
+  CLEAR SELECTION
+ </button>
+
+</div>
+
+<!-- MOBILE CONTROLS -->
+<div id="mobileControls">
+
+ <button class="mobile" onclick="headingCommand()">HEADING</button>
+ <button class="mobile" onclick="altitudeCommand()">ALTITUDE</button>
+
+ <button class="mobile" onclick="speedCommand()">SPEED</button>
+ <button class="mobile" onclick="directCommand()">DIRECT</button>
+
+ <button class="mobile" onclick="holdCommand()">HOLD</button>
+ <button class="mobile" onclick="approachCommand()">APPROACH</button>
+
+ <button class="mobile" onclick="takeoffCommand()">TAKEOFF</button>
+ <button class="mobile" onclick="landCommand()">LAND</button>
+
+</div>
+
+<div id="notice"></div>
+
+<!-- MODAL -->
+<div id="modal">
+ <div id="modalBox" class="modalBox"></div>
+</div>
+
+<!-- START -->
+<div id="start">
+
+ <div class="startBox">
+
+  <h1>ATC COMMAND</h1>
+
+  <div class="startSub">
+   NEXT-GENERATION AIR TRAFFIC CONTROL SIMULATOR
+  </div>
+
+  <p style="color:#a7c2ae;font-size:11px;line-height:1.6">
+   Welcome to Sector 09. You are responsible for a fictional
+   training airspace. Aircraft will actually move, follow
+   headings, climb, descend, change speed, communicate,
+   enter approaches, and leave the sector.
+  </p>
+
+  <div class="features">
+
+   <div class="feature">📡 LIVE RADAR ENGINE</div>
+   <div class="feature">✈️ 20+ AIRCRAFT</div>
+   <div class="feature">🧭 REAL-TIME HEADINGS</div>
+
+   <div class="feature">⬆ ALTITUDE CONTROL</div>
+   <div class="feature">⚡ SPEED CONTROL</div>
+   <div class="feature">📍 WAYPOINTS</div>
+
+   <div class="feature">🚨 CONFLICT DETECTION</div>
+   <div class="feature">📻 PILOT RADIO</div>
+   <div class="feature">🌦️ DYNAMIC WEATHER</div>
+
+   <div class="feature">🛬 ARRIVALS</div>
+   <div class="feature">🛫 DEPARTURES</div>
+   <div class="feature">⚠️ EMERGENCIES</div>
+
+  </div>
+
+  <button class="launch" onclick="startGame()">
+   START CONTROL SHIFT
+  </button>
+
+ </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   ATC COMMAND PRO
+   Canvas-based simulation engine
+========================================================= */
+
+const canvas=document.getElementById("radarCanvas");
+const ctx=canvas.getContext("2d");
+
+let W=window.innerWidth;
+let H=window.innerHeight;
+let DPR=Math.min(window.devicePixelRatio||1,2);
+
+function resize(){
+
+ W=window.innerWidth;
+ H=window.innerHeight;
+
+ canvas.width=W*DPR;
+ canvas.height=H*DPR;
+
+ canvas.style.width=W+"px";
+ canvas.style.height=H+"px";
+
+ ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+window.addEventListener("resize",resize);
+resize();
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let started=false;
+let aircraft=[];
+let selectedId=null;
+
+let score=0;
+let xp=0;
+let shiftSeconds=0;
+
+let spawnClock=0;
+let radioClock=0;
+let weatherClock=0;
+
+let lastFrame=performance.now();
+
+let radarRange=45;
+
+/* =========================================================
+   AIRPORT / WAYPOINTS
+========================================================= */
+
+const airport={
+ x:50,
+ y:50,
+ name:"SECTOR 09"
+};
+
+const runway={
+ heading:90,
+ reciprocal:270
+};
+
+const waypoints=[
+ {name:"NORTH",x:50,y:8},
+ {name:"EAST",x:91,y:50},
+ {name:"SOUTH",x:50,y:92},
+ {name:"WEST",x:9,y:50},
+ {name:"NE",x:82,y:18},
+ {name:"SE",x:82,y:82},
+ {name:"SW",x:18,y:82},
+ {name:"NW",x:18,y:18}
+];
+
+/* =========================================================
+   CALLSIGNS
+========================================================= */
+
+const airlinePrefixes=[
+ "ALPHA",
+ "BRAVO",
+ "COBRA",
+ "DELTA",
+ "EAGLE",
+ "FALCON",
+ "JET",
+ "NORTH",
+ "SKYWAY",
+ "SUMMIT",
+ "WEST",
+ "PACIFIC",
+ "METRO",
+ "VECTOR",
+ "GLOBAL"
+];
+
+/* =========================================================
+   WEATHER
+========================================================= */
+
+let weather={
+ condition:"CLEAR",
+ visibility:"10SM",
+ ceiling:15000,
+ wind:270,
+ windSpeed:8
+};
+
+const weatherModes=[
+ {
+  condition:"CLEAR",
+  visibility:"10SM",
+  ceiling:15000
+ },
+ {
+  condition:"LIGHT RAIN",
+  visibility:"7SM",
+  ceiling:9000
+ },
+ {
+  condition:"CLOUDY",
+  visibility:"8SM",
+  ceiling:7000
+ },
+ {
+  condition:"HAZE",
+  visibility:"5SM",
+  ceiling:5000
+ }
+];
+
+/* =========================================================
+   GAME START
+========================================================= */
+
+function startGame(){
+
+ document.getElementById("start").style.display="none";
+
+ started=true;
+
+ addRadio("SYSTEM","Sector 09 radar online.");
+ addRadio("SYSTEM","All simulated navigation systems nominal.");
+ addRadio("ATIS","Information ALPHA current.");
+
+ /* Guaranteed initial traffic */
+ for(let i=0;i<10;i++){
+
+  let type;
+
+  if(i<4)
+   type="ARRIVAL";
+  else if(i<7)
+   type="DEPARTURE";
+  else
+   type="TRANSIT";
+
+  spawnAircraft(type);
+ }
+
+ updateUI();
+
+ requestAnimationFrame(loop);
+
+ setInterval(()=>{
+  if(started)shiftSeconds++;
+ },1000);
+
+}
+
+function loop(now){
+
+ const dt=Math.min((now-lastFrame)/1000,.1);
+
+ lastFrame=now;
+
+ if(started){
+
+  updateSimulation(dt);
+  drawRadar();
+  updateUI();
+ }
+
+ requestAnimationFrame(loop);
+}
+
+/* =========================================================
+   CREATE AIRCRAFT
+========================================================= */
+
+function spawnAircraft(type="TRANSIT"){
+
+ let angle=Math.random()*Math.PI*2;
+
+ let radius=
+  type==="ARRIVAL" ? 39 :
+  type==="DEPARTURE" ? 3 :
+  42;
+
+ let x=50+Math.cos(angle)*radius;
+ let y=50+Math.sin(angle)*radius;
+
+ if(type==="DEPARTURE"){
+  x=50;
+  y=50;
+ }
+
+ let heading;
+
+ if(type==="ARRIVAL"){
+
+  heading=bearingTo(x,y,50,50);
+
+ }else if(type==="DEPARTURE"){
+
+  heading=
+   [45,90,135,225,270,315]
+   [Math.floor(Math.random()*6)];
+
+ }else{
+
+  heading=Math.floor(Math.random()*360);
+ }
+
+ let altitude=
+  type==="ARRIVAL"
+   ? randAlt(2000,10000)
+   : randAlt(5000,28000);
+
+ let callsign=
+  airlinePrefixes[
+   Math.floor(Math.random()*airlinePrefixes.length)
+  ]+" "+
+  Math.floor(10+Math.random()*89);
+
+ let a={
+
+  id:crypto.randomUUID
+   ? crypto.randomUUID()
+   : String(Date.now()+Math.random()),
+
+  callsign,
+
+  type,
+
+  x,
+  y,
+
+  heading,
+
+  targetHeading:heading,
+
+  altitude,
+
+  targetAltitude:altitude,
+
+  speed:
+   type==="DEPARTURE"
+    ? 0
+    : Math.round(220+Math.random()*150),
+
+  targetSpeed:
+   type==="DEPARTURE"
+    ? 0
+    : Math.round(220+Math.random()*150),
+
+  status:
+   type==="ARRIVAL"
+    ? "INBOUND"
+    : type==="DEPARTURE"
+     ? "GROUND"
+     : "CRUISE",
+
+  hold:false,
+
+  approach:false,
+
+  landed:false,
+
+  emergency:false,
+
+  conflict:false,
+
+  selected:false,
+
+  lastRadio:0,
+
+  targetWaypoint:null,
+
+  history:[],
+
+  age:0
+ };
+
+ aircraft.push(a);
+
+ renderTrafficList();
+
+ /* This proves spawning happened */
+ addRadio(
+  a.callsign,
+  type==="ARRIVAL"
+   ? "Checking in, inbound."
+   : type==="DEPARTURE"
+    ? "Ready for departure."
+    : "Radar contact."
+ );
+
+ return a;
+}
+
+/* =========================================================
+   SIMULATION
+========================================================= */
+
+function updateSimulation(dt){
+
+ spawnClock+=dt;
+ radioClock+=dt;
+ weatherClock+=dt;
+
+ /* keep traffic alive */
+ if(
+  spawnClock>5 &&
+  aircraft.length<16
+ ){
+  spawnClock=0;
+
+  const r=Math.random();
+
+  spawnAircraft(
+   r<.4
+    ? "ARRIVAL"
+    : r<.7
+     ? "DEPARTURE"
+     : "TRANSIT"
+  );
+ }
+
+ /* weather */
+ if(weatherClock>20){
+  weatherClock=0;
+  changeWeather();
+ }
+
+ aircraft.forEach(a=>{
+  updateAircraft(a,dt);
+ });
+
+ detectConflicts();
+
+ /* automatic radio */
+ if(radioClock>4){
+  radioClock=0;
+  randomRadio();
+ }
+
+ removeFinishedAircraft();
+}
+
+/* =========================================================
+   AIRCRAFT MOVEMENT
+========================================================= */
+
+function updateAircraft(a,dt){
+
+ a.age+=dt;
+
+ if(a.landed)
+  return;
+
+ /* heading turn */
+ let diff=
+  ((a.targetHeading-a.heading+540)%360)-180;
+
+ const maxTurn=45*dt;
+
+ if(Math.abs(diff)>maxTurn)
+  a.heading+=Math.sign(diff)*maxTurn;
+ else
+  a.heading=a.targetHeading;
+
+ a.heading=(a.heading+360)%360;
+
+ /* altitude */
+ const climbRate=2500*dt;
+
+ if(a.altitude<a.targetAltitude)
+  a.altitude=Math.min(
+   a.altitude+climbRate,
+   a.targetAltitude
+  );
+
+ if(a.altitude>a.targetAltitude)
+  a.altitude=Math.max(
+   a.altitude-climbRate,
+   a.targetAltitude
+  );
+
+ /* speed */
+ const speedRate=80*dt;
+
+ if(a.speed<a.targetSpeed)
+  a.speed=Math.min(
+   a.speed+speedRate,
+   a.targetSpeed
+  );
+
+ if(a.speed>a.targetSpeed)
+  a.speed=Math.max(
+   a.speed-speedRate,
+   a.targetSpeed
+  );
+
+ /* hold */
+ if(a.hold){
+
+  a.targetHeading=
+   normalizeHeading(a.heading+55*dt);
+ }
+
+ /* movement */
+ if(a.speed>1){
+
+  const radians=a.heading*Math.PI/180;
+
+  const movement=
+   (a.speed/900)*dt*60;
+
+  a.x+=Math.sin(radians)*movement;
+  a.y-=Math.cos(radians)*movement;
+ }
+
+ /* arrival logic */
+ if(
+  a.type==="ARRIVAL" &&
+  distance(a.x,a.y,50,50)<14
+ ){
+
+  if(a.approach){
+
+   a.targetAltitude=2000;
+
+  }else{
+
+   a.targetAltitude=5000;
+  }
+ }
+
+ /* approach logic */
+ if(
+  a.approach &&
+  distance(a.x,a.y,50,50)<12
+ ){
+
+  a.targetHeading=270;
+  a.targetAltitude=1500;
+  a.targetSpeed=150;
+ }
+
+ /* departure */
+ if(
+  a.type==="DEPARTURE" &&
+  a.status==="GROUND" &&
+  a.targetSpeed>0
+ ){
+
+  a.status="DEPARTING";
+ }
+
+ /* history */
+ a.history.push({
+  x:a.x,
+  y:a.y
+ });
+
+ if(a.history.length>20)
+  a.history.shift();
+}
+
+/* =========================================================
+   CONFLICT SYSTEM
+========================================================= */
+
+function detectConflicts(){
+
+ let found=false;
+
+ for(let i=0;i<aircraft.length;i++){
+
+  for(let j=i+1;j<aircraft.length;j++){
+
+   const a=aircraft[i];
+   const b=aircraft[j];
+
+   if(a.landed||b.landed)
+    continue;
+
+   const horizontal=
+    distance(a.x,a.y,b.x,b.y);
+
+   const vertical=
+    Math.abs(a.altitude-b.altitude);
+
+   const conflict=
+    horizontal<6 &&
+    vertical<1000;
+
+   if(conflict){
+
+    found=true;
+
+    a.conflict=true;
+    b.conflict=true;
+
+    if(!a._alerted){
+
+     a._alerted=true;
+     b._alerted=true;
+
+     addRadio(
+      "ALERT",
+      "TRAFFIC CONFLICT: "+
+      a.callsign+" / "+b.callsign
+     );
+
+     notify(
+      "⚠️ CONFLICT ALERT"
+     );
+
+     score-=15;
+    }
+
+   }else{
+
+    a.conflict=false;
+    b.conflict=false;
+
+    if(horizontal>9)
+     a._alerted=false;
+   }
+  }
+ }
+
+ document.getElementById("alertFlash")
+  .classList.toggle("on",found);
+}
+
+/* =========================================================
+   REMOVE FINISHED TRAFFIC
+========================================================= */
+
+function removeFinishedAircraft(){
+
+ aircraft=aircraft.filter(a=>{
+
+  if(a.landed)
+   return true;
+
+  if(
+   a.x<-12||
+   a.x>112||
+   a.y<-12||
+   a.y>112
+  ){
+
+   score+=8;
+   xp+=5;
+
+   if(selectedId===a.id)
+    selectedId=null;
+
+   const el=a.id;
+
+   return false;
+  }
+
+  return true;
+ });
+}
+
+/* =========================================================
+   SELECT AIRCRAFT
+========================================================= */
+
+function selectAircraft(id){
+
+ selectedId=id;
+
+ aircraft.forEach(a=>{
+  a.selected=a.id===id;
+ });
+
+ const a=getSelected();
+
+ if(a){
+
+  addRadio(
+   "SYSTEM",
+   a.callsign+" selected."
+  );
+
+  updateSelectedInfo();
+ }
+
+ updateUI();
+}
+
+function clearSelection(){
+
+ selectedId=null;
+
+ aircraft.forEach(a=>{
+  a.selected=false;
+ });
+
+ updateUI();
+}
+
+function getSelected(){
+
+ return aircraft.find(
+  a=>a.id===selectedId
+ );
+}
+
+/* =========================================================
+   COMMANDS
+========================================================= */
+
+function headingCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ showInput(
+  "HEADING",
+  "Enter magnetic heading 000–359.",
+  Math.round(a.heading),
+  value=>{
+
+   const h=parseInt(value);
+
+   if(isNaN(h)||h<0||h>359){
+    notify("INVALID HEADING");
+    return;
+   }
+
+   a.targetHeading=h;
+
+   addRadio(
+    "YOU",
+    a.callsign+
+    " fly heading "+
+    String(h).padStart(3,"0")+"."
+   );
+
+   pilotReply(
+    a,
+    "Heading "+
+    String(h).padStart(3,"0")+"."
+   );
+
+   score+=4;
+   xp+=2;
+  }
+ );
+}
+
+function altitudeCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ showInput(
+  "ALTITUDE",
+  "Enter altitude in feet.",
+  a.targetAltitude,
+  value=>{
+
+   const alt=parseInt(value);
+
+   if(
+    isNaN(alt)||
+    alt<1000||
+    alt>35000
+   ){
+    notify("INVALID ALTITUDE");
+    return;
+   }
+
+   a.targetAltitude=
+    Math.round(alt/500)*500;
+
+   addRadio(
+    "YOU",
+    a.callsign+
+    " maintain "+
+    a.targetAltitude.toLocaleString()+
+    "."
+   );
+
+   pilotReply(
+    a,
+    "Leaving for "+
+    a.targetAltitude.toLocaleString()+"."
+   );
+
+   score+=4;
+   xp+=2;
+  }
+ );
+}
+
+function speedCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ showInput(
+  "SPEED",
+  "Enter speed in knots.",
+  a.targetSpeed||250,
+  value=>{
+
+   const speed=parseInt(value);
+
+   if(
+    isNaN(speed)||
+    speed<120||
+    speed>450
+   ){
+    notify("INVALID SPEED");
+    return;
+   }
+
+   a.targetSpeed=speed;
+
+   addRadio(
+    "YOU",
+    a.callsign+
+    " maintain "+
+    speed+
+    " knots."
+   );
+
+   pilotReply(
+    a,
+    "Speed "+speed+"."
+   );
+
+   score+=4;
+   xp+=2;
+  }
+ );
+}
+
+/* =========================================================
+   DIRECT
+========================================================= */
+
+function directCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ let html=
+  "<h2>📍 DIRECT TO</h2>"+
+  "<p>Select a waypoint.</p>";
+
+ waypoints.forEach(w=>{
+
+  html+=`
+   <button
+    class="modalBtn"
+    onclick="directTo('${w.name}')">
+    ${w.name}
+   </button>
+  `;
+ });
+
+ html+=`
+  <button class="modalBtn"
+   onclick="closeModal()">
+   CANCEL
+  </button>
+ `;
+
+ openModal(html);
+}
+
+function directTo(name){
+
+ const a=getSelected();
+ const w=waypoints.find(x=>x.name===name);
+
+ if(!a||!w)return;
+
+ a.targetWaypoint=w.name;
+
+ a.targetHeading=
+  bearingTo(a.x,a.y,w.x,w.y);
+
+ a.hold=false;
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " direct "+w.name+"."
+ );
+
+ pilotReply(
+  a,
+  "Direct "+w.name+"."
+ );
+
+ score+=6;
+ xp+=3;
+
+ closeModal();
+}
+
+/* =========================================================
+   HOLD
+========================================================= */
+
+function holdCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ a.hold=!a.hold;
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  (a.hold
+   ?" enter hold."
+   :" exit hold.")
+ );
+
+ pilotReply(
+  a,
+  a.hold
+   ?"Entering hold."
+   :"Leaving hold."
+ );
+
+ score+=3;
+ xp+=2;
+}
+
+/* =========================================================
+   APPROACH
+========================================================= */
+
+function approachCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ if(
+  a.type!=="ARRIVAL" &&
+  a.type!=="TRANSIT"
+ ){
+
+  notify("NOT AN ARRIVAL");
+  return;
+ }
+
+ a.approach=true;
+ a.hold=false;
+
+ a.targetAltitude=3000;
+ a.targetHeading=
+  bearingTo(a.x,a.y,50,50);
+
+ a.targetSpeed=180;
+ a.status="APPROACH";
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " cleared approach runway 27."
+ );
+
+ pilotReply(
+  a,
+  "Cleared approach runway 27."
+ );
+
+ score+=8;
+ xp+=5;
+}
+
+/* =========================================================
+   LAND
+========================================================= */
+
+function landCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ if(!a.approach){
+  notify("AIRCRAFT NOT CLEARED FOR APPROACH");
+  return;
+ }
+
+ if(
+  distance(a.x,a.y,50,50)>13
+ ){
+
+  notify("AIRCRAFT TOO FAR FROM AIRPORT");
+  return;
+ }
+
+ a.landed=true;
+ a.status="LANDED";
+ a.speed=0;
+ a.targetSpeed=0;
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " cleared to land runway 27."
+ );
+
+ pilotReply(
+  a,
+  "Cleared to land."
+ );
+
+ score+=25;
+ xp+=12;
+
+ notify(
+  a.callsign+" LANDED"
+ );
+}
+
+/* =========================================================
+   TAKEOFF
+========================================================= */
+
+function takeoffCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ if(a.type!=="DEPARTURE"){
+  notify("NOT A DEPARTURE");
+  return;
+ }
+
+ if(a.status!=="GROUND"){
+  notify("ALREADY DEPARTING");
+  return;
+ }
+
+ a.targetSpeed=250;
+ a.targetAltitude=5000;
+ a.targetHeading=90;
+ a.status="DEPARTING";
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " cleared for takeoff runway 27."
+ );
+
+ pilotReply(
+  a,
+  "Cleared for takeoff."
+ );
+
+ score+=10;
+ xp+=5;
+}
+
+/* =========================================================
+   CONTACT
+========================================================= */
+
+function contactPilot(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  ", ATC. Say intentions."
+ );
+
+ setTimeout(()=>{
+
+  if(aircraft.includes(a)){
+
+   const messages=[
+    "Requesting higher.",
+    "Requesting lower.",
+    "Requesting direct.",
+    "We are ready for approach.",
+    "Continuing present heading.",
+    "Traffic in sight."
+   ];
+
+   pilotReply(
+    a,
+    messages[
+     Math.floor(Math.random()*messages.length)
+    ]
+   );
+  }
+
+ },800);
+}
+
+/* =========================================================
+   EMERGENCY
+========================================================= */
+
+function emergencyCommand(){
+
+ const a=getSelected();
+
+ if(!a){
+  notify("SELECT AIRCRAFT");
+  return;
+ }
+
+ if(!a.emergency){
+
+  a.emergency=true;
+  a.status="EMERGENCY";
+
+  addRadio(
+   a.callsign,
+   "PAN PAN. We have a simulated emergency."
+  );
+
+  notify(
+   "SIMULATED EMERGENCY"
+  );
+
+  return;
+ }
+
+ openModal(`
+  <h2>⚠️ EMERGENCY HANDLING</h2>
+
+  <p>
+   This is a fictional training scenario.
+   Select a coordination action.
+  </p>
+
+  <button class="modalBtn primary"
+   onclick="
+    emergencyPriority();
+   ">
+   PRIORITY HANDLING
+  </button>
+
+  <button class="modalBtn"
+   onclick="
+    emergencyApproach();
+   ">
+   PREPARE APPROACH
+  </button>
+
+  <button class="modalBtn"
+   onclick="
+    closeModal();
+   ">
+   CLOSE
+  </button>
+ `);
+}
+
+function emergencyPriority(){
+
+ const a=getSelected();
+
+ if(!a)return;
+
+ a.targetAltitude=3000;
+ a.targetSpeed=180;
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " priority handling approved."
+ );
+
+ pilotReply(
+  a,
+  "Priority handling."
+ );
+
+ score+=15;
+ xp+=10;
+
+ closeModal();
+}
+
+function emergencyApproach(){
+
+ const a=getSelected();
+
+ if(!a)return;
+
+ a.approach=true;
+ a.targetAltitude=2500;
+ a.targetSpeed=170;
+ a.targetHeading=
+  bearingTo(a.x,a.y,50,50);
+
+ addRadio(
+  "YOU",
+  a.callsign+
+  " proceed for priority approach."
+ );
+
+ score+=15;
+ xp+=10;
+
+ closeModal();
+}
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+function randomRadio(){
+
+ if(!aircraft.length)return;
+
+ const a=
+  aircraft[
+   Math.floor(
+    Math.random()*aircraft.length
+   )
+  ];
+
+ if(!a)return;
+
+ const messages=a.emergency
+  ?[
+    "Requesting priority.",
+    "We have an emergency.",
+    "Standing by."
+   ]
+  :[
+    "Checking in.",
+    "Requesting direct.",
+    "Requesting higher.",
+    "Requesting lower.",
+    "Ready for approach.",
+    "Continuing."
+   ];
+
+ addRadio(
+  a.callsign,
+  messages[
+   Math.floor(Math.random()*messages.length)
+  ]
+ );
+}
+
+function pilotReply(a,text){
+
+ setTimeout(()=>{
+
+  if(aircraft.includes(a))
+   addRadio(a.callsign,text);
+
+ },500+Math.random()*900);
+}
+
+function addRadio(from,text){
+
+ const log=document.getElementById("radioLog");
+
+ const div=document.createElement("div");
+
+ div.className=
+  "radio "+(from==="YOU"?"you":"");
+
+ div.innerHTML=
+  "<b>"+from+":</b> "+text;
+
+ log.prepend(div);
+
+ while(log.children.length>30)
+  log.removeChild(log.lastChild);
+}
+
+/* =========================================================
+   WEATHER
+========================================================= */
+
+function changeWeather(){
+
+ const m=
+  weatherModes[
+   Math.floor(
+    Math.random()*weatherModes.length
+   )
+  ];
+
+ weather.condition=m.condition;
+ weather.visibility=m.visibility;
+ weather.ceiling=m.ceiling;
+
+ weather.wind=
+  Math.floor(Math.random()*36)*10;
+
+ weather.windSpeed=
+  5+Math.floor(Math.random()*20);
+
+ document.getElementById(
+  "weatherCondition"
+ ).textContent=
+  weather.condition;
+
+ document.getElementById(
+  "windText"
+ ).textContent=
+  "WIND "+
+  String(weather.wind).padStart(3,"0")+
+  "° / "+
+  weather.windSpeed+
+  "KT";
+
+ document.getElementById(
+  "visText"
+ ).textContent=
+  "VISIBILITY "+
+  weather.visibility;
+
+ document.getElementById(
+  "ceilingText"
+ ).textContent=
+  "CEILING "+
+  weather.ceiling.toLocaleString()+
+  " FT";
+
+ addRadio(
+  "ATIS",
+  "Weather update: "+
+  weather.condition+"."
+ );
+}
+
+/* =========================================================
+   RADAR DRAWING
+========================================================= */
+
+function drawRadar(){
+
+ ctx.clearRect(0,0,W,H);
+
+ /* background */
+ const gradient=
+  ctx.createRadialGradient(
+   W/2,H/2,20,
+   W/2,H/2,Math.max(W,H)*.7
+  );
+
+ gradient.addColorStop(0,"#10351d");
+ gradient.addColorStop(.45,"#071a0e");
+ gradient.addColorStop(1,"#020705");
+
+ ctx.fillStyle=gradient;
+ ctx.fillRect(0,0,W,H);
+
+ /* grid */
+ ctx.strokeStyle="#174628";
+ ctx.lineWidth=1;
+
+ const grid=50;
+
+ for(let x=0;x<W;x+=grid){
+
+  ctx.globalAlpha=.25;
+
+  ctx.beginPath();
+  ctx.moveTo(x,58);
+  ctx.lineTo(x,H);
+  ctx.stroke();
+ }
+
+ for(let y=58;y<H;y+=grid){
+
+  ctx.beginPath();
+  ctx.moveTo(0,y);
+  ctx.lineTo(W,y);
+  ctx.stroke();
+ }
+
+ ctx.globalAlpha=1;
+
+ /* radar center */
+ const cx=W/2;
+ const cy=(H+58)/2;
+
+ const radius=
+  Math.min(W,H)*.43;
+
+ ctx.strokeStyle="#43875a66";
+
+ for(let i=1;i<=4;i++){
+
+  ctx.beginPath();
+
+  ctx.arc(
+   cx,
+   cy,
+   radius*i/4,
+   0,
+   Math.PI*2
+  );
+
+  ctx.stroke();
+ }
+
+ /* crosshair */
+ ctx.strokeStyle="#4c986566";
+
+ ctx.beginPath();
+ ctx.moveTo(cx,58);
+ ctx.lineTo(cx,H);
+ ctx.stroke();
+
+ ctx.beginPath();
+ ctx.moveTo(0,cy);
+ ctx.lineTo(W,cy);
+ ctx.stroke();
+
+ /* airport */
+ drawAirport(cx,cy);
+
+ /* waypoints */
+ waypoints.forEach(w=>{
+  const p=worldToScreen(w.x,w.y);
+
+  ctx.fillStyle="#6ea17b";
+  ctx.font="8px monospace";
+  ctx.fillText(w.name,p.x+5,p.y-5);
+
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,2,0,Math.PI*2);
+  ctx.fill();
+ });
+
+ /* aircraft */
+ aircraft.forEach(a=>{
+  drawAircraft(a);
+ });
+
+}
+
+/* =========================================================
+   AIRPORT
+========================================================= */
+
+function drawAirport(cx,cy){
+
+ ctx.save();
+
+ ctx.translate(cx,cy);
+ ctx.rotate(-Math.PI/12);
+
+ ctx.fillStyle="#c6c6c6";
+
+ ctx.fillRect(-75,-3,150,6);
+
+ ctx.fillStyle="#333";
+
+ for(let i=-60;i<70;i+=20)
+  ctx.fillRect(i,-1,10,2);
+
+ ctx.restore();
+
+ ctx.fillStyle="#9bb09f";
+ ctx.font="9px monospace";
+
+ ctx.fillText(
+  "RWY 09/27",
+  cx-30,
+  cy+25
+ );
+}
+
+/* =========================================================
+   AIRCRAFT DRAW
+========================================================= */
+
+function drawAircraft(a){
+
+ const p=worldToScreen(a.x,a.y);
+
+ /* history trail */
+ if(a.history.length>1){
+
+  ctx.strokeStyle=
+   a.conflict
+    ? "#ff5964"
+    : "#3e8b57";
+
+  ctx.globalAlpha=.3;
+
+  ctx.beginPath();
+
+  a.history.forEach((h,i)=>{
+
+   const q=worldToScreen(
+    h.x,
+    h.y
+   );
+
+   if(i===0)
+    ctx.moveTo(q.x,q.y);
+   else
+    ctx.lineTo(q.x,q.y);
+  });
+
+  ctx.stroke();
+
+  ctx.globalAlpha=1;
+ }
+
+ /* vector */
+ const vectorLength=35;
+
+ const radians=
+  a.heading*Math.PI/180;
+
+ const vx=
+  Math.sin(radians)*vectorLength;
+
+ const vy=
+  -Math.cos(radians)*vectorLength;
+
+ ctx.strokeStyle=
+  a.conflict
+   ? "#ff5964"
+   : "#63d884";
+
+ ctx.globalAlpha=.55;
+
+ ctx.beginPath();
+ ctx.moveTo(p.x,p.y);
+ ctx.lineTo(p.x+vx,p.y+vy);
+ ctx.stroke();
+
+ ctx.globalAlpha=1;
+
+ /* selected ring */
+ if(a.selected){
+
+  ctx.strokeStyle="#fff";
+  ctx.lineWidth=1.5;
+
+  ctx.beginPath();
+
+  ctx.arc(
+   p.x,
+   p.y,
+   12,
+   0,
+   Math.PI*2
+  );
+
+  ctx.stroke();
+ }
+
+ /* aircraft */
+ ctx.save();
+
+ ctx.translate(p.x,p.y);
+ ctx.rotate(radians);
+
+ ctx.fillStyle=
+  a.conflict
+   ? "#ff5964"
+   : a.emergency
+    ? "#ffad3d"
+    : "#70ff9d";
+
+ ctx.beginPath();
+
+ ctx.moveTo(0,-8);
+ ctx.lineTo(3,4);
+ ctx.lineTo(0,2);
+ ctx.lineTo(-3,4);
+ ctx.closePath();
+
+ ctx.fill();
+
+ ctx.restore();
+
+ /* tag */
+ ctx.fillStyle=
+  a.selected
+   ? "#fff"
+   : a.conflict
+    ? "#ff747c"
+    : "#72df92";
+
+ ctx.font="9px monospace";
+
+ const altitude=
+  Math.round(a.altitude/100);
+
+ ctx.fillText(
+  a.callsign,
+  p.x+13,
+  p.y-7
+ );
+
+ ctx.font="7px monospace";
+
+ ctx.fillText(
+  "A"+String(altitude).padStart(3,"0")+
+  " "+
+  Math.round(a.speed)+"KT",
+  p.x+13,
+  p.y+3
+ );
+
+}
+
+/* =========================================================
+   SCREEN MAPPING
+========================================================= */
+
+function worldToScreen(x,y){
+
+ const cx=W/2;
+ const cy=(H+58)/2;
+
+ const radius=
+  Math.min(W,H)*.43;
+
+ return{
+  x:cx+(x-50)/50*radius,
+  y:cy+(y-50)/50*radius
+ };
+}
+
+function screenToWorld(sx,sy){
+
+ const cx=W/2;
+ const cy=(H+58)/2;
+
+ const radius=
+  Math.min(W,H)*.43;
+
+ return{
+  x:50+(sx-cx)/radius*50,
+  y:50+(sy-cy)/radius*50
+ };
+}
+
+/* =========================================================
+   RADAR TOUCH / CLICK
+========================================================= */
+
+canvas.addEventListener("pointerdown",e=>{
+
+ if(!started)return;
+
+ const rect=
+  canvas.getBoundingClientRect();
+
+ const sx=e.clientX-rect.left;
+ const sy=e.clientY-rect.top;
+
+ let closest=null;
+ let closestDistance=20;
+
+ aircraft.forEach(a=>{
+
+  const p=worldToScreen(a.x,a.y);
+
+  const d=
+   Math.hypot(
+    sx-p.x,
+    sy-p.y
+   );
+
+  if(d<closestDistance){
+
+   closestDistance=d;
+   closest=a;
+  }
+ });
+
+ if(closest){
+
+  selectAircraft(closest.id);
+
+ }else{
+
+  clearSelection();
+ }
+
+});
+
+/* =========================================================
+   TRAFFIC LIST
+========================================================= */
+
+function renderTrafficList(){
+
+ const list=
+  document.getElementById("trafficList");
+
+ list.innerHTML="";
+
+ aircraft.forEach(a=>{
+
+  const row=
+   document.createElement("div");
+
+  row.className=
+   "flight "+
+   (selectedId===a.id?"selected ":"")+
+   (a.conflict?"danger":"");
+
+  row.innerHTML=`
+   <button onclick="selectAircraft('${a.id}')">
+    <b>${a.callsign}</b>
+    ${a.emergency?" ⚠️":""}
+    <br>
+    ${a.status}
+    • ${Math.round(a.altitude).toLocaleString()} FT
+    <br>
+    HDG ${String(Math.round(a.heading)).padStart(3,"0")}
+    • ${Math.round(a.speed)} KT
+   </button>
+  `;
+
+  list.appendChild(row);
+ });
+}
+
+function updateSelectedInfo(){
+
+ const a=getSelected();
+
+ const box=
+  document.getElementById("selectedInfo");
+
+ if(!a){
+
+  box.innerHTML=`
+   <b>NO AIRCRAFT SELECTED</b><br>
+   Tap an aircraft on radar.
+  `;
+
+  return;
+ }
+
+ box.innerHTML=`
+  <b>${a.callsign}</b>
+  ${a.emergency?" ⚠️ EMERGENCY":""}
+  <br>
+  ${a.status} • ${a.type}
+  <br>
+  ALT ${Math.round(a.altitude).toLocaleString()} FT
+  • HDG ${String(Math.round(a.heading)).padStart(3,"0")}°
+  • ${Math.round(a.speed)} KT
+ `;
+
+}
+
+/* =========================================================
+   UI UPDATE
+========================================================= */
+
+function updateUI(){
+
+ document.getElementById(
+  "trafficCount"
+ ).textContent=aircraft.length;
+
+ document.getElementById(
+  "score"
+ ).textContent=Math.max(0,Math.round(score));
+
+ document.getElementById(
+  "rating"
+ ).textContent=getRating();
+
+ document.getElementById(
+  "clock"
+ ).textContent=formatTime(
+  shiftSeconds
+ );
+
+ updateSelectedInfo();
+
+ renderTrafficList();
+}
+
+function getRating(){
+
+ if(score>=500)return"MASTER";
+ if(score>=350)return"EXPERT";
+ if(score>=200)return"SENIOR";
+ if(score>=100)return"CONTROLLER";
+ if(score>=40)return"STUDENT";
+
+ return"TRAINEE";
+}
+
+/* =========================================================
+   TOOLS
+========================================================= */
+
+function setTool(name){
+
+ document.querySelectorAll(".tool")
+  .forEach(x=>x.classList.remove("active"));
+
+ if(name==="radar")
+  document.getElementById("radarTool")
+   .classList.add("active");
+}
+
+/* =========================================================
+   FLIGHT PLAN
+========================================================= */
+
+function openFlightPlan(){
+
+ const a=getSelected();
+
+ if(!a){
+
+  openModal(`
+   <h2>📋 FLIGHT PLAN</h2>
+   <p>Select an aircraft first.</p>
+   <button class="modalBtn"
+    onclick="closeModal()">
+    CLOSE
+   </button>
+  `);
+
+  return;
+ }
+
+ openModal(`
+  <h2>📋 ${a.callsign}</h2>
+
+  <p>
+   TYPE: ${a.type}<br>
+   STATUS: ${a.status}<br>
+   ALTITUDE: ${Math.round(a.altitude).toLocaleString()} FT<br>
+   TARGET ALTITUDE:
+   ${Math.round(a.targetAltitude).toLocaleString()} FT<br>
+   HEADING:
+   ${Math.round(a.heading)}°<br>
+   TARGET HEADING:
+   ${Math.round(a.targetHeading)}°<br>
+   SPEED:
+   ${Math.round(a.speed)} KT<br>
+   TARGET SPEED:
+   ${Math.round(a.targetSpeed)} KT<br>
+   APPROACH:
+   ${a.approach?"YES":"NO"}<br>
+   HOLD:
+   ${a.hold?"YES":"NO"}
+  </p>
+
+  <button class="modalBtn"
+   onclick="closeModal()">
+   CLOSE
+  </button>
+ `);
+}
+
+/* =========================================================
+   AIRSPACE
+========================================================= */
+
+function openAirspace(){
+
+ openModal(`
+  <h2>🗺️ AIRSPACE</h2>
+
+  <p>
+   SECTOR: 09<br>
+   CENTER: ${airport.name}<br>
+   RANGE: ${radarRange} NM SIMULATED<br>
+   RUNWAY: 09/27<br>
+   STATUS: ACTIVE
+  </p>
+
+  <p>
+   ACTIVE WAYPOINTS:
+   ${waypoints.map(x=>x.name).join(" • ")}
+  </p>
+
+  <button class="modalBtn"
+   onclick="closeModal()">
+   CLOSE
+  </button>
+ `);
+}
+
+/* =========================================================
+   HELP
+========================================================= */
+
+function openHelp(){
+
+ openModal(`
+  <h2>🧠 ATC TRAINING</h2>
+
+  <p>
+   <b>Select:</b> Tap an aircraft.
+  </p>
+
+  <p>
+   <b>Heading:</b> Give the aircraft a new heading.
+  </p>
+
+  <p>
+   <b>Altitude:</b> Assign a new altitude.
+  </p>
+
+  <p>
+   <b>Direct:</b> Send aircraft toward a waypoint.
+  </p>
+
+  <p>
+   <b>Approach:</b> Begin simulated approach setup.
+  </p>
+
+  <p>
+   <b>Conflict:</b> Aircraft become conflicts when
+   their simulated horizontal and vertical separation
+   becomes too small.
+  </p>
+
+  <p>
+   Keep traffic separated and communicate clearly.
+  </p>
+
+  <button class="modalBtn"
+   onclick="closeModal()">
+   CLOSE
+  </button>
+ `);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function openModal(html){
+
+ document.getElementById("modalBox")
+  .innerHTML=html;
+
+ document.getElementById("modal")
+  .style.display="flex";
+}
+
+function closeModal(){
+
+ document.getElementById("modal")
+  .style.display="none";
+}
+
+function showInput(
+ title,
+ description,
+ value,
+ callback
+){
+
+ openModal(`
+  <h2>${title}</h2>
+
+  <p>${description}</p>
+
+  <input
+   id="commandInput"
+   inputmode="numeric"
+   value="${value}"
+   style="
+    width:100%;
+    padding:12px;
+    border-radius:7px;
+    border:1px solid #347048;
+    background:#020705;
+    color:#fff;
+    margin-bottom:7px;
+   "
+  >
+
+  <button
+   class="modalBtn primary"
+   onclick="
+    const v=document.getElementById('commandInput').value;
+    closeModal();
+    window.__commandCallback(v);
+   ">
+   SEND
+  </button>
+
+  <button
+   class="modalBtn"
+   onclick="closeModal()">
+   CANCEL
+  </button>
+ `);
+
+ window.__commandCallback=callback;
+}
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+function notify(text){
+
+ const n=document.getElementById("notice");
+
+ n.textContent=text;
+ n.style.display="block";
+
+ clearTimeout(n._timer);
+
+ n._timer=setTimeout(()=>{
+  n.style.display="none";
+ },2200);
+}
+
+/* =========================================================
+   MATH
+========================================================= */
+
+function distance(x1,y1,x2,y2){
+
+ return Math.hypot(
+  x2-x1,
+  y2-y1
+ );
+}
+
+function bearingTo(x1,y1,x2,y2){
+
+ const dx=x2-x1;
+ const dy=y1-y2;
+
+ return normalizeHeading(
+  Math.atan2(dx,dy)*180/Math.PI
+ );
+}
+
+function normalizeHeading(h){
+
+ return (h+360)%360;
+}
+
+function randAlt(min,max){
+
+ return Math.round(
+  (min+Math.random()*(max-min))/500
+ )*500;
+}
+
+function formatTime(s){
+
+ const m=Math.floor(s/60);
+ const sec=s%60;
+
+ return String(m).padStart(2,"0")+
+  ":"+
+  String(sec).padStart(2,"0");
+}
+
+/* =========================================================
+   INITIAL STATUS
+========================================================= */
+
+document.getElementById(
+ "windText"
+).textContent=
+ "WIND 270° / 08KT";
+
+</script>
+
+</div>
+</body>
+</html>
