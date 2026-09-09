@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#02060b">
+<title>J.A.R.V.I.S.</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #02060b;
+    color: #dff9ff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    overflow: hidden;
+}
+
+body {
+    background:
+        radial-gradient(circle at 50% 40%, rgba(0,190,255,.12), transparent 35%),
+        linear-gradient(135deg,#010409,#031019 50%,#010409);
+}
+
+/* GRID */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .12;
+    background-image:
+        linear-gradient(rgba(0,220,255,.15) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,220,255,.15) 1px,transparent 1px);
+    background-size: 35px 35px;
+}
+
+/* TOP BAR */
+
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    background: rgba(0,8,15,.72);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,210,255,.18);
+}
+
+.logo {
+    font-weight: 800;
+    letter-spacing: 4px;
+    font-size: 18px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #37ff9b;
+    box-shadow: 0 0 12px #37ff9b;
+}
+
+/* MAIN */
+
+.main {
+    height: 100%;
+    padding-top: 64px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 28px 18px 80px;
+}
+
+/* HERO */
+
+.hero {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.orb {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 25px;
+
+    background:
+        radial-gradient(circle,
+        rgba(130,245,255,.95) 0%,
+        rgba(0,170,255,.55) 18%,
+        rgba(0,80,140,.3) 42%,
+        transparent 68%);
+
+    box-shadow:
+        0 0 25px rgba(0,210,255,.8),
+        0 0 70px rgba(0,150,255,.35),
+        inset 0 0 35px rgba(130,245,255,.5);
+
+    animation: breathe 3s infinite ease-in-out;
+}
+
+.orb::before,
+.orb::after {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border: 1px solid rgba(0,220,255,.5);
+    border-radius: 50%;
+}
+
+.orb::after {
+    inset: -35px;
+    border-color: rgba(0,180,255,.18);
+}
+
+.orb.listening {
+    animation:
+        breathe .8s infinite ease-in-out,
+        pulseRing .8s infinite ease-out;
+}
+
+.orbInner {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 2px solid rgba(220,255,255,.8);
+    box-shadow: 0 0 25px rgba(150,245,255,.9);
+}
+
+@keyframes breathe {
+    0%,100% { transform: scale(.94); }
+    50% { transform: scale(1.04); }
+}
+
+@keyframes pulseRing {
+    0% { box-shadow: 0 0 20px rgba(0,220,255,.8); }
+    100% { box-shadow: 0 0 100px rgba(0,220,255,.05); }
+}
+
+.title {
+    font-size: clamp(36px,8vw,70px);
+    letter-spacing: 10px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.subtitle {
+    margin-top: 10px;
+    opacity: .55;
+    letter-spacing: 3px;
+    font-size: 12px;
+}
+
+.response {
+    min-height: 45px;
+    max-width: 700px;
+    margin: 22px auto 0;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+/* COMMAND BAR */
+
+.commandArea {
+    display: flex;
+    gap: 10px;
+    max-width: 800px;
+    margin: 0 auto 35px;
+}
+
+.commandInput {
+    flex: 1;
+    min-width: 0;
+
+    border: 1px solid rgba(0,220,255,.35);
+    background: rgba(0,20,30,.65);
+    color: white;
+
+    border-radius: 14px;
+    padding: 17px;
+
+    font-size: 16px;
+    outline: none;
+}
+
+.commandInput:focus {
+    border-color: rgba(0,220,255,.9);
+    box-shadow: 0 0 20px rgba(0,200,255,.12);
+}
+
+.mic {
+    width: 58px;
+    border: 1px solid rgba(0,220,255,.45);
+    background: rgba(0,100,150,.2);
+    color: white;
+    border-radius: 14px;
+    font-size: 22px;
+}
+
+.mic.active {
+    background: rgba(0,220,255,.3);
+}
+
+/* PANELS */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+    gap: 12px;
+}
+
+.panel {
+    border: 1px solid rgba(0,220,255,.2);
+    background: rgba(2,18,27,.7);
+    border-radius: 18px;
+    padding: 18px;
+
+    backdrop-filter: blur(12px);
+}
+
+.panel h3 {
+    margin: 0 0 15px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: .65;
+}
+
+.buttonGrid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 9px;
+}
+
+button {
+    border: 1px solid rgba(0,220,255,.25);
+    background: rgba(0,100,150,.14);
+    color: #e9fcff;
+    border-radius: 11px;
+    padding: 13px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:active {
+    transform: scale(.96);
+    background: rgba(0,220,255,.3);
+}
+
+button:hover {
+    border-color: rgba(0,220,255,.7);
+}
+
+/* COMMAND LOG */
+
+.log {
+    max-height: 260px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.logLine {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.logTime {
+    opacity: .4;
+    margin-right: 8px;
+}
+
+/* SETTINGS */
+
+.settings {
+    margin-top: 14px;
+}
+
+.settingRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.switch {
+    width: 46px;
+    height: 26px;
+    border-radius: 20px;
+    background: #16303b;
+    position: relative;
+}
+
+.switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: .2s;
+}
+
+.switch.on {
+    background: #008ebd;
+}
+
+.switch.on::after {
+    left: 23px;
+}
+
+/* BOOT */
+
+.boot {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background: #010409;
+
+    animation: bootOut 1s forwards;
+    animation-delay: 3.2s;
+}
+
+.bootTitle {
+    font-size: 35px;
+    letter-spacing: 7px;
+    margin-bottom: 25px;
+}
+
+.bootText {
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    opacity: .75;
+}
+
+@keyframes bootOut {
+    to {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+    }
+}
+
+@media(max-width:600px) {
+    .hero {
+        min-height: 350px;
+    }
+
+    .orb {
+        width: 165px;
+        height: 165px;
+    }
+
+    .title {
+        letter-spacing: 6px;
+    }
+
+    .commandArea {
+        position: sticky;
+        bottom: 10px;
+        z-index: 10;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- BOOT SCREEN -->
+
+<div class="boot">
+    <div class="bootTitle">J.A.R.V.I.S.</div>
+
+    <div class="bootText" id="bootText">
+        INITIALIZING CORE...<br>
+        LOADING COMMAND ENGINE...<br>
+        INITIALIZING VOICE SYSTEM...<br>
+        CONNECTING TO IPAD INTERFACE...<br>
+        SYSTEM READY.
+    </div>
+</div>
+
+<!-- TOP -->
+
+<header class="topbar">
+    <div class="logo">J.A.R.V.I.S.</div>
+
+    <div class="status">
+        <span class="statusDot"></span>
+        <span id="statusText">ONLINE</span>
+    </div>
+</header>
+
+<main class="main">
+
+<div class="container">
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="orb" id="orb">
+            <div class="orbInner"></div>
+        </div>
+
+        <h1 class="title">JARVIS</h1>
+
+        <div class="subtitle">
+            JUST A RATHER VERY INTELLIGENT SYSTEM
+        </div>
+
+        <div class="response" id="response">
+            Good evening. Systems are ready.
+        </div>
+
+    </section>
+
+    <!-- COMMAND -->
+
+    <div class="commandArea">
+
+        <input
+            id="commandInput"
+            class="commandInput"
+            placeholder="Say or type a command..."
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false">
+
+        <button class="mic" id="micButton" onclick="toggleListening()">
+            🎤
+        </button>
+
+        <button onclick="submitCommand()">
+            ➤
+        </button>
+
+    </div>
+
+    <!-- CONTROLS -->
+
+    <div class="grid">
+
+        <!-- IPAD -->
+
+        <section class="panel">
+            <h3>IPAD</h3>
+
+            <div class="buttonGrid">
+                <button onclick="openSettings('General')">
+                    ⚙️ Settings
+                </button>
+
+                <button onclick="openSettings('WiFi')">
+                    📶 Wi-Fi
+                </button>
+
+                <button onclick="openSettings('Bluetooth')">
+                    🔵 Bluetooth
+                </button>
+
+                <button onclick="openSettings('Battery')">
+                    🔋 Battery
+                </button>
+
+                <button onclick="openSettings('Display')">
+                    ☀️ Display
+                </button>
+
+                <button onclick="openSettings('Accessibility')">
+                    ♿ Accessibility
+                </button>
+            </div>
+        </section>
+
+        <!-- APPS -->
+
+        <section class="panel">
+            <h3>APPLICATIONS</h3>
+
+            <div class="buttonGrid">
+                <button onclick="openApp('https://www.youtube.com')">
+                    ▶️ YouTube
+                </button>
+
+                <button onclick="openApp('https://www.google.com')">
+                    🔎 Google
+                </button>
+
+                <button onclick="openApp('https://github.com')">
+                    💻 GitHub
+                </button>
+
+                <button onclick="openApp('https://www.roblox.com')">
+                    🎮 Roblox
+                </button>
+
+                <button onclick="openApp('https://discord.com/app')">
+                    💬 Discord
+                </button>
+
+                <button onclick="openApp('https://chatgpt.com')">
+                    🤖 ChatGPT
+                </button>
+            </div>
+        </section>
+
+        <!-- TIMERS -->
+
+        <section class="panel">
+            <h3>TIME CONTROL</h3>
+
+            <div class="buttonGrid">
+                <button onclick="startTimer(60)">
+                    1 MIN
+                </button>
+
+                <button onclick="startTimer(300)">
+                    5 MIN
+                </button>
+
+                <button onclick="startTimer(600)">
+                    10 MIN
+                </button>
+
+                <button onclick="startTimer(900)">
+                    15 MIN
+                </button>
+
+                <button onclick="startTimer(1800)">
+                    30 MIN
+                </button>
+
+                <button onclick="runShortcut('JARVIS Timer')">
+                    🍎 Shortcut
+                </button>
+            </div>
+
+            <div id="timerDisplay"
+                 style="margin-top:15px;text-align:center;font-size:24px;font-family:monospace;">
+                00:00
+            </div>
+        </section>
+
+        <!-- ROUTINES -->
+
+        <section class="panel">
+            <h3>ROUTINES</h3>
+
+            <div class="buttonGrid">
+                <button onclick="runShortcut('JARVIS Bedtime')">
+                    🌙 Bedtime
+                </button>
+
+                <button onclick="runShortcut('JARVIS School')">
+                    📚 School
+                </button>
+
+                <button onclick="runShortcut('JARVIS Focus')">
+                    🎯 Focus
+                </button>
+
+                <button onclick="runShortcut('JARVIS Morning')">
+                    ☀️ Morning
+                </button>
+
+                <button onclick="runShortcut('JARVIS Music')">
+                    🎵 Music
+                </button>
+
+                <button onclick="runShortcut('JARVIS Home')">
+                    🏠 Home
+                </button>
+            </div>
+        </section>
+
+        <!-- BROWSER -->
+
+        <section class="panel">
+            <h3>BROWSER</h3>
+
+            <div class="buttonGrid">
+                <button onclick="browserBack()">
+                    ◀️ Back
+                </button>
+
+                <button onclick="location.reload()">
+                    🔄 Reload
+                </button>
+
+                <button onclick="openApp('https://www.google.com')">
+                    🔎 Search
+                </button>
+
+                <button onclick="goFullscreen()">
+                    ⛶ Fullscreen
+                </button>
+            </div>
+        </section>
+
+        <!-- SYSTEM -->
+
+        <section class="panel">
+            <h3>SYSTEM</h3>
+
+            <div class="buttonGrid">
+                <button onclick="speak('All systems are functioning normally.')">
+                    🧪 Diagnostics
+                </button>
+
+                <button onclick="showDeviceInfo()">
+                    📱 Device
+                </button>
+
+                <button onclick="clearLog()">
+                    🗑️ Clear Log
+                </button>
+
+                <button onclick="rebootJarvis()">
+                    🔄 Reboot
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- LOG -->
+
+    <section class="panel" style="margin-top:14px;">
+        <h3>COMMAND LOG</h3>
+        <div class="log" id="log"></div>
+    </section>
+
+    <!-- SETTINGS -->
+
+    <section class="panel settings">
+        <h3>JARVIS SETTINGS</h3>
+
+        <div class="settingRow">
+            <span>Voice responses</span>
+            <div class="switch on"
+                 id="voiceSwitch"
+                 onclick="toggleSetting('voice')"></div>
+        </div>
+
+        <div class="settingRow">
+            <span>Sound effects</span>
+            <div class="switch on"
+                 id="soundSwitch"
+                 onclick="toggleSetting('sound')"></div>
+        </div>
+
+        <div class="settingRow">
+            <span>Wake-word mode</span>
+            <div class="switch"
+                 id="wakeSwitch"
+                 onclick="toggleSetting('wake')"></div>
+        </div>
+
+    </section>
+
+</div>
+</main>
+
+<script>
+/* =========================================================
+   J.A.R.V.I.S. CORE
+   Single-file iPad control center
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+
+let settings = {
+    voice: true,
+    sound: true,
+    wake: false
+};
+
+let recognition = null;
+let listening = false;
+let timerInterval = null;
+let timerSeconds = 0;
+
+
+/* =========================================================
+   LOGGING
+   ========================================================= */
+
+function log(message, type="INFO") {
+
+    const logBox = $("log");
+
+    const time = new Date().toLocaleTimeString();
+
+    const line = document.createElement("div");
+
+    line.className = "logLine";
+
+    line.innerHTML =
+        `<span class="logTime">${time}</span>
+         <b>${type}</b> ${escapeHTML(message)}`;
+
+    logBox.prepend(line);
+}
+
+
+function clearLog() {
+    $("log").innerHTML = "";
+    log("Command log cleared.");
+}
+
+
+function escapeHTML(text) {
+    return String(text)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+}
+
+
+/* =========================================================
+   JARVIS SPEECH
+   ========================================================= */
+
+function speak(text) {
+
+    $("response").textContent = text;
+
+    log(text, "JARVIS");
+
+    if (!settings.voice) return;
+
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const voice = new SpeechSynthesisUtterance(text);
+
+    voice.rate = 1.02;
+    voice.pitch = .85;
+    voice.volume = 1;
+
+    speechSynthesis.speak(voice);
+}
+
+
+/* =========================================================
+   VOICE RECOGNITION
+   ========================================================= */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+
+    recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+
+        listening = true;
+
+        $("orb").classList.add("listening");
+        $("micButton").classList.add("active");
+
+        $("statusText").textContent = "LISTENING";
+
+        $("response").textContent =
+            "I'm listening.";
+    };
+
+
+    recognition.onresult = event => {
+
+        const transcript =
+            event.results[0][0].transcript;
+
+        $("commandInput").value = transcript;
+
+        log(transcript,"YOU");
+
+        processCommand(transcript);
+    };
+
+
+    recognition.onerror = event => {
+
+        log(
+            "Voice recognition error: " +
+            event.error,
+            "ERROR"
+        );
+
+        stopListening();
+    };
+
+
+    recognition.onend = () => {
+        stopListening();
+    };
+
+}
+
+
+function toggleListening() {
+
+    if (!recognition) {
+
+        speak(
+            "Voice recognition is not available in this browser."
+        );
+
+        return;
+    }
+
+    if (listening) {
+
+        recognition.stop();
+
+    } else {
+
+        try {
+            recognition.start();
+        } catch(e) {}
+    }
+}
+
+
+function stopListening() {
+
+    listening = false;
+
+    $("orb").classList.remove("listening");
+    $("micButton").classList.remove("active");
+
+    $("statusText").textContent = "ONLINE";
+}
+
+
+/* =========================================================
+   COMMAND INPUT
+   ========================================================= */
+
+$("commandInput").addEventListener("keydown", e => {
+
+    if (e.key === "Enter") {
+        submitCommand();
+    }
+
+});
+
+
+function submitCommand() {
+
+    const input = $("commandInput");
+
+    const command = input.value.trim();
+
+    if (!command) return;
+
+    log(command,"YOU");
+
+    input.value = "";
+
+    processCommand(command);
+}
+
+
+/* =========================================================
+   COMMAND ENGINE
+   ========================================================= */
+
+function processCommand(raw) {
+
+    const command = raw.toLowerCase().trim();
+
+    /*
+       Remove wake words.
+    */
+
+    const clean = command
+        .replace(/^hey jarvis[,\s]*/,"")
+        .replace(/^jarvis[,\s]*/,"")
+        .trim();
+
+
+    /* GREETINGS */
+
+    if (
+        clean === "hello" ||
+        clean === "hi" ||
+        clean.includes("how are you")
+    ) {
+
+        speak(
+            "I'm functioning perfectly. How may I assist you?"
+        );
+
+        return;
+    }
+
+
+    /* TIME */
+
+    if (
+        clean.includes("what time") ||
+        clean === "time"
+    ) {
+
+        speak(
+            "The current time is " +
+            new Date().toLocaleTimeString([], {
+                hour:"numeric",
+                minute:"2-digit"
+            })
+        );
+
+        return;
+    }
+
+
+    /* DATE */
+
+    if (
+        clean.includes("what date") ||
+        clean.includes("today's date")
+    ) {
+
+        speak(
+            "Today is " +
+            new Date().toLocaleDateString([], {
+                weekday:"long",
+                month:"long",
+                day:"numeric"
+            })
+        );
+
+        return;
+    }
+
+
+    /* YOUTUBE */
+
+    if (
+        clean.includes("open youtube") ||
+        clean.includes("launch youtube")
+    ) {
+
+        speak("Opening YouTube.");
+
+        openApp("https://www.youtube.com");
+
+        return;
+    }
+
+
+    /* GOOGLE */
+
+    if (
+        clean.includes("open google")
+    ) {
+
+        speak("Opening Google.");
+
+        openApp("https://www.google.com");
+
+        return;
+    }
+
+
+    /* GITHUB */
+
+    if (
+        clean.includes("open github")
+    ) {
+
+        speak("Opening GitHub.");
+
+        openApp("https://github.com");
+
+        return;
+    }
+
+
+    /* ROBLOX */
+
+    if (
+        clean.includes("open roblox")
+    ) {
+
+        speak("Opening Roblox.");
+
+        openApp("https://www.roblox.com");
+
+        return;
+    }
+
+
+    /* DISCORD */
+
+    if (
+        clean.includes("open discord")
+    ) {
+
+        speak("Opening Discord.");
+
+        openApp("https://discord.com/app");
+
+        return;
+    }
+
+
+    /* CHATGPT */
+
+    if (
+        clean.includes("open chatgpt")
+    ) {
+
+        speak("Opening ChatGPT.");
+
+        openApp("https://chatgpt.com");
+
+        return;
+    }
+
+
+    /* SETTINGS */
+
+    if (clean.includes("open settings")) {
+
+        speak("Opening Settings.");
+
+        openSettings("General");
+
+        return;
+    }
+
+
+    if (clean.includes("wifi") ||
+        clean.includes("wi-fi")) {
+
+        speak("Opening Wi-Fi settings.");
+
+        openSettings("WiFi");
+
+        return;
+    }
+
+
+    if (clean.includes("bluetooth")) {
+
+        speak("Opening Bluetooth settings.");
+
+        openSettings("Bluetooth");
+
+        return;
+    }
+
+
+    if (clean.includes("battery")) {
+
+        speak("Opening Battery settings.");
+
+        openSettings("Battery");
+
+        return;
+    }
+
+
+    /* TIMERS */
+
+    const minuteMatch =
+        clean.match(
+            /(?:timer|countdown).*?(\d+)\s*(minute|minutes|min|mins)/
+        );
+
+    if (minuteMatch) {
+
+        const minutes =
+            Number(minuteMatch[1]);
+
+        speak(
+            `Starting a ${minutes} minute timer.`
+        );
+
+        startTimer(minutes * 60);
+
+        return;
+    }
+
+
+    const secondMatch =
+        clean.match(
+            /(?:timer|countdown).*?(\d+)\s*(second|seconds|sec|secs)/
+        );
+
+    if (secondMatch) {
+
+        const seconds =
+            Number(secondMatch[1]);
+
+        speak(
+            `Starting a ${seconds} second timer.`
+        );
+
+        startTimer(seconds);
+
+        return;
+    }
+
+
+    /* BEDTIME */
+
+    if (
+        clean.includes("bedtime") ||
+        clean.includes("go to bed")
+    ) {
+
+        speak("Activating bedtime routine.");
+
+        runShortcut("JARVIS Bedtime");
+
+        return;
+    }
+
+
+    /* SCHOOL */
+
+    if (
+        clean.includes("school mode")
+    ) {
+
+        speak("Activating school mode.");
+
+        runShortcut("JARVIS School");
+
+        return;
+    }
+
+
+    /* FOCUS */
+
+    if (
+        clean.includes("focus mode")
+    ) {
+
+        speak("Activating focus mode.");
+
+        runShortcut("JARVIS Focus");
+
+        return;
+    }
+
+
+    /* MORNING */
+
+    if (
+        clean.includes("morning routine")
+    ) {
+
+        speak("Activating morning routine.");
+
+        runShortcut("JARVIS Morning");
+
+        return;
+    }
+
+
+    /* MUSIC */
+
+    if (
+        clean.includes("play music")
+    ) {
+
+        speak("Activating music control.");
+
+        runShortcut("JARVIS Music");
+
+        return;
+    }
+
+
+    /* FULLSCREEN */
+
+    if (
+        clean.includes("fullscreen") ||
+        clean.includes("full screen")
+    ) {
+
+        speak("Entering fullscreen.");
+
+        goFullscreen();
+
+        return;
+    }
+
+
+    /* RELOAD */
+
+    if (
+        clean === "reload" ||
+        clean.includes("reload page")
+    ) {
+
+        speak("Reloading interface.");
+
+        setTimeout(
+            () => location.reload(),
+            500
+        );
+
+        return;
+    }
+
+
+    /* DIAGNOSTICS */
+
+    if (
+        clean.includes("diagnostic") ||
+        clean.includes("system status")
+    ) {
+
+        showDeviceInfo();
+
+        return;
+    }
+
+
+    /* UNKNOWN */
+
+    speak(
+        `I heard "${raw}", but I don't have an action configured for that command yet.`
+    );
+}
+
+
+/* =========================================================
+   BROWSER ACTIONS
+   ========================================================= */
+
+function openApp(url) {
+
+    log("Opening " + url);
+
+    window.location.href = url;
+}
+
+
+function browserBack() {
+
+    history.back();
+}
+
+
+function goFullscreen() {
+
+    const element = document.documentElement;
+
+    if (element.requestFullscreen) {
+
+        element.requestFullscreen();
+
+    } else if (element.webkitRequestFullscreen) {
+
+        element.webkitRequestFullscreen();
+
+    } else {
+
+        speak(
+            "Fullscreen is not available in this browser."
+        );
+    }
+}
+
+
+/* =========================================================
+   APPLE SETTINGS
+   ========================================================= */
+
+function openSettings(section) {
+
+    /*
+      iPadOS does not expose every Settings page
+      to normal webpages.
+
+      This attempts the appropriate Apple settings
+      URL when supported.
+    */
+
+    const urls = {
+
+        General:
+            "App-Prefs:root=General",
+
+        WiFi:
+            "App-Prefs:root=WIFI",
+
+        Bluetooth:
+            "App-Prefs:root=Bluetooth",
+
+        Battery:
+            "App-Prefs:root=BATTERY_USAGE",
+
+        Display:
+            "App-Prefs:root=DISPLAY",
+
+        Accessibility:
+            "App-Prefs:root=ACCESSIBILITY"
+    };
+
+    const url = urls[section];
+
+    if (!url) return;
+
+    log("Requesting Settings: " + section);
+
+    window.location.href = url;
+}
+
+
+/* =========================================================
+   APPLE SHORTCUT BRIDGE
+   ========================================================= */
+
+function runShortcut(name) {
+
+    log("Launching Shortcut: " + name);
+
+    const encoded =
+        encodeURIComponent(name);
+
+    const url =
+        `shortcuts://run-shortcut?name=${encoded}`;
+
+    window.location.href = url;
+}
+
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+
+function startTimer(seconds) {
+
+    clearInterval(timerInterval);
+
+    timerSeconds = Math.max(0, seconds);
+
+    updateTimer();
+
+    timerInterval =
+        setInterval(() => {
+
+            timerSeconds--;
+
+            updateTimer();
+
+            if (timerSeconds <= 0) {
+
+                clearInterval(timerInterval);
+
+                timerFinished();
+            }
+
+        },1000);
+}
+
+
+function updateTimer() {
+
+    const mins =
+        Math.floor(timerSeconds / 60)
+            .toString()
+            .padStart(2,"0");
+
+    const secs =
+        (timerSeconds % 60)
+            .toString()
+            .padStart(2,"0");
+
+    $("timerDisplay").textContent =
+        `${mins}:${secs}`;
+}
+
+
+function timerFinished() {
+
+    $("timerDisplay").textContent =
+        "00:00";
+
+    speak("Timer complete.");
+
+    if (settings.sound) {
+        beep();
+    }
+}
+
+
+function beep() {
+
+    try {
+
+        const ctx =
+            new AudioContext();
+
+        const osc =
+            ctx.createOscillator();
+
+        const gain =
+            ctx.createGain();
+
+        osc.frequency.value = 880;
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+
+        gain.gain.exponentialRampToValueAtTime(
+            .0001,
+            ctx.currentTime + .7
+        );
+
+        osc.stop(
+            ctx.currentTime + .7
+        );
+
+    } catch(e) {}
+}
+
+
+/* =========================================================
+   DEVICE INFORMATION
+   ========================================================= */
+
+function showDeviceInfo() {
+
+    const info = {
+
+        Browser:
+            navigator.userAgent,
+
+        Online:
+            navigator.onLine,
+
+        Language:
+            navigator.language,
+
+        Screen:
+            `${screen.width} × ${screen.height}`,
+
+        DevicePixelRatio:
+            window.devicePixelRatio,
+
+        Touch:
+            navigator.maxTouchPoints,
+
+        Platform:
+            navigator.platform || "Unknown"
+    };
+
+    const message =
+        `System online. Screen ${screen.width} by ${screen.height}. ` +
+        `Touch points available: ${navigator.maxTouchPoints}.`;
+
+    speak(message);
+
+    log(
+        JSON.stringify(info,null,2),
+        "DIAGNOSTIC"
+    );
+}
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+function toggleSetting(setting) {
+
+    settings[setting] =
+        !settings[setting];
+
+    const map = {
+
+        voice: "voiceSwitch",
+        sound: "soundSwitch",
+        wake: "wakeSwitch"
+    };
+
+    $(map[setting])
+        .classList
+        .toggle(
+            "on",
+            settings[setting]
+        );
+
+    localStorage.setItem(
+        "jarvisSettings",
+        JSON.stringify(settings)
+    );
+
+    log(
+        `${setting}: ${settings[setting] ? "ON" : "OFF"}`
+    );
+}
+
+
+function loadSettings() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "jarvisSettings"
+            );
+
+        if (!saved) return;
+
+        settings =
+            {
+                ...settings,
+                ...JSON.parse(saved)
+            };
+
+        for (const key of
+            ["voice","sound","wake"]) {
+
+            const map = {
+
+                voice:"voiceSwitch",
+                sound:"soundSwitch",
+                wake:"wakeSwitch"
+            };
+
+            $(map[key])
+                .classList
+                .toggle(
+                    "on",
+                    settings[key]
+                );
+        }
+
+    } catch(e) {}
+}
+
+
+/* =========================================================
+   REBOOT
+   ========================================================= */
+
+function rebootJarvis() {
+
+    speak("Reinitializing JARVIS.");
+
+    setTimeout(() => {
+
+        location.reload();
+
+    },1000);
+}
+
+
+/* =========================================================
+   ONLINE STATUS
+   ========================================================= */
+
+window.addEventListener(
+    "online",
+    () => {
+
+        $("statusText").textContent =
+            "ONLINE";
+
+        log("Network connection restored.");
+    }
+);
+
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        $("statusText").textContent =
+            "OFFLINE";
+
+        log("Network connection lost.","WARNING");
+    }
+);
+
+
+/* =========================================================
+   WAKE WORD MODE
+   ========================================================= */
+
+let wakeInterval = null;
+
+function updateWakeMode() {
+
+    if (!settings.wake) {
+
+        if (wakeInterval) {
+            clearInterval(wakeInterval);
+            wakeInterval = null;
+        }
+
+        return;
+    }
+
+    /*
+      Browsers do not provide a guaranteed always-on
+      wake-word engine. This mode therefore uses the
+      browser's speech recognition where supported.
+    */
+
+    if (!recognition) {
+
+        speak(
+            "Wake-word mode is not supported by this browser."
+        );
+
+        return;
+    }
+
+    speak(
+        "Wake-word mode enabled. Say JARVIS."
+    );
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "/" &&
+            document.activeElement !== $("commandInput")
+        ) {
+
+            event.preventDefault();
+
+            $("commandInput").focus();
+        }
+
+        if (
+            event.key === " " &&
+            event.ctrlKey
+        ) {
+
+            event.preventDefault();
+
+            toggleListening();
+        }
+    }
+);
+
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+loadSettings();
+
+log("J.A.R.V.I.S. initialized.");
+log("Command engine online.");
+log("Voice system initialized.");
+log("iPad browser interface ready.");
+
+setTimeout(() => {
+
+    if (settings.voice) {
+
+        speak(
+            "JARVIS online. All available systems are ready."
+        );
+    }
+
+},3500);
+
+</script>
+
+</body>
+</html>
