@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PrintSim 3D</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#090a0d;
+  color:#f5f5f7;
+}
+button,select,input{font:inherit}
+button{
+  border:0;
+  border-radius:12px;
+  padding:11px 15px;
+  background:#202329;
+  color:white;
+  cursor:pointer;
+}
+button:active{transform:scale(.97)}
+button.primary{background:#fff;color:#000;font-weight:700}
+button.danger{background:#5d2020}
+header{
+  padding:18px 20px;
+  border-bottom:1px solid #22252b;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  background:#090a0dee;
+  backdrop-filter:blur(15px);
+  z-index:5;
+}
+.logo{
+  font-size:22px;
+  font-weight:800;
+}
+.logo span{opacity:.45}
+main{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:330px 1fr;
+  gap:18px;
+}
+.card{
+  background:#111318;
+  border:1px solid #24272e;
+  border-radius:18px;
+  padding:18px;
+}
+.card h2{
+  margin:0 0 15px;
+  font-size:17px;
+}
+.preset{
+  padding:14px;
+  border:1px solid #292d35;
+  border-radius:13px;
+  margin-bottom:10px;
+  cursor:pointer;
+  background:#15171c;
+}
+.preset:hover{background:#1b1e24}
+.preset.active{
+  border-color:#fff;
+}
+.preset-name{
+  font-weight:700;
+}
+.small{
+  color:#8e939d;
+  font-size:13px;
+  margin-top:4px;
+}
+.preview{
+  height:390px;
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 50% 35%,#292d34 0,#121419 40%,#0c0d10 75%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.bed{
+  width:75%;
+  height:75%;
+  background:
+    linear-gradient(#ffffff0b 1px,transparent 1px),
+    linear-gradient(90deg,#ffffff0b 1px,transparent 1px);
+  background-size:20px 20px;
+  border:1px solid #444952;
+  transform:perspective(500px) rotateX(58deg) rotateZ(0deg);
+  position:absolute;
+  bottom:20px;
+}
+.model{
+  position:relative;
+  z-index:2;
+  width:120px;
+  height:120px;
+  background:linear-gradient(135deg,#eee,#777);
+  border-radius:18px;
+  box-shadow:0 20px 40px #0009;
+  transition:.3s;
+}
+.model.cube{border-radius:8px}
+.model.pot{
+  border-radius:10px 10px 35px 35px;
+  height:115px;
+}
+.model.stand{
+  width:150px;
+  height:80px;
+  border-radius:10px;
+  transform:skew(-10deg);
+}
+.model.fidget{
+  width:105px;
+  height:105px;
+  border-radius:25px;
+}
+.model.car{
+  width:160px;
+  height:70px;
+  border-radius:30px 30px 12px 12px;
+}
+.model.dino{
+  width:150px;
+  height:90px;
+  border-radius:45% 55% 30% 30%;
+}
+.model.figure{
+  width:80px;
+  height:150px;
+  border-radius:45px 45px 15px 15px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+.stat{
+  background:#17191e;
+  border-radius:12px;
+  padding:12px;
+}
+.stat b{
+  display:block;
+  font-size:18px;
+  margin-top:3px;
+}
+label{
+  display:block;
+  font-size:13px;
+  color:#9ca1aa;
+  margin:15px 0 7px;
+}
+select,input[type=range]{
+  width:100%;
+}
+select{
+  background:#191c21;
+  color:white;
+  border:1px solid #30343c;
+  border-radius:10px;
+  padding:10px;
+}
+.range-row{
+  display:flex;
+  justify-content:space-between;
+  color:#bbbfc6;
+  font-size:13px;
+}
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+.actions button{flex:1}
+.progress-wrap{
+  margin-top:16px;
+  display:none;
+}
+.progress{
+  height:12px;
+  background:#25282e;
+  border-radius:99px;
+  overflow:hidden;
+}
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:#fff;
+  transition:width .15s linear;
+}
+.print-status{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:7px;
+  font-size:13px;
+  color:#aaa;
+}
+.console{
+  margin-top:15px;
+  height:130px;
+  overflow:auto;
+  background:#08090b;
+  border:1px solid #20232a;
+  border-radius:12px;
+  padding:12px;
+  font-family:ui-monospace,monospace;
+  font-size:12px;
+  color:#aeb4bd;
+}
+@media(max-width:800px){
+  .grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .preview{height:300px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">PrintSim <span>3D</span></div>
+  <button onclick="resetSim()">Reset</button>
+</header>
+
+<main>
+
+<div class="grid">
+
+<section class="card">
+  <h2>📁 Preset Files</h2>
+
+  <div id="presetList"></div>
+
+  <div class="small">
+    Built-in simulated STL files
+  </div>
+</section>
+
+
+<section>
+
+<div class="card">
+
+<h2 id="modelTitle">Calibration Cube</h2>
+
+<div class="preview">
+  <div class="bed"></div>
+  <div id="model" class="model cube"></div>
+</div>
+
+<div class="stats">
+
+<div class="stat">
+  Time
+  <b id="time">18m</b>
+</div>
+
+<div class="stat">
+  Filament
+  <b id="filament">6g</b>
+</div>
+
+<div class="stat">
+  Cost
+  <b id="cost">$0.15</b>
+</div>
+
+<div class="stat">
+  Layers
+  <b id="layers">100</b>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card" style="margin-top:18px">
+
+<h2>⚙️ Slicer Settings</h2>
+
+<label>Layer Height</label>
+<select id="layerHeight">
+<option value="0.12">0.12 mm — Fine</option>
+<option value="0.16">0.16 mm — Quality</option>
+<option value="0.20" selected>0.20 mm — Standard</option>
+<option value="0.28">0.28 mm — Draft</option>
+</select>
+
+<label>Infill</label>
+<div class="range-row">
+<span>Density</span>
+<b id="infillValue">15%</b>
+</div>
+<input id="infill" type="range" min="0" max="100" value="15">
+
+<label>Print Speed</label>
+<div class="range-row">
+<span>Speed</span>
+<b id="speedValue">100%</b>
+</div>
+<input id="speed" type="range" min="25" max="200" value="100">
+
+<label>Filament</label>
+<select id="material">
+<option value="0.025">PLA — $25/kg</option>
+<option value="0.030">PETG — $30/kg</option>
+<option value="0.040">ABS — $40/kg</option>
+<option value="0.055">TPU — $55/kg</option>
+</select>
+
+<div class="actions">
+<button onclick="sliceModel()">Slice</button>
+<button class="primary" onclick="startPrint()">▶ Print</button>
+</div>
+
+<div id="progressWrap" class="progress-wrap">
+
+<div class="print-status">
+<span id="status">Preparing...</span>
+<span id="percent">0%</span>
+</div>
+
+<div class="progress">
+<div id="progressBar" class="progress-bar"></div>
+</div>
+
+<div class="console" id="console"></div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+
+<script>
+
+const presets = [
+
+{
+ name:"Calibration Cube",
+ file:"Calibration_Cube.stl",
+ type:"cube",
+ size:"20 × 20 × 20 mm",
+ time:18,
+ filament:6,
+ layers:100
+},
+
+{
+ name:"Mini Plant Pot",
+ file:"Mini_Plant_Pot.stl",
+ type:"pot",
+ size:"55 × 55 × 50 mm",
+ time:65,
+ filament:24,
+ layers:250
+},
+
+{
+ name:"Phone Stand",
+ file:"Phone_Stand.stl",
+ type:"stand",
+ size:"90 × 80 × 75 mm",
+ time:128,
+ filament:48,
+ layers:347
+},
+
+{
+ name:"Fidget Cube",
+ file:"Fidget_Cube.stl",
+ type:"fidget",
+ size:"40 × 40 × 40 mm",
+ time:95,
+ filament:31,
+ layers:240
+},
+
+{
+ name:"Mini Car",
+ file:"Mini_Car.stl",
+ type:"car",
+ size:"65 × 40 × 35 mm",
+ time:165,
+ filament:52,
+ layers:175
+},
+
+{
+ name:"Flexi Dino",
+ file:"Flexi_Dino.stl",
+ type:"dino",
+ size:"120 × 55 × 35 mm",
+ time:260,
+ filament:82,
+ layers:175
+},
+
+{
+ name:"Low Poly Figure",
+ file:"Low_Poly_Figure.stl",
+ type:"figure",
+ size:"100 × 70 × 150 mm",
+ time:310,
+ filament:105,
+ layers:750
+}
+
+];
+
+let selected = 0;
+let printing = false;
+let timer = null;
+
+const list = document.getElementById("presetList");
+
+function renderPresets(){
+
+  list.innerHTML="";
+
+  presets.forEach((p,i)=>{
+
+    const div=document.createElement("div");
+
+    div.className="preset"+(i===selected?" active":"");
+
+    div.innerHTML=`
+      <div class="preset-name">${p.name}</div>
+      <div class="small">${p.file}</div>
+      <div class="small">${p.size} • ${p.time} min</div>
+    `;
+
+    div.onclick=()=>{
+      if(printing)return;
+      selected=i;
+      renderPresets();
+      loadPreset();
+    };
+
+    list.appendChild(div);
+
+  });
+
+}
+
+function loadPreset(){
+
+  const p=presets[selected];
+
+  document.getElementById("modelTitle").textContent=p.name;
+
+  const model=document.getElementById("model");
+
+  model.className="model "+p.type;
+
+  updateStats();
+
+}
+
+function updateStats(){
+
+  const p=presets[selected];
+
+  const layer=parseFloat(
+    document.getElementById("layerHeight").value
+  );
+
+  const infill=parseInt(
+    document.getElementById("infill").value
+  );
+
+  const speed=parseInt(
+    document.getElementById("speed").value
+  );
+
+  let filament=p.filament;
+
+  filament*=0.65+(infill/100)*0.7;
+
+  filament*=0.20/layer;
+
+  let time=p.time;
+
+  time*=0.65+(infill/100)*0.7;
+
+  time*=layer/0.20;
+
+  time*=100/speed;
+
+  time=Math.max(2,Math.round(time));
+
+  const materialPrice=parseFloat(
+    document.getElementById("material").value
+  );
+
+  const cost=filament*materialPrice;
+
+  const layers=Math.round(
+    p.layers*(0.20/layer)
+  );
+
+  document.getElementById("time").textContent=formatTime(time);
+  document.getElementById("filament").textContent=filament.toFixed(1)+"g";
+  document.getElementById("cost").textContent="$"+cost.toFixed(2);
+  document.getElementById("layers").textContent=layers;
+
+}
+
+function formatTime(minutes){
+
+  if(minutes<60)return minutes+"m";
+
+  const h=Math.floor(minutes/60);
+  const m=minutes%60;
+
+  return h+"h "+m+"m";
+
+}
+
+document.getElementById("infill").oninput=e=>{
+  document.getElementById("infillValue").textContent=e.target.value+"%";
+  updateStats();
+};
+
+document.getElementById("speed").oninput=e=>{
+  document.getElementById("speedValue").textContent=e.target.value+"%";
+  updateStats();
+};
+
+document.getElementById("layerHeight").onchange=updateStats;
+document.getElementById("material").onchange=updateStats;
+
+
+function log(text){
+
+  const box=document.getElementById("console");
+
+  const line=document.createElement("div");
+
+  line.textContent="> "+text;
+
+  box.appendChild(line);
+
+  box.scrollTop=box.scrollHeight;
+
+}
+
+
+function sliceModel(){
+
+  if(printing)return;
+
+  const p=presets[selected];
+
+  const wrap=document.getElementById("progressWrap");
+
+  wrap.style.display="block";
+
+  document.getElementById("status").textContent="Slicing...";
+
+  document.getElementById("percent").textContent="";
+
+  document.getElementById("progressBar").style.width="0%";
+
+  document.getElementById("console").innerHTML="";
+
+  log("Loading "+p.file);
+  log("Analyzing geometry...");
+  log("Generating walls...");
+  log("Generating infill...");
+  log("Generating travel moves...");
+
+  setTimeout(()=>{
+
+    log("Slice complete.");
+    log("Ready to print.");
+
+    document.getElementById("status").textContent="Ready";
+
+  },1200);
+
+}
+
+
+function startPrint(){
+
+  if(printing)return;
+
+  printing=true;
+
+  const p=presets[selected];
+
+  const wrap=document.getElementById("progressWrap");
+
+  wrap.style.display="block";
+
+  document.getElementById("console").innerHTML="";
+
+  let progress=0;
+
+  const speed=parseInt(
+    document.getElementById("speed").value
+  );
+
+  const layerHeight=parseFloat(
+    document.getElementById("layerHeight").value
+  );
+
+  const infill=parseInt(
+    document.getElementById("infill").value
+  );
+
+  const totalLayers=Math.round(
+    p.layers*(0.20/layerHeight)
+  );
+
+  log("Starting printer...");
+  log("Heating nozzle to 210°C...");
+  log("Heating bed to 60°C...");
+
+  setTimeout(()=>{
+
+    log("Nozzle temperature reached.");
+    log("Bed temperature reached.");
+    log("Homing axes...");
+    log("Starting print.");
+
+    timer=setInterval(()=>{
+
+      progress+=0.35*(speed/100);
+
+      if(progress>=100){
+        progress=100;
+        clearInterval(timer);
+        finishPrint();
+      }
+
+      const layer=Math.min(
+        totalLayers,
+        Math.floor(totalLayers*progress/100)
+      );
+
+      document.getElementById("progressBar")
+        .style.width=progress+"%";
+
+      document.getElementById("percent")
+        .textContent=Math.floor(progress)+"%";
+
+      document.getElementById("status")
+        .textContent=
+        "Layer "+layer+" / "+totalLayers;
+
+      if(Math.random()<0.025){
+
+        const problems=[
+          "Checking extrusion...",
+          "Tiny travel move detected.",
+          "Cooling fan adjusted.",
+          "Auto-calibrating extrusion.",
+          "Inspecting first layer..."
+        ];
+
+        log(problems[
+          Math.floor(Math.random()*problems.length)
+        ]);
+
+      }
+
+    },100);
+
+  },1200);
+
+}
+
+
+function finishPrint(){
+
+  printing=false;
+
+  document.getElementById("status")
+    .textContent="Print complete!";
+
+  document.getElementById("percent")
+    .textContent="100%";
+
+  document.getElementById("progressBar")
+    .style.width="100%";
+
+  log("Print finished successfully.");
+  log("Cooling nozzle...");
+  log("Cooling bed...");
+  log("Model ready to remove.");
+
+  const model=document.getElementById("model");
+
+  model.style.transform="translateY(-5px)";
+
+}
+
+
+function resetSim(){
+
+  if(timer)clearInterval(timer);
+
+  printing=false;
+
+  document.getElementById("progressWrap").style.display="none";
+
+  document.getElementById("console").innerHTML="";
+
+  document.getElementById("model").style.transform="";
+
+}
+
+
+renderPresets();
+loadPreset();
+
+</script>
+
+</body>
+</html>
